@@ -1,0 +1,23 @@
+# sqlalchemy==2.0.49
+# google-genai==0.1.0
+#yt-dlp==2026.3.17
+# geopandas
+# matplotlib
+# playwright
+# chromium
+yt_dlp
+langchain-ollama
+langchain-community
+nest_asyncio
+langchain
+playwright
+deepagents
+langchain[google-genai]
+deepagents[ollama]
+dacite 
+tavily-python 
+python-dotenv
+beautifulsoup4
+asyncio
+langchain-tavily
+python-dotenv

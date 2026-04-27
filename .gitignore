@@ -1,0 +1,13 @@
+src/.env
+.env
+venv/
+.env/
+env/
+.venv/
+
+.coverage 
+htmlcov/
+.pytest_cache/
+
+.vscode/
+.idea/
