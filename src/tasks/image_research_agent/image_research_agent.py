@@ -43,7 +43,7 @@ def main(event_id=0):
         "event_date":w.date,
         "url":e.url,
         "url_facebook":e.url_facebook,
-        "url_facebook":e.url_instagram
+        "url_instagram":e.url_instagram
     }
 
     media_list = run_agent_sync(user_prompt_params=user_prompt_params, ReturnClass=MediaList, prompt_dir=Path(__file__).parent.resolve())
@@ -51,6 +51,7 @@ def main(event_id=0):
 
     
 if __name__ == "__main__":
+    load_dotenv()
     session = next(get_db())
     event_id = session.query(Events.id).first()[0]
     main(event_id=event_id)
