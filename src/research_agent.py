@@ -37,7 +37,7 @@ async def run_agent(user_prompt_params: dict = {"town_name": "Batavia", "town_st
         # exclude_domains=None
     )]
     
-    async_browser = create_async_playwright_browser(headless=False, args=[])
+    async_browser = create_async_playwright_browser(headless=True, args=[])
     
     toolkit = PlayWrightBrowserToolkit.from_browser(async_browser=async_browser)
     browser_tools = toolkit.get_tools()
