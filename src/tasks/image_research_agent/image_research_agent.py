@@ -51,6 +51,7 @@ def main(event_id=0):
 
     
 if __name__ == "__main__":
+    from dotenv import load_dotenv
     load_dotenv()
     session = next(get_db())
     event_id = session.query(Events.id).first()[0]
