@@ -1,4 +1,4 @@
-import tasks.get_town_events.event_research_agent as event_research_agent
+import tasks.event_research_agent.event_research_agent as event_research_agent
 
 from tables import Base
 from sqlalchemy import create_engine
