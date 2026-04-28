@@ -2,5 +2,5 @@ Provide screenshots images for the event {event_name} in {town_name}, {town_stat
 
 Websites associated with the event are:
 url: {url}
-facebook_url: {facebook_url}
-instagram_url: {instagram_url}
+url_facebook_url: {url_facebook}
+url_instagram_url: {url_instagram}

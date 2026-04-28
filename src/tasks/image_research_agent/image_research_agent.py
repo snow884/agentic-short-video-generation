@@ -42,8 +42,8 @@ def main(event_id=0):
         "town_state":t.state,
         "event_date":w.date,
         "url":e.url,
-        "facebook_url":e.facebook_url,
-        "instagram_url":e.instagram_url
+        "url_facebook":e.url_facebook,
+        "url_facebook":e.url_instagram
     }
 
     media_list = run_agent_sync(user_prompt_params=user_prompt_params, ReturnClass=MediaList, prompt_dir=Path(__file__).parent.resolve())
