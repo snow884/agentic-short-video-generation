@@ -14,6 +14,7 @@ from pathlib import Path
 from tables import EventList
 
 
+
 def populate_db_with_events(event_list: EventList, town_id: int, weekend_id: int):
 
     session = next(get_db())
@@ -39,5 +40,6 @@ def main(town_id=0, weekend_id=0):
     event_list = run_agent_sync(user_prompt_params={"town_name": t.name, "town_state": t.state, "weekend_date": w.date}, ReturnClass=EventList, prompt_dir=Path(__file__).parent.resolve())
     populate_db_with_events(event_list, town_id=town_id, weekend_id=weekend_id)
 
+    
 if __name__ == "__main__":
     main()
