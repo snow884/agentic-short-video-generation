@@ -43,7 +43,7 @@ async def run_agent(user_prompt_params: dict = {"town_name": "Batavia", "town_st
     browser_tools = toolkit.get_tools()
 
     model = ChatOllama(
-        model="gemma4:31b",
+        model="gemma4:e4b",
         reasoning=True,
         temperature=0,
     )
