@@ -20,3 +20,4 @@ populate_weekends()
 populate_towns()
 
 event_research_agent.main(town_id=1, weekend_id=1)
+
