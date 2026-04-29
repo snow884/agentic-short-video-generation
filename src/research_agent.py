@@ -13,8 +13,7 @@ from langchain_community.agent_toolkits import PlayWrightBrowserToolkit
 from langchain_community.tools.playwright.utils import (
     create_async_playwright_browser,  
 )
-from deepagents.backends.composite import CompositeBackend
-
+from deepagents.backends.filesystem import FilesystemBackend
 import os
 
 import asyncio
@@ -23,6 +22,10 @@ import nest_asyncio
 nest_asyncio.apply()
 
 from langchain.agents.middleware import ToolRetryMiddleware
+
+from deepagents.backends import CompositeBackend, StateBackend, StoreBackend
+from langgraph.store.memory import InMemoryStore
+
 
 async def run_agent(user_prompt_params: dict = {"town_name": "Batavia", "town_state": "NY", "weekend_date": "2026-05-16"}, system_prompt_params: dict = {}, ReturnClass=None, prompt_dir=None, target_directory="./agent_outputs"):
     
@@ -58,6 +61,8 @@ async def run_agent(user_prompt_params: dict = {"town_name": "Batavia", "town_st
     
     os.makedirs(target_directory, exist_ok=True)
     
+    persistent_backend = FilesystemBackend(root_dir="/Users/adamivansky/Documents/Python/agentic_tasks/agentic-tasks/agent_outputs/")
+    
     agent_chain = create_deep_agent(
         model=model,
         tools=browser_tools+tavity_tools,
@@ -70,7 +75,12 @@ async def run_agent(user_prompt_params: dict = {"town_name": "Batavia", "town_st
                 initial_delay=1.0,
             )
         ],
-        backend = CompositeBackend(artifacts_root=target_directory),
+        backend=CompositeBackend(
+            default=StateBackend(),
+            routes={
+                "/memories/": FilesystemBackend(root_dir=prompt_dir / "memories", virtual_mode=True),
+            },
+        ),
         debug = True
     )
     result = await agent_chain.ainvoke(
