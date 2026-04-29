@@ -73,6 +73,10 @@ async def run_agent(user_prompt_params: dict = {"town_name": "Batavia", "town_st
     result = await agent_chain.ainvoke(
         {"messages": [("user", PromptTemplate.from_file(prompt_dir / "user_prompt.md").format(**user_prompt_params))]}
     )
+    print(result["structured_response"])
+    asdfasfassf
+    if "structured_response" in result:
+        return result["structured_response"]
     
     str = result["messages"][-1].content
     json_start = str.replace("```json", "").replace("```", "")

@@ -4,7 +4,7 @@ from sqlalchemy import create_engine
 
 from tables import Base, Towns, Weekends
 
-engine = create_engine('sqlite:///local.db', echo=False) # echo=True shows SQL logs
+engine = create_engine('sqlite:///data/local.db', echo=False) # echo=True shows SQL logs
 
 def get_db():
     db = Session(engine)

@@ -52,7 +52,7 @@ def populate_db_with_events(media_list: MediaList, event_id: int):
         print("Adding the media " + new_media["title"] + " - " + new_media["description"])
         url = new_media["media_url"]
     
-        success, file_path = download_file(url, base_filename=f"images/event_{event_id}_media_{hashlib.sha256(str(new_media).encode()).hexdigest()}")
+        success, file_path = download_file(url, base_filename=f"data/images/event_{event_id}_media_{hashlib.sha256(str(new_media).encode()).hexdigest()}")
         if success:
             new_media['file_path'] = file_path
             new_media_sql = Media(**new_media)

@@ -7,8 +7,8 @@ import nest_asyncio
 from research_agent import run_agent_sync
 
 
-from sql_utils import get_db
-from tables import Events, Towns, Weekends
+from sql_utils import get_db, populate_towns, populate_weekends
+from tables import Base, Events, Towns, Weekends
 
 from pathlib import Path
 from tables import EventList
@@ -40,4 +40,20 @@ def main(town_id=0, weekend_id=0):
     populate_db_with_events(event_list, town_id=town_id, weekend_id=weekend_id)
 
 if __name__ == "__main__":
-    main()
+    from dotenv import load_dotenv
+    from sqlalchemy import create_engine
+
+
+    engine = create_engine('sqlite:///data/local.db', echo=False) # echo=True shows SQL logs
+
+    load_dotenv()
+
+    def create_tables():
+            
+        Base.metadata.create_all(engine) 
+
+    create_tables()
+    populate_weekends()
+    populate_towns()
+
+    main(town_id=1, weekend_id=1)
