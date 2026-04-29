@@ -13,3 +13,4 @@ htmlcov/
 .idea/
 .pyc
 *.pyc
+__pycache__/
