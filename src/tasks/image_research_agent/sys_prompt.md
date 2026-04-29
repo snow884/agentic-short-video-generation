@@ -16,6 +16,7 @@
         * Images that only include text
         * Images the only include simple drawings
         * Clipart
+        * Company or other logos 
         
     Steps:
 
