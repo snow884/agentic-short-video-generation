@@ -13,6 +13,7 @@ from langchain_community.agent_toolkits import PlayWrightBrowserToolkit
 from langchain_community.tools.playwright.utils import (
     create_async_playwright_browser,  
 )
+from deepagents.backends.filesystem import FilesystemBackend
 import os
 
 import asyncio
@@ -21,9 +22,9 @@ import nest_asyncio
 nest_asyncio.apply()
 
 from langchain.agents.middleware import ToolRetryMiddleware
+from deepagents.backends.filesystem import FilesystemBackend
 
-
-async def run_agent(user_prompt_params: dict = {"town_name": "Batavia", "town_state": "NY", "weekend_date": "2026-05-16"}, system_prompt_params: dict = {}, ReturnClass=None, prompt_dir=None):
+async def run_agent(user_prompt_params: dict = {"town_name": "Batavia", "town_state": "NY", "weekend_date": "2026-05-16"}, system_prompt_params: dict = {}, ReturnClass=None, prompt_dir=None, target_directory="./agent_outputs"):
     
     tavity_tools = [TavilySearch(
         max_results=5,
@@ -55,19 +56,21 @@ async def run_agent(user_prompt_params: dict = {"town_name": "Batavia", "town_st
     
     print(PromptTemplate.from_file(prompt_dir / "sys_prompt.md").format(tavity_tools_str=tavity_tools_str, browser_tools_str=browser_tools_str))
     
+    os.makedirs(target_directory, exist_ok=True)
+    
     agent_chain = create_deep_agent(
         model=model,
         tools=browser_tools+tavity_tools,
         system_prompt=PromptTemplate.from_file(prompt_dir / "sys_prompt.md").format(tavity_tools_str=tavity_tools_str, browser_tools_str=browser_tools_str),
         response_format=ReturnClass,
         middleware=[
-        ToolRetryMiddleware(
-            max_retries=3,
-            backoff_factor=2.0,
-            initial_delay=1.0,
-        ),
-        
-    ],
+            ToolRetryMiddleware(
+                max_retries=3,
+                backoff_factor=2.0,
+                initial_delay=1.0,
+            )
+        ],
+        backend = FilesystemBackend(root_dir=target_directory),
         debug = True
     )
     result = await agent_chain.ainvoke(

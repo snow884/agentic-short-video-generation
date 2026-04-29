@@ -145,7 +145,8 @@ class MediaSchema(BaseModel):
     description: str
     title: str
 
-
+@dataclass_json
+@dataclass
 class MediaList(BaseModel):
     model_config = ConfigDict(arbitrary_types_allowed=True)
     
