@@ -13,7 +13,7 @@ from langchain_community.agent_toolkits import PlayWrightBrowserToolkit
 from langchain_community.tools.playwright.utils import (
     create_async_playwright_browser,  
 )
-from deepagents.backends.filesystem import FilesystemBackend
+from deepagents.backends.filesystem import CompositeBackend
 import os
 
 import asyncio
@@ -22,7 +22,6 @@ import nest_asyncio
 nest_asyncio.apply()
 
 from langchain.agents.middleware import ToolRetryMiddleware
-from deepagents.backends.filesystem import FilesystemBackend
 
 async def run_agent(user_prompt_params: dict = {"town_name": "Batavia", "town_state": "NY", "weekend_date": "2026-05-16"}, system_prompt_params: dict = {}, ReturnClass=None, prompt_dir=None, target_directory="./agent_outputs"):
     
@@ -70,7 +69,7 @@ async def run_agent(user_prompt_params: dict = {"town_name": "Batavia", "town_st
                 initial_delay=1.0,
             )
         ],
-        backend = FilesystemBackend(root_dir=target_directory),
+        backend = CompositeBackend(root_dir=target_directory),
         debug = True
     )
     result = await agent_chain.ainvoke(
