@@ -18,7 +18,7 @@ import os
 
 import asyncio
 import nest_asyncio
-
+from pydantic import TypeAdapter
 nest_asyncio.apply()
 
 from langchain.agents.middleware import ToolRetryMiddleware
@@ -61,7 +61,7 @@ async def run_agent(user_prompt_params: dict = {"town_name": "Batavia", "town_st
         model=model,
         tools=browser_tools+tavity_tools+extra_tools,
         system_prompt=PromptTemplate.from_file(prompt_dir / "sys_prompt.md").format(tavity_tools_str=tavity_tools_str, browser_tools_str=browser_tools_str),
-        response_format=ReturnClass,
+        response_format=TypeAdapter(ReturnClass).schema_json(),
         middleware=[
         ToolRetryMiddleware(
             max_retries=3,
