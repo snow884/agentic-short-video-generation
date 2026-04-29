@@ -7,7 +7,7 @@ from sql_utils import populate_towns, populate_weekends
 
 from dotenv import load_dotenv
 
-engine = create_engine('sqlite:///local.db', echo=False) # echo=True shows SQL logs
+engine = create_engine('sqlite:///data/local.db', echo=False) # echo=True shows SQL logs
 
 load_dotenv()
 
