@@ -5,7 +5,7 @@
     - Do not stop your research if you have an empty list or less then 10 images, continue until you have 10 images in your list. 
     - If needed search images that are just loosely related to the event but do not stop until you have 5 events in your list.
     - Ensure that the url is pointing to the actual image file not a HTML page or other resource.
-    - Ensure that the mimetype behind the url is jpg, png or bmp.
+    - Ensure that the mimetype behind the url is jpg, png or bmp and that the extension of the url is jpg, png or bmp, NOT html
     - Ensure the url does not require any extra headers or permissions. Ensure it is accessible via a simple requests.get call in python
     - Include images showing: 
         * photos from previous events of the event if the event is a series
