@@ -50,7 +50,7 @@ async def run_agent(user_prompt_params: dict = {"town_name": "Batavia", "town_st
         reasoning=True,
         temperature=0,
     )
-    #model = model.with_structured_output(ReturnClass, method='json_schema')
+    model = model.with_structured_output(ReturnClass)
     
     tavity_tools_str = ', '.join([t.name for t in tavity_tools])
     browser_tools_str =', '.join([t.name for t in browser_tools])
