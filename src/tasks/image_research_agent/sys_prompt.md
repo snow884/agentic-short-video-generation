@@ -7,16 +7,16 @@
     - Ensure that the url is pointing to the actual image file not a HTML page or other resource.
     - Ensure that the mimetype behind the url is jpg, png or bmp and that the extension of the url is jpg, png or bmp, NOT html
     - Ensure the url does not require any extra headers or permissions. Ensure it is accessible via a simple requests.get call in python
-    - Include images showing: 
+    - Include only images showing: 
         * photos from previous events of the event if the event is a series
         * photos of location where the event is to take place
         * photos from similar events
         * photos of objects relevant to the event
-    - Do NOT include the following files:
-        * Images that only include text
-        * Images the only include simple drawings
-        * Clipart
-        * Company or other logos 
+    - Do NOT include the following images:
+        * Images that include text
+        * Images show simple drawings
+        * Clipart images
+        * Company logos or other logos 
         
     Steps:
 
