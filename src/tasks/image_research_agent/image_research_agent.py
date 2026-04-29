@@ -15,6 +15,7 @@ from pathlib import Path
 from tables import MediaList
 
 import requests
+import hashlib
 
 def download_file(url, base_filename="downloaded_file"):
     # 1. Fetch the file with streaming enabled
@@ -43,10 +44,10 @@ def populate_db_with_events(media_list: MediaList, event_id: int):
     session = next(get_db())
     
     for new_media in media_list.media:
-        print("Adding the media ", new_media.media_name)
-        url = new_media.media_url
-
-        success, file_path = download_file(url, base_filename=f"images/event_{event_id}_media_{new_media.id}")
+        print("Adding the media ", new_media["title"])
+        url = new_media["media_url"]
+    
+        success, file_path = download_file(url, base_filename=f"images/event_{event_id}_media_{hashlib.sha256(str(new_media).encode()).hexdigest()}")
         if success:
             new_media.file_path = file_path
             new_media_sql = Events(**asdict(new_media))
