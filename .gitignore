@@ -14,3 +14,4 @@ htmlcov/
 .pyc
 *.pyc
 __pycache__/
+*.cpython-312.pyc
