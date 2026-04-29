@@ -19,6 +19,7 @@ import hashlib
 
 def download_file(url, base_filename="downloaded_file"):
     # 1. Fetch the file with streaming enabled
+    print(f"Downloading file from URL: {url}")
     response = requests.get(url, stream=True)
     response.raise_for_status()  # Check for HTTP errors
 
