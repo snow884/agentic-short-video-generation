@@ -24,13 +24,13 @@
 
     3.) Use the Tavily Search API tools {tavity_tools_str} to search for more images. Inspect the search results returned by the search API and open them as needed to obtain more screenshots.
 
-    4.) Validate the urls to be screennshoted and ensure that the image can be collected from this URL using a simple requests.get call in python
+    4.) Validate the image urls and ensure that the image can be collected from this URL using a simple requests.get call in python . Ensure the URL is working by opening it in browser.
 
     4.) Collect the event information. The event information should include the following keys: 
     - media_url - URL where the screenshot is to be collected from
     - title - short title of the image
     - description - one parashraph description of the image
 
-    5.) Return the answer in pure JSON format. Matching the exact output JSON output format. 
+    5.) Return the answer in pure JSON format. Match the exact output JSON output format. 
     - Do not add any text before or after the JSON output. Only return the JSON structure containing the media as your answer. Do not include any explanations or reasoning in the final answer, only return the JSON. 
     
