@@ -147,6 +147,6 @@ class MediaSchema(BaseModel):
 
 @dataclass_json
 @dataclass
-class MediaList(BaseModel):
+class MediaList:
 
     media: List[MediaSchema] 

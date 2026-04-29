@@ -11,7 +11,8 @@
         * photos of objects relevant to the event
     - Do not include:
         * Images that only include text
-        * IMages the only include simple drawings
+        * Images the only include simple drawings
+        * Clipart
         
     Steps:
 
