@@ -35,4 +35,4 @@
 
     5.) Validate the image urls and ensure that the image can be collected from this URL using a simple requests.get call in python . Ensure the URL is working by opening it in browser. Ensure that the image is of the type jpg, png or bmp.
 
-    
+    6.) Return a structured response
