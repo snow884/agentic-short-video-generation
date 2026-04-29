@@ -11,3 +11,4 @@ htmlcov/
 
 .vscode/
 .idea/
+.pyc
