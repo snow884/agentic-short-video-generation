@@ -13,7 +13,8 @@ from langchain_community.agent_toolkits import PlayWrightBrowserToolkit
 from langchain_community.tools.playwright.utils import (
     create_async_playwright_browser,  
 )
-from deepagents.backends.filesystem import CompositeBackend
+from deepagents.backends.composite import CompositeBackend
+
 import os
 
 import asyncio
@@ -69,7 +70,7 @@ async def run_agent(user_prompt_params: dict = {"town_name": "Batavia", "town_st
                 initial_delay=1.0,
             )
         ],
-        backend = CompositeBackend(root_dir=target_directory),
+        backend = CompositeBackend(artifacts_root=target_directory),
         debug = True
     )
     result = await agent_chain.ainvoke(
