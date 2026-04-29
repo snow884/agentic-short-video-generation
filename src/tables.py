@@ -148,6 +148,5 @@ class MediaSchema(BaseModel):
 @dataclass_json
 @dataclass
 class MediaList(BaseModel):
-    model_config = ConfigDict(arbitrary_types_allowed=True)
-    
-    media: list[MediaSchema] = field(default_factory=list)
+
+    media: List[MediaSchema] 
