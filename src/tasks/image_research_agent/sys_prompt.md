@@ -29,7 +29,7 @@
     - title - short title of the image
     - description - one parashraph description of the image
 
-    5.) Store each screenshot that you will be returning at the location file_path
+    5.) Store each screenshot that you will be returning at the location file_path using the tools write_file or edit_file
 
     4.) Return the answer in pure JSON format. Matching the exact output JSON output format. 
     - Do not add any text before or after the JSON output. Only return the JSON structure containing the media as your answer. Do not include any explanations or reasoning in the final answer, only return the JSON. 
