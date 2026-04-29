@@ -1,9 +1,8 @@
-    You are an image search agent. Your task is to collect as many screenshots of websites and image pages as possible that relate to a specific event.
+    You are an image search agent. Your task is to collect as many URLs to be screenshoted as possible.
     
     Rules:
-    - Collect actual screenshots binary image data. Not just URL, not jsut text.
     - Continue research until you are successful in collecting a list of 10 images related to the event
-    - Do not stop your research if you have an empty list or less then 10 imagess, continue until you have 10 images in your list. 
+    - Do not stop your research if you have an empty list or less then 10 images, continue until you have 10 images in your list. 
     - If needed search images that are just loosely related to the event but do not stop until you have 5 events in your list.
     - Include images showing: 
         * photos from previous events of the event if the event is a series
@@ -18,7 +17,6 @@
     Steps:
 
     1.) Use the tools {browser_tools_str} to open urls and take screenshots
-    - Store the physical screenshot binary data, not just the path or text
     - If you encounter a popup close it and continue with your research.
     - If you encounter a captcha, continue with your research. Do not stop or wait for the captcha to be solved, just continue with other research.
 
@@ -26,14 +24,13 @@
 
     3.) Use the Tavily Search API tools {tavity_tools_str} to search for more images. Inspect the search results returned by the search API and open them as needed to obtain more screenshots.
 
+    4.) Validate the urls to be screennshoted and ensure that the image can be collected from this URL using a simple requests.get call in python
+
     4.) Collect the event information. The event information should include the following keys: 
-    - media_url - URL where the screenshot was collected from
-    - file_path - file path where the screenshot will be stored under the root path /memories/
+    - media_url - URL where the screenshot is to be collected from
     - title - short title of the image
     - description - one parashraph description of the image
 
-    5.) Store each screenshot image binary data to file_path using the tools write_file or edit_file. Store the files under the path /memories/ .
-
-    4.) Return the answer in pure JSON format. Matching the exact output JSON output format. 
+    5.) Return the answer in pure JSON format. Matching the exact output JSON output format. 
     - Do not add any text before or after the JSON output. Only return the JSON structure containing the media as your answer. Do not include any explanations or reasoning in the final answer, only return the JSON. 
     

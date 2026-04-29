@@ -1,5 +1,6 @@
 
 from dataclasses import asdict
+import mimetypes
 
 
 import nest_asyncio
@@ -13,6 +14,28 @@ from tables import Events, Towns, Weekends
 from pathlib import Path
 from tables import MediaList
 
+import requests
+
+def download_file(url, base_filename="downloaded_file"):
+    # 1. Fetch the file with streaming enabled
+    response = requests.get(url, stream=True)
+    response.raise_for_status()  # Check for HTTP errors
+
+    # 2. Infer extension from Content-Type header
+    content_type = response.headers.get('content-type', '').split(';')[0]
+    extension = mimetypes.guess_extension(content_type) or ''
+    
+    # 3. Construct filename and save
+    filename = f"{base_filename}{extension}"
+    with open(filename, 'wb') as f:
+        for chunk in response.iter_content(chunk_size=8192):
+            if chunk:
+                f.write(chunk)
+                
+    print(f"File saved as: {filename}")
+    
+    return True, filename
+    
 
 
 def populate_db_with_events(media_list: MediaList, event_id: int):
@@ -21,10 +44,15 @@ def populate_db_with_events(media_list: MediaList, event_id: int):
     
     for new_media in media_list.media:
         print("Adding the media ", new_media.media_name)
-        new_media_sql = Events(**asdict(new_media))
-        new_media_sql.event_id = event_id
-        session.add(new_media_sql)
-        
+        url = new_media.media_url
+
+        success, file_path = download_file(url, base_filename=f"images/event_{event_id}_media_{new_media.id}")
+        if success:
+            new_media.file_path = file_path
+            new_media_sql = Events(**asdict(new_media))
+            new_media_sql.event_id = event_id
+            session.add(new_media_sql)
+            
     session.commit()
     
     session.close()
@@ -48,7 +76,7 @@ def main(event_id=0):
 
     media_list = run_agent_sync(user_prompt_params=user_prompt_params, ReturnClass=MediaList, prompt_dir=Path(__file__).parent.resolve())
     populate_db_with_events(media_list, event_id=event_id)
-
+    
     
 if __name__ == "__main__":
     from dotenv import load_dotenv
