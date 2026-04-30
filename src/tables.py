@@ -116,11 +116,23 @@ class VideoSegments(Base):
     __tablename__ = "video_segments"
 
     id = Column(Integer, primary_key=True)
-    town_id = Column(Integer, ForeignKey('towns.id'))
-    weekend_id = Column(Integer, ForeignKey('weekends.id'))
     event_id = Column(Integer, ForeignKey('events.id'))
     script_text = Column(String, default="")
-    media_ids = Column(String, default="")
+    media_id = Column(Integer, ForeignKey('media.id'))
+
+class VideoSegmentsSchema(BaseModel):
+    model_config = ConfigDict(arbitrary_types_allowed=True)
+
+    event_id: int
+    script_text: str
+    media_id: int
+
+
+@dataclass_json
+@dataclass
+class VideoSegmentsList:
+
+    video_segments: List[VideoSegmentsSchema] 
 
 class MediaType(enum.Enum):
     RELATED_IMAGES = "related_images"
@@ -137,9 +149,9 @@ class Media(Base):
     description = Column(String, default="")
     title = Column(String, default="")
 
-class MediaSchema(BaseModel):
-    model_config = ConfigDict(arbitrary_types_allowed=True)
-
+@dataclass_json
+@dataclass
+class MediaSchema:
     media_url: str
     file_path: str
     description: str
