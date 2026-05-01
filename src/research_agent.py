@@ -85,7 +85,9 @@ async def run_agent(user_prompt_params: dict = {"town_name": "Batavia", "town_st
     
     print("Raw response: ", json_start)
     
-    typed_response = ReturnClass(**json_start)
+    dict_start = json.loads(json_start)
+    
+    typed_response = ReturnClass(**dict_start)
 
     return typed_response
 
