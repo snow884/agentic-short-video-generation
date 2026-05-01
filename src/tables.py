@@ -144,7 +144,6 @@ class Image(Base):
 
 class ImageSchema(BaseModel):
     image_url: str
-    file_path: str
     description: str
     title: str
 
