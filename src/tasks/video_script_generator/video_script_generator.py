@@ -3,6 +3,7 @@ from dataclasses import asdict
 import json
 
 
+from importlib.metadata.diagnose import inspect
 import nest_asyncio
 
 from research_agent import run_agent_sync
@@ -15,6 +16,9 @@ from pathlib import Path
 from tables import VideoSegmentsList
 
 from llm import chat_ollama_with_structured_output
+
+def object_as_dict(obj):
+    return {c.key: getattr(obj, c.key) for c in inspect(obj).mapper.column_attrs}
 
 
 def populate_db_with_events(segments_list: VideoSegmentsList, event_id: int, weekend_id: int):
@@ -47,7 +51,7 @@ def main(weekend_id=0, town_id=0):
     t = session.query(Towns).filter(Towns.id==town_id).first()
     
     chat_ollama_with_structured_output(
-        user_prompt_params={"town_name": t.name, "state": t.state, "weekend_date": w.date, "event_list":json.dumps([e._asdict() for e in events]), "media_list": json.dumps([m._asdict() for m in media])  },
+        user_prompt_params={"town_name": t.name, "state": t.state, "weekend_date": w.date, "event_list":json.dumps([object_as_dict(e) for e in events]), "media_list": json.dumps([object_as_dict(m) for m in media])  },
         system_prompt_params={}, 
         return_class=VideoSegmentsList, 
         prompt_dir=Path(__file__).parent.resolve()
