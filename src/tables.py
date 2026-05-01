@@ -121,6 +121,7 @@ class VideoSegmentsSchema(BaseModel):
     event_id: int
     script_text: str
     Image_id: int
+    timestamp: int
 
 
 class VideoSegmentsList(BaseModel):
