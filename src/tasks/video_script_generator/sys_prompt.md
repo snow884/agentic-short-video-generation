@@ -8,7 +8,7 @@ User will provide you with a town name, weekend date, list of events that are pl
 
 Provide a script for a 3 minute video. 
 
-Ensure that the text you are including matches the time period between the current and the next timestamp.
+Ensure that the text you are including matches the time period between the current and the next timestamp. Do ot include music information or any other details, just: text, image, timestamp.
 
-Your answer will contain an array of elements containing timestamp, text and image id. Your answer will be used to generate video.
-
+Return the answer in pure JSON format. Matching the exact output JSON output format including the json nesting. 
+Do not add any text before or after the JSON output. Only return the JSON structure containing the images as your answer. Do not include any explanations or reasoning in the final answer, only return the JSON.
