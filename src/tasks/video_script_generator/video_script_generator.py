@@ -50,7 +50,7 @@ def check_text_spoken_length_matches_timestamps(segments_list: VideoSegmentsList
     print(f"Checking segments length relative to timestamps for {segments_list}...")
     
     if not segments_list:
-        return "No scripts segments to check."
+        return "You provided an empty value. No scripts segments to check."
         
     for i, segment in enumerate(segments_list.video_segments):
         if i > 0 and abs(((len(segment.script_text.split(' '))) / ((segment.timestamp - segments_list.video_segments[i-1].timestamp) * 2))-1)>0.05 :  # Assuming 2 words per second as a speaking rate
