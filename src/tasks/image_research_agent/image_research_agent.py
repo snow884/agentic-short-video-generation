@@ -48,7 +48,7 @@ def populate_db_with_events(Image_list: ImageList, event_id: int):
 
     session = next(get_db())
     
-    for new_Image in Image_list.Image:
+    for new_Image in Image_list.images:
         print("Adding the Image " + new_Image["title"] + " - " + new_Image["description"])
         url = new_Image["Image_url"]
     
