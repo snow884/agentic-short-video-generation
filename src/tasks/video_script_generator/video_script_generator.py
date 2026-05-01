@@ -42,7 +42,7 @@ def main(weekend_id=0, town_id=0):
     session = next(get_db())
     
     events = session.query(Events).filter(Events.weekend_id==weekend_id, Events.town_id==town_id).all()
-    Image = session.query(Image).join(Events).filter(Image.event_id.in_([event.id for event in events])).all()
+    images = session.query(Image).join(Events).filter(Image.event_id.in_([event.id for event in events])).all()
     
     if not events:
         print("No events found for the given weekend and town.")
@@ -52,7 +52,7 @@ def main(weekend_id=0, town_id=0):
     t = session.query(Towns).filter(Towns.id==town_id).first()
     
     chat_ollama_with_structured_output(
-        user_prompt_params={"town_name": t.name, "state": t.state, "weekend_date": w.date, "event_list":json.dumps([object_as_dict(e) for e in events]), "Image_list": json.dumps([object_as_dict(m) for m in Image])  },
+        user_prompt_params={"town_name": t.name, "state": t.state, "weekend_date": w.date, "event_list":json.dumps([object_as_dict(e) for e in events]), "Image_list": json.dumps([object_as_dict(m) for m in images])  },
         system_prompt_params={}, 
         return_class=VideoSegmentsList, 
         prompt_dir=Path(__file__).parent.resolve()
