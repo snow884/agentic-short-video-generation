@@ -23,6 +23,7 @@ Steps:
 - Every timestamp provide text that should be spoken and image_id associated with the image that should be shown at that moment  
 - Ensure that the time it takes to read the test matches the time duration of the given segment.
 - Ensure that the video includes the location, time and date of the event
+- Ensure that the timestamps span the whole 3 minutes - that is 180 seconds
 
 3.) Return the answer in pure JSON format. Matching the exact output JSON output format including the json nesting. 
 Do not include any text before or after the JSON output. Only return the JSON structure containing the images as your answer. Do not include any explanations or reasoning in the final answer, only return the JSON.
