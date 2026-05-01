@@ -9,10 +9,10 @@ from research_agent import run_agent_sync
 
 
 from sql_utils import get_db
-from tables import Media,Events, Towns, Weekends
+from tables import Image,Events, Towns, Weekends
 
 from pathlib import Path
-from tables import MediaList
+from tables import ImageList
 
 import requests
 import hashlib
@@ -44,20 +44,20 @@ def download_file(url, base_filename="downloaded_file"):
     
 
 
-def populate_db_with_events(media_list: MediaList, event_id: int):
+def populate_db_with_events(Image_list: ImageList, event_id: int):
 
     session = next(get_db())
     
-    for new_media in media_list.media:
-        print("Adding the media " + new_media["title"] + " - " + new_media["description"])
-        url = new_media["media_url"]
+    for new_Image in Image_list.Image:
+        print("Adding the Image " + new_Image["title"] + " - " + new_Image["description"])
+        url = new_Image["Image_url"]
     
-        success, file_path = download_file(url, base_filename=f"data/images/event_{event_id}_media_{hashlib.sha256(str(new_media).encode()).hexdigest()}")
+        success, file_path = download_file(url, base_filename=f"data/images/event_{event_id}_Image_{hashlib.sha256(str(new_Image).encode()).hexdigest()}")
         if success:
-            new_media['file_path'] = file_path
-            new_media_sql = Media(**new_media)
-            new_media_sql.event_id = event_id
-            session.add(new_media_sql)
+            new_Image['file_path'] = file_path
+            new_Image_sql = Image(**new_Image)
+            new_Image_sql.event_id = event_id
+            session.add(new_Image_sql)
             
     session.commit()
     
@@ -80,9 +80,9 @@ def main(event_id=0):
         "url_instagram":e.url_instagram
     }
 
-    media_list = run_agent_sync(user_prompt_params=user_prompt_params, ReturnClass=MediaList, prompt_dir=Path(__file__).parent.resolve())
-    print("Received media list: ", media_list  )
-    populate_db_with_events(media_list, event_id=event_id)
+    Image_list = run_agent_sync(user_prompt_params=user_prompt_params, ReturnClass=ImageList, prompt_dir=Path(__file__).parent.resolve())
+    print("Received Image list: ", Image_list  )
+    populate_db_with_events(Image_list, event_id=event_id)
     
     
 if __name__ == "__main__":

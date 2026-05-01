@@ -4,4 +4,4 @@ Here is the list of events:
 {event_list}
 
 Here is the list of images:
-{media_list}
+{Image_list}
