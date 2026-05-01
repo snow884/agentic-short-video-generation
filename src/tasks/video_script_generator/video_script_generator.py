@@ -52,14 +52,14 @@ def check_text_spoken_length_matches_timestamps(segments_list: list):
     if not segments_list:
         return "You provided an empty value. No scripts segments to check."
         
-    for i, segment in enumerate(segments_list.video_segments):
-        if i > 0 and abs(((len(segment.script_text.split(' '))) / ((segment.timestamp - segments_list.video_segments[i-1].timestamp) * 2))-1)>0.05 :  # Assuming 2 words per second as a speaking rate
+    for i, segment in enumerate(segments_list):
+        if i > 0 and abs(((len(segment.script_text.split(' '))) / ((segment.timestamp - segments_list[i-1].timestamp) * 2))-1)>0.05 :  # Assuming 2 words per second as a speaking rate
             
             print(f"Warning: Segment {segment.event_id} has script text length {len(segment.script_text.split(' '))} words which takes approximately {(len(segment.script_text.split(' ')))/2} seconds to speak, but the timestamp difference from the previous segment is {(segment.timestamp - segments_list.video_segments[i-1].timestamp)} seconds. Consider adjusting the timestamps or script text length for better synchronization.")
             return False
         
-    if abs(segments_list.video_segments[-1].timestamp/180-1)>0.05:
-        print(f"Warning: The last segment has a timestamp of {segments_list.video_segments[-1].timestamp} seconds which is significantly less than the expected video length of 180 seconds. Consider adjusting the timestamps or adding more segments to better utilize the video length.")
+    if abs(segments_list[-1].timestamp/180-1)>0.05:
+        print(f"Warning: The last segment has a timestamp of {segments_list[-1].timestamp} seconds which is significantly less than the expected video length of 180 seconds. Consider adjusting the timestamps or adding more segments to better utilize the video length.")
         return "The total video length is significantly different than 180 seconds."
 
         
