@@ -30,11 +30,11 @@ class Towns(Base):
     #events: Mapped["Events"] = relationship(back_populates="town")
 
 class TownsSchema(BaseModel):
-    name: str | None = None
-    state: str | None = None
-    description: str | None = None
-    gps_longitude: str | None = None
-    gps_latitude: str | None = None
+    name: str
+    state: str
+    description: str
+    gps_longitude: str
+    gps_latitude: str
 
 class Weekends(Base):
     __tablename__ = "weekends"
@@ -46,8 +46,8 @@ class Weekends(Base):
 class WeekendsSchema(BaseModel):
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
-    id: int | None = None
-    date: str | None = None
+    id: int
+    date: str
 
 
 class Weather(Base):
@@ -64,13 +64,13 @@ class Weather(Base):
 class WeatherSchema(BaseModel):
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
-    id: int | None = None
-    weekend_id: int | None = None
-    town_id: int | None = None
-    temperature: str | None = None
-    rain: str | None = None
-    clouds: str | None = None
-    description: str | None = None
+    id: int
+    weekend_id: int
+    town_id: int
+    temperature: str
+    rain: str
+    clouds: str
+    description: str
 
 class Events(Base):
     __tablename__ = "events"
@@ -93,16 +93,16 @@ class Events(Base):
     #town: Mapped["Towns"] = relationship(back_populates="events")
 
 class EventsSchema(BaseModel):
-    event_name: str | None = None
-    date: str | None = None
-    time: str | None = None
-    location_address: str | None = None
-    description: str | None = None
-    gps_longitude: str | None = None
-    gps_latitude: str | None = None
-    url: str | None = None
-    url_facebook: str | None = None
-    url_instagram: str | None = None
+    event_name: str
+    date: str
+    time: str
+    location_address: str
+    description: str
+    gps_longitude: str
+    gps_latitude: str
+    url: str
+    url_facebook: str
+    url_instagram: str
 
 
 class EventList(BaseModel):
@@ -118,9 +118,9 @@ class VideoSegments(Base):
 
 class VideoSegmentsSchema(BaseModel):
 
-    event_id: int | None = None
-    script_text: str | None = None
-    Image_id: int | None = None
+    event_id: int
+    script_text: str
+    Image_id: int
 
 
 class VideoSegmentsList(BaseModel):
@@ -143,10 +143,10 @@ class Image(Base):
     title = Column(String, default="")
 
 class ImageSchema(BaseModel):
-    Image_url: str | None = None
-    file_path: str | None = None
-    description: str | None = None
-    title: str | None = None
+    Image_url: str
+    file_path: str
+    description: str
+    title: str
 
 class ImageList(BaseModel):
 
