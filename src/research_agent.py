@@ -23,6 +23,7 @@ nest_asyncio.apply()
 
 from langchain.agents.middleware import ToolRetryMiddleware
 from deepagents.backends.filesystem import FilesystemBackend
+from langchain.agents.structured_output import ToolStrategy
 
 async def run_agent(user_prompt_params: dict = {"town_name": "Batavia", "town_state": "NY", "weekend_date": "2026-05-16"}, system_prompt_params: dict = {}, ReturnClass=None, prompt_dir=None, extra_tools=[]):
     
@@ -61,7 +62,7 @@ async def run_agent(user_prompt_params: dict = {"town_name": "Batavia", "town_st
         model=model,
         tools=browser_tools+tavity_tools+extra_tools,
         system_prompt=PromptTemplate.from_file(prompt_dir / "sys_prompt.md").format(tavity_tools_str=tavity_tools_str, browser_tools_str=browser_tools_str),
-        response_format=TypeAdapter(ReturnClass).json_schema(),
+        response_format=ToolStrategy(ReturnClass),
         middleware=[
         ToolRetryMiddleware(
             max_retries=3,
