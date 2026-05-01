@@ -18,6 +18,10 @@ from llm import chat_ollama_with_structured_output
 
 from sqlalchemy import inspect
 
+from kokoro import KPipeline
+import soundfile as sf
+import torch
+
 def object_as_dict(obj):
     return {c.key: getattr(obj, c.key) for c in inspect(obj).mapper.column_attrs}
 
@@ -37,6 +41,22 @@ def populate_db_with_events(segments_list: VideoSegmentsList, event_id: int, wee
 
     session.close()
 
+def get_text_duration(text):
+
+    pipeline = KPipeline(lang_code='a')
+
+    generator = pipeline(text, voice='af_heart')
+
+    duration = 0
+
+    for i, (gs, ps, audio) in enumerate(generator):
+        print(i, gs, ps)
+        sf.write(f'your_audio_file.wav', audio, 24000)
+        info = sf.info('your_audio_file.wav')
+        duration = duration + info.duration
+        
+    return duration
+
 def check_text_spoken_length_matches_timestamps(segments_list: list):
     """
     Checks the length of each video segment's script text relative to its timestamp difference from the previous segment. If the script text length is not approximately equal to the time difference (assuming a speaking rate of 2 words per second), it returns a warning message for that segment.
@@ -53,13 +73,13 @@ def check_text_spoken_length_matches_timestamps(segments_list: list):
         return "You provided an empty value. No scripts segments to check."
         
     for i, segment in enumerate(segments_list):
-        if i > 0 and abs(((len(segment['script_text'].split(' '))) / ((segment['timestamp'] - segments_list[i-1]['timestamp']) * 2))-1)>0.05 :  # Assuming 2 words per second as a speaking rate
-            
-            print(f"Warning: Segment {segment['event_id']} has script text length {len(segment['script_text'].split(' '))} words which takes approximately {(len(segment['script_text'].split(' ')))/2} seconds to speak, but the timestamp difference from the previous segment is {(segment['timestamp'] - segments_list[i-1]['timestamp'])} seconds. Consider adjusting the timestamps or script text length for better synchronization.")
-            return False
         
+        if i > 0 and abs(( get_text_duration(segment['script_text']) / ((segment['timestamp'] - segments_list[i-1]['timestamp']) * 2))-1)>0.05 :  # Assuming 2 words per second as a speaking rate
+            
+            return (f"Warning: Segment {segment['event_id']} has script text length {len(segment['script_text'].split(' '))} words which takes approximately {(len(segment['script_text'].split(' ')))/2} seconds to speak, but the timestamp difference from the previous segment is {(segment['timestamp'] - segments_list[i-1]['timestamp'])} seconds. Consider adjusting the timestamps or script text length for better synchronization.")
+            
     if abs(segments_list[-1]['timestamp']/180-1)>0.05:
-        print(f"Warning: The last segment has a timestamp of {segments_list[-1]['timestamp']} seconds which is significantly less than the expected video length of 180 seconds. Consider adjusting the timestamps or adding more segments to better utilize the video length.")
+        print(f"Warning: The last segment has a timestamp of {segments_list[-1]['timestamp']} seconds which is significantly different than the expected video length of 180 seconds. Consider adjusting the timestamps or adding more segments to better utilize the video length.")
         return "The total video length is significantly different than 180 seconds."
 
         
