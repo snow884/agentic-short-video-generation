@@ -49,13 +49,13 @@ def populate_db_with_events(Image_list: ImageList, event_id: int):
     session = next(get_db())
     
     for new_Image in Image_list.images:
-        print("Adding the Image " + new_Image["title"] + " - " + new_Image["description"])
-        url = new_Image["image_url"]
+        print("Adding the Image " + new_Image.title + " - " + new_Image.description)
+        url = new_Image.image_url
     
         success, file_path = download_file(url, base_filename=f"data/images/event_{event_id}_Image_{hashlib.sha256(str(new_Image).encode()).hexdigest()}")
         if success:
-            new_Image['file_path'] = file_path
-            new_Image_sql = Image(**new_Image)
+            new_Image.file_path = file_path
+            new_Image_sql = Image(**new_Image.__dict__)
             new_Image_sql.event_id = event_id
             session.add(new_Image_sql)
             
