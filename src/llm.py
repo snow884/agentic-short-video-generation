@@ -26,7 +26,7 @@ def chat_ollama_with_structured_output(user_prompt_params, system_prompt_params,
         HumanMessage(content=user_prompt,)
     ]
 
-    response = model.invoke(messages)
+    response = model_structured.invoke(messages)
     
     print(response.content)
     
