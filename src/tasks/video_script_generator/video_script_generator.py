@@ -52,7 +52,7 @@ def main(weekend_id=0, town_id=0):
     t = session.query(Towns).filter(Towns.id==town_id).first()
     
     chat_ollama_with_structured_output(
-        user_prompt_params={"town_name": t.name, "state": t.state, "weekend_date": w.date, "event_list":json.dumps([object_as_dict(e) for e in events]), "Image_list": json.dumps([object_as_dict(m) for m in images])  },
+        user_prompt_params={"town_name": t.name, "state": t.state, "weekend_date": w.date, "event_list":json.dumps([{"name": event.event_name, "description": event.description, "date": event.event_date, "time": event.event_time, "id": event.id} for event in events]), "Image_list": json.dumps([{"title": m.title, "description": m.description, "id": m.id, "event_id": m.event_id} for m in images])  },
         system_prompt_params={}, 
         return_class=VideoSegmentsList, 
         prompt_dir=Path(__file__).parent.resolve()
