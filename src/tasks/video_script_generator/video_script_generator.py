@@ -61,7 +61,7 @@ def main(weekend_id=0, town_id=0):
     user_prompt_params={"town_name": t.name, "state": t.state, "weekend_date": w.date, "event_list":json.dumps([{"name": event.event_name,"address":event.location_address, "description": event.description, "date": event.date, "time": event.time, "id": event.id} for event in events]), "Image_list": json.dumps([{"title": m.title, "description": m.description, "id": m.id, "event_id": m.event_id} for m in images])  }
     system_prompt_params={}
 
-    Video_Segments_List = run_agent_sync(user_prompt_params=user_prompt_params, ReturnClass=VideoSegmentsList, prompt_dir=Path(__file__).parent.resolve())
+    Video_Segments_List = run_agent_sync(user_prompt_params=user_prompt_params,system_prompt_params=system_prompt_params, ReturnClass=VideoSegmentsList, prompt_dir=Path(__file__).parent.resolve())
     print("Received Video Segments list: ", Video_Segments_List  )
     populate_db_with_events(Video_Segments_List, event_id=event_id)
 
