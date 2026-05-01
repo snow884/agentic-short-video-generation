@@ -12,6 +12,7 @@ Ensure that you are providing enough information for people be be able to attend
 
 Your job is to create a script for 3 minute video using this data. The output will be a video script in a json format.
 
+
 Steps:
 
 1.) Match the images to the events they are associated with
@@ -21,6 +22,7 @@ Steps:
 - Generate as many timestamps as needed. 
 - Every timestamp provide text that should be spoken and image_id associated with the image that should be shown at that moment  
 - Ensure that the time it takes to read the test matches the time duration of the given segment.
+- Ensure that the video includes the location, time and date of the event
 
 3.) Return the answer in pure JSON format. Matching the exact output JSON output format including the json nesting. 
 Do not include any text before or after the JSON output. Only return the JSON structure containing the images as your answer. Do not include any explanations or reasoning in the final answer, only return the JSON.
