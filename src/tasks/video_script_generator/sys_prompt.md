@@ -22,7 +22,7 @@ Steps:
 
 1.) Match the images to the events they are associated with
 
-2.) Create a script for a video. 
+2.) Create a script for a video. Create TODO list item for every event.
 - For every event there will be multiple timestamps
 - Generate as many timestamps as needed. 
 - Every timestamp provide text that should be spoken and image_id associated with the image that should be shown at that moment  
