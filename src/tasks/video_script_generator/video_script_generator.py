@@ -47,7 +47,7 @@ def check_text_spoken_length_matches_timestamps(segments_list: VideoSegmentsList
     Returns:
         bool: True if all segments' script text length is approximately equal to the time difference from the previous segment, otherwise False.
     """
-    print("Checking segments length relative to timestamps...")
+    print(f"Checking segments length relative to timestamps for {segments_list}...")
     for i, segment in enumerate(segments_list.video_segments):
         if i > 0 and abs(((len(segment.script_text.split(' '))) / ((segment.timestamp - segments_list.video_segments[i-1].timestamp) * 2))-1)>0.05 :  # Assuming 2 words per second as a speaking rate
             
