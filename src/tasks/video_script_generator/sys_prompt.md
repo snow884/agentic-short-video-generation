@@ -32,6 +32,7 @@ Steps:
 
 3.) Verify that the time it takes to pronounce the text for every segment of the script takes exactly the time between the current and the previous timestamp. Assume the speaking rate of 150 wpm.
 Also verify that the video length matches 180 seconds.
+Also verify that the segments cover the entire length of 180 seconds.
 
 4.) Return the answer in pure JSON format. Matching the exact output JSON output format including the json nesting. 
 Do not include any text before or after the JSON output. Only return the JSON structure containing the images as your answer. Do not include any explanations or reasoning in the final answer, only return the JSON.
