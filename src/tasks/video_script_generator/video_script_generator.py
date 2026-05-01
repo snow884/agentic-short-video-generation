@@ -37,7 +37,7 @@ def populate_db_with_events(segments_list: VideoSegmentsList, event_id: int, wee
 
     session.close()
 
-def check_text_spoken_length_matches_timestamps(segments_list: VideoSegmentsList):
+def check_text_spoken_length_matches_timestamps(segments_list: list):
     """
     Checks the length of each video segment's script text relative to its timestamp difference from the previous segment. If the script text length is not approximately equal to the time difference (assuming a speaking rate of 2 words per second), it returns a warning message for that segment.
 
