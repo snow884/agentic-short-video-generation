@@ -81,6 +81,7 @@ def main(event_id=0):
     }
 
     media_list = run_agent_sync(user_prompt_params=user_prompt_params, ReturnClass=MediaList, prompt_dir=Path(__file__).parent.resolve())
+    print("Received media list: ", media_list  )
     populate_db_with_events(media_list, event_id=event_id)
     
     
