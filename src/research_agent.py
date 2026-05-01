@@ -85,7 +85,7 @@ async def run_agent(user_prompt_params: dict = {"town_name": "Batavia", "town_st
     
     print("Raw response: ", json_start)
     
-    typed_response = ReturnClass.model_validate_json(json_start)
+    typed_response = ReturnClass(**json_start)
 
     return typed_response
 
