@@ -37,7 +37,7 @@ def populate_db_with_events(segments_list: VideoSegmentsList, event_id: int, wee
 
     session.close()
 
-def check_segments_length(segments_list: VideoSegmentsList):
+def check_text_spoken_length_matches_timestamps(segments_list: VideoSegmentsList):
     """
     Checks the length of each video segment's script text relative to its timestamp difference from the previous segment. If the script text length is not approximately equal to the time difference (assuming a speaking rate of 2 words per second), it returns a warning message for that segment.
 
@@ -77,7 +77,7 @@ def main(weekend_id=0, town_id=0):
     user_prompt_params={"town_name": t.name, "state": t.state, "weekend_date": w.date, "event_list":json.dumps([{"name": event.event_name,"address":event.location_address, "description": event.description, "date": event.date, "time": event.time, "id": event.id} for event in events]), "Image_list": json.dumps([{"title": m.title, "description": m.description, "id": m.id, "event_id": m.event_id} for m in images])  }
     system_prompt_params={}
 
-    Video_Segments_List = run_agent_sync(user_prompt_params=user_prompt_params,system_prompt_params=system_prompt_params, ReturnClass=VideoSegmentsList, prompt_dir=Path(__file__).parent.resolve(), extra_tools=[check_segments_length])
+    Video_Segments_List = run_agent_sync(user_prompt_params=user_prompt_params,system_prompt_params=system_prompt_params, ReturnClass=VideoSegmentsList, prompt_dir=Path(__file__).parent.resolve(), extra_tools=[check_text_spoken_length_matches_timestamps])
     print("Received Video Segments list: ", Video_Segments_List  )
     populate_db_with_events(Video_Segments_List, event_id=event_id)
 

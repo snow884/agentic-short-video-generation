@@ -17,7 +17,7 @@ every segment includes:
 - timestamp - defines the point in time n seconds in the video where the segment should start
 - script_text - the text stat should be spoken while the segment is displayed. Assume the speaking rate of 150 wpm.
 
-Continue improving the script until it passes check_segments_length tool.
+Continue improving the script until it passes check_text_spoken_length_matches_timestamps tool.
 
 Steps:
 
@@ -32,7 +32,7 @@ Steps:
 - Ensure that the timestamps span the whole 3 minutes - that is 180 seconds
 
 3.) Verify that the time it takes to pronounce the text for every segment of the script takes exactly the time between the current and the previous timestamp.
-Use the tool check_segments_length for this validation.
+Use the tool check_text_spoken_length_matches_timestamps for this validation.
 
 4.) Return the answer in pure JSON format. Matching the exact output JSON output format including the json nesting. 
 Do not include any text before or after the JSON output. Only return the JSON structure containing the images as your answer. Do not include any explanations or reasoning in the final answer, only return the JSON.
