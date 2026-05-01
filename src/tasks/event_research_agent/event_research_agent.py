@@ -20,7 +20,7 @@ def populate_db_with_events(event_list: EventList, town_id: int, weekend_id: int
     
     for new_event in event_list.events:
         print("Adding the event ", new_event.event_name)
-        new_event_sql = Events(**asdict(new_event))
+        new_event_sql = Events(**new_event.__dict__)
         new_event_sql.town_id = town_id
         new_event_sql.weekend_id = weekend_id
         session.add(new_event_sql)
