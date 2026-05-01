@@ -46,7 +46,12 @@ def main(weekend_id=0, town_id=0):
     w = session.query(Weekends).filter(Weekends.id==weekend_id).first()
     t = session.query(Towns).filter(Towns.id==town_id).first()
     
-    chat_ollama_with_structured_output(user_prompt_params={"town_name": t.name, "state": t.state, "weekend_date": w.date, "event_list":json.dumps([dict(event) for event in events]), "media_list": json.dumps([asdict(m) for m in media])  },system_prompt_params={}, return_class=VideoSegmentsList, prompt_dir=Path(__file__).parent.resolve())
+    chat_ollama_with_structured_output(
+        user_prompt_params={"town_name": t.name, "state": t.state, "weekend_date": w.date, "event_list":json.dumps([dict(row._mapping) for row in events]), "media_list": json.dumps([asdict(m) for m in media])  },
+        system_prompt_params={}, 
+        return_class=VideoSegmentsList, 
+        prompt_dir=Path(__file__).parent.resolve()
+    )
 
 if __name__ == "__main__":
     from dotenv import load_dotenv
