@@ -17,7 +17,7 @@ every segment includes:
 - timestamp - defines the point in time n seconds in the video where the segment should start
 - script_text - the text stat should be spoken while the segment is displayed. Assume the speaking rate of 150 wpm.
 
-Continue improving the script until it passes check_text_spoken_length_matches_timestamps tool.
+Continue improving the script until it passes check_text_spoken_length_matches_timestamps tool. Do NOT stop until the script you have produced returns true when processed by the tool check_text_spoken_length_matches_timestamps.
 
 Steps:
 
