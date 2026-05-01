@@ -3,7 +3,6 @@ from dataclasses import asdict
 import json
 
 
-from importlib.metadata.diagnose import inspect
 import nest_asyncio
 
 from research_agent import run_agent_sync
@@ -16,6 +15,8 @@ from pathlib import Path
 from tables import VideoSegmentsList
 
 from llm import chat_ollama_with_structured_output
+
+from sqlalchemy import inspect
 
 def object_as_dict(obj):
     return {c.key: getattr(obj, c.key) for c in inspect(obj).mapper.column_attrs}
