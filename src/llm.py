@@ -28,7 +28,7 @@ def chat_ollama_with_structured_output(user_prompt_params, system_prompt_params,
 
     response = model.invoke(messages)
     
-    print(response['message']['content'])
+    print(response.content)
     
     print("Raw response from Ollama:", response)
     
