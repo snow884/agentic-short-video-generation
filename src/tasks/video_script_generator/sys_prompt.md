@@ -30,7 +30,7 @@ Steps:
 - Ensure that the video includes the location, time and date of the event
 - Ensure that the timestamps span the whole 3 minutes - that is 180 seconds
 
-3.) Verify that the time it takes to pronounce the text for every segment of the script takes exactly the time between the current and the previous timestamp. Assume the speaking rate of 150 wpm.
+3.) Verify that the time it takes to pronounce the text for every segment of the script takes exactly the time between the current and the previous timestamp.
 ensure that (number of words in script_text) = ( (current segment timestamp) - (previous segment timestamp) ) / 2
 
 Also verify that the segments cover the entire length of 180 seconds.
