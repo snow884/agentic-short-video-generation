@@ -50,7 +50,7 @@ def populate_db_with_events(Image_list: ImageList, event_id: int):
     
     for new_Image in Image_list.images:
         print("Adding the Image " + new_Image["title"] + " - " + new_Image["description"])
-        url = new_Image["Image_url"]
+        url = new_Image["image_url"]
     
         success, file_path = download_file(url, base_filename=f"data/images/event_{event_id}_Image_{hashlib.sha256(str(new_Image).encode()).hexdigest()}")
         if success:

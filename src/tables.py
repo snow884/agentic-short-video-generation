@@ -137,13 +137,13 @@ class Image(Base):
     id = Column(Integer, primary_key=True)
     event_id = Column(Integer, ForeignKey('events.id'))
     Image_type = Column(String, default="")
-    Image_url = Column(String, default="")
+    image_url = Column(String, default="")
     file_path = Column(String, default="")
     description = Column(String, default="")
     title = Column(String, default="")
 
 class ImageSchema(BaseModel):
-    Image_url: str
+    image_url: str
     file_path: str
     description: str
     title: str
