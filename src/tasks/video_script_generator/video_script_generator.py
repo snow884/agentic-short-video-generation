@@ -45,14 +45,17 @@ def check_text_spoken_length_matches_timestamps(segments_list: VideoSegmentsList
         segments_list (VideoSegmentsList): The list of video segments to check.
 
     Returns:
-        str: A warning message if any segment's script text length is not approximately equal to the time difference from the previous segment, otherwise a success message.
+        bool: True if all segments' script text length is approximately equal to the time difference from the previous segment, otherwise False.
     """
     print("Checking segments length relative to timestamps...")
     for i, segment in enumerate(segments_list.video_segments):
-        if i > 0 and abs(((len(segment.script_text.split(' '))) / ((segment.timestamp - segments_list.video_segments[i-1].timestamp) * 2))-1)<0.05 :  # Assuming 2 words per second as a speaking rate
-            return(f"Warning: Segment {segment.event_id} has script text length {len(segment.script_text.split(' '))} words which takes approximately {(len(segment.script_text.split(' ')))/2} seconds to speak, but the timestamp difference from the previous segment is {(segment.timestamp - segments_list.video_segments[i-1].timestamp)} seconds. Consider adjusting the timestamps or script text length for better synchronization.")
-
-    return "All segments have correct length relative to their timestamps."
+        if i > 0 and abs(((len(segment.script_text.split(' '))) / ((segment.timestamp - segments_list.video_segments[i-1].timestamp) * 2))-1)>0.05 :  # Assuming 2 words per second as a speaking rate
+            
+            print(f"Warning: Segment {segment.event_id} has script text length {len(segment.script_text.split(' '))} words which takes approximately {(len(segment.script_text.split(' ')))/2} seconds to speak, but the timestamp difference from the previous segment is {(segment.timestamp - segments_list.video_segments[i-1].timestamp)} seconds. Consider adjusting the timestamps or script text length for better synchronization.")
+            return False
+        
+    print("All segments have correct length relative to their timestamps.")
+    return True
     
 def main(weekend_id=0, town_id=0):
     session = next(get_db())
