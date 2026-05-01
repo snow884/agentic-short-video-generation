@@ -106,7 +106,7 @@ class EventsSchema(BaseModel):
 
 
 class EventList(BaseModel):
-    events: list[EventsSchema] | None = []
+    events: List[EventsSchema] | None = []
 
 class VideoSegments(Base):
     __tablename__ = "video_segments"
@@ -114,40 +114,40 @@ class VideoSegments(Base):
     id = Column(Integer, primary_key=True)
     event_id = Column(Integer, ForeignKey('events.id'))
     script_text = Column(String, default="")
-    Image_id = Column(Integer, ForeignKey('Image.id'))
+    media_id = Column(Integer, ForeignKey('media.id'))
 
 class VideoSegmentsSchema(BaseModel):
 
     event_id: int | None = None
     script_text: str | None = None
-    Image_id: int | None = None
+    media_id: int | None = None
 
 
 class VideoSegmentsList(BaseModel):
 
-    video_segments: list[VideoSegmentsSchema] | None = []
+    video_segments: List[VideoSegmentsSchema] 
 
-class ImageType(enum.Enum):
+class MediaType(enum.Enum):
     RELATED_IMAGES = "related_images"
     MAP_IMAGE = "map_image"
 
-class Image(Base):
-    __tablename__ = "Image"
+class Media(Base):
+    __tablename__ = "media"
 
     id = Column(Integer, primary_key=True)
     event_id = Column(Integer, ForeignKey('events.id'))
-    Image_type = Column(String, default="")
-    Image_url = Column(String, default="")
+    media_type = Column(String, default="")
+    media_url = Column(String, default="")
     file_path = Column(String, default="")
     description = Column(String, default="")
     title = Column(String, default="")
 
-class ImageSchema(BaseModel):
-    Image_url: str | None = None
+class MediaSchema(BaseModel):
+    media_url: str | None = None
     file_path: str | None = None
     description: str | None = None
     title: str | None = None
 
-class ImageList(BaseModel):
+class MediaList(BaseModel):
 
-    images: list[ImageSchema]  | None = []
+    media: List[MediaSchema]  | None = []
