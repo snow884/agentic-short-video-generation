@@ -152,10 +152,10 @@ class Media(Base):
 @dataclass_json
 @dataclass
 class MediaSchema:
-    media_url: str
-    file_path: str
-    description: str
-    title: str
+    media_url: str = None
+    file_path: str = None
+    description: str = None
+    title: str = None
 
 @dataclass_json
 @dataclass
