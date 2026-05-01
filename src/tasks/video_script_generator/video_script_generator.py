@@ -38,6 +38,15 @@ def populate_db_with_events(segments_list: VideoSegmentsList, event_id: int, wee
     session.close()
 
 def check_segments_length(segments_list: VideoSegmentsList):
+    """
+    Checks the length of each video segment's script text relative to its timestamp difference from the previous segment. If the script text length is not approximately equal to the time difference (assuming a speaking rate of 2 words per second), it returns a warning message for that segment.
+
+    Args:
+        segments_list (VideoSegmentsList): The list of video segments to check.
+
+    Returns:
+        str: A warning message if any segment's script text length is not approximately equal to the time difference from the previous segment, otherwise a success message.
+    """
     for i, segment in enumerate(segments_list.video_segments):
         if i > 0 and abs(((len(segment.script_text.split(' '))) / ((segment.timestamp - segments_list.video_segments[i-1].timestamp) * 2))-1)<0.05 :  # Assuming 2 words per second as a speaking rate
             return(f"Warning: Segment {segment.event_id} has script text length {len(segment.script_text.split(' '))} words which takes approximately {(len(segment.script_text.split(' ')))/2} seconds to speak, but the timestamp difference from the previous segment is {(segment.timestamp - segments_list.video_segments[i-1].timestamp)} seconds. Consider adjusting the timestamps or script text length for better synchronization.")
