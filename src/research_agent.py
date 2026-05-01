@@ -95,9 +95,9 @@ async def run_agent(user_prompt_params: dict = {"town_name": "Batavia", "town_st
 
 
 
-def run_agent_sync(user_prompt_params: dict = {"town_name": "Batavia", "town_state": "NY", "weekend_date": "2026-05-16"}, system_prompt_params: dict = {}, ReturnClass=None, prompt_dir=None):
+def run_agent_sync(user_prompt_params: dict = {"town_name": "Batavia", "town_state": "NY", "weekend_date": "2026-05-16"}, system_prompt_params: dict = {}, ReturnClass=None, prompt_dir=None, extra_tools=[]):
     
-    return asyncio.run(run_agent(user_prompt_params=user_prompt_params, system_prompt_params=system_prompt_params, ReturnClass=ReturnClass, prompt_dir=prompt_dir))
+    return asyncio.run(run_agent(user_prompt_params=user_prompt_params, system_prompt_params=system_prompt_params, ReturnClass=ReturnClass, prompt_dir=prompt_dir, extra_tools=extra_tools))
 
 if __name__ == "__main__":
     run_agent_sync()
