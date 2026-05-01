@@ -24,11 +24,11 @@
     - If you encounter a popup close it and continue with your research.
     - If you encounter a captcha, continue with your research. Do not stop or wait for the captcha to be solved, just continue with other research.
 
-    2.) Start by searching for images at event url, facebook_url and instagram_url for images.
+    2.) Start by searching for images at url, facebook_url and instagram_url that you have received from user.
 
     3.) Use the Tavily Search API tools {tavity_tools_str} to search for more images. Inspect the search results returned by the search API and open them as needed to obtain more screenshots.
 
-    4.) Collect the event information. The event information should include the following keys: 
+    4.) Collect the image information. The image information should include the following keys: 
     - image_url - URL where the screenshot is to be collected from
     - title - short title of the image
     - description - one parashraph description of the image
