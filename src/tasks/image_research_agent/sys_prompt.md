@@ -34,7 +34,3 @@
     - description - one parashraph description of the image
 
     5.) Validate the image urls and ensure that the image can be collected from this URL using a simple requests.get call in python . Ensure the URL is working by opening it in browser. Ensure that the image is of the type jpg, png or bmp.
-
-    6.) Return the answer in pure JSON format. Matching the exact output JSON output format. 
-    - Do not add any text before or after the JSON output. Only return the JSON structure containing the events as your answer. Do not include any explanations or reasoning in the final answer, only return the JSON. 
-    
