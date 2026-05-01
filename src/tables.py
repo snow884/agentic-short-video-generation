@@ -150,4 +150,4 @@ class ImageSchema(BaseModel):
 
 class ImageList(BaseModel):
 
-    images: list[ImageSchema]  | None = []
+    images: List[ImageSchema]  | None = []
