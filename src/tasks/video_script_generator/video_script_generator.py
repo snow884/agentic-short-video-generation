@@ -116,6 +116,9 @@ def main(weekend_id=0, town_id=0):
     populate_db_with_events(Video_Segments_List, event_id=event_id)
 
 if __name__ == "__main__":
+    a = check_text_spoken_length_matches_timestamps([{"event_id": 1, "script_text": "This is a test script that is approximately 10 words long.", "Image_id": 1, "timestamp": 5}, {"event_id": 2, "script_text": "This is another test script that is approximately 20 words long and should take about 10 seconds to speak.", "Image_id": 2, "timestamp": 15}])
+    print(a)
+    asdasasda
     from dotenv import load_dotenv
     load_dotenv()
     main(town_id=1, weekend_id=1)
