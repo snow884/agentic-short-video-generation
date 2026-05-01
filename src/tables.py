@@ -106,7 +106,7 @@ class EventsSchema(BaseModel):
 
 
 class EventList(BaseModel):
-    events: List[EventsSchema]
+    events: List[EventsSchema] | None = []
 
 class VideoSegments(Base):
     __tablename__ = "video_segments"
@@ -150,4 +150,4 @@ class MediaSchema(BaseModel):
 
 class MediaList(BaseModel):
 
-    media: List[MediaSchema] 
+    media: List[MediaSchema]  | None = []
