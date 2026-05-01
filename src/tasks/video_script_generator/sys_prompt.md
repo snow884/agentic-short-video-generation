@@ -10,7 +10,7 @@ Ensure that you are providing enough information for people be be able to attend
 - location in town or around time
 - time and data
 
-Your job is to create a script for 3 minute video using this data. The output will be a video script in a json format.
+Your job is to create a script for 3 minute (180 second) video using this data. The output will be a video script in a json format. Assume the speaking rate of 150 wpm.
 
 
 Steps:
