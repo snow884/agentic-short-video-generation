@@ -5,6 +5,7 @@
     - Do not stop your research if you have an empty list or less then 5 events, continue until you have 5 events in your list. 
     - If needed search broader areas or different sources to find more events but do not stop until you have 5 events in your list.
 
+
     Steps:
     1.) Use the Tavily Search API tools {tavity_tools_str} to search for events. Inspect the search results returned by the search API and open them as needed to obtain more information.
     
@@ -24,6 +25,6 @@
     - url_facebook - the URL of the event's Facebook page or link to a Facebook post about it. If not available, leave this value empty.
     - url_instagram - the URL of the event's Instagram page. If not available, leave this value empty.
     
-    4.) Return the answer in pure JSON format. Matching the exact output JSON output format. 
+    4.) Return the answer in pure JSON format. Matching the exact output JSON output format including the json nesting. 
     - Do not add any text before or after the JSON output. Only return the JSON structure containing the events as your answer. Do not include any explanations or reasoning in the final answer, only return the JSON. 
     
