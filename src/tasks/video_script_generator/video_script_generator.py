@@ -37,7 +37,13 @@ def populate_db_with_events(segments_list: VideoSegmentsList, event_id: int, wee
 
     session.close()
 
+def check_segments_length(segments_list: VideoSegmentsList):
+    for i, segment in enumerate(segments_list.video_segments):
+        if i > 0 and abs(((len(segment.script_text.split(' '))) / ((segment.timestamp - segments_list.video_segments[i-1].timestamp) * 2))-1)<0.05 :  # Assuming 2 words per second as a speaking rate
+            return(f"Warning: Segment {segment.event_id} has script text length {len(segment.script_text.split(' '))} words which takes approximately {(len(segment.script_text.split(' ')))/2} seconds to speak, but the timestamp difference from the previous segment is {(segment.timestamp - segments_list.video_segments[i-1].timestamp)} seconds. Consider adjusting the timestamps or script text length for better synchronization.")
 
+    return "All segments have correct length relative to their timestamps."
+    
 def main(weekend_id=0, town_id=0):
     session = next(get_db())
     
@@ -61,7 +67,7 @@ def main(weekend_id=0, town_id=0):
     user_prompt_params={"town_name": t.name, "state": t.state, "weekend_date": w.date, "event_list":json.dumps([{"name": event.event_name,"address":event.location_address, "description": event.description, "date": event.date, "time": event.time, "id": event.id} for event in events]), "Image_list": json.dumps([{"title": m.title, "description": m.description, "id": m.id, "event_id": m.event_id} for m in images])  }
     system_prompt_params={}
 
-    Video_Segments_List = run_agent_sync(user_prompt_params=user_prompt_params,system_prompt_params=system_prompt_params, ReturnClass=VideoSegmentsList, prompt_dir=Path(__file__).parent.resolve())
+    Video_Segments_List = run_agent_sync(user_prompt_params=user_prompt_params,system_prompt_params=system_prompt_params, ReturnClass=VideoSegmentsList, prompt_dir=Path(__file__).parent.resolve(), extra_tools=[check_segments_length])
     print("Received Video Segments list: ", Video_Segments_List  )
     populate_db_with_events(Video_Segments_List, event_id=event_id)
 

@@ -31,9 +31,7 @@ Steps:
 - Ensure that the timestamps span the whole 3 minutes - that is 180 seconds
 
 3.) Verify that the time it takes to pronounce the text for every segment of the script takes exactly the time between the current and the previous timestamp.
-ensure that (number of words in script_text) = ( (current segment timestamp) - (previous segment timestamp) ) / 2
-
-Also verify that the segments cover the entire length of 180 seconds.
+Use the tool check_segments_length for this validation
 
 4.) Return the answer in pure JSON format. Matching the exact output JSON output format including the json nesting. 
 Do not include any text before or after the JSON output. Only return the JSON structure containing the images as your answer. Do not include any explanations or reasoning in the final answer, only return the JSON.
