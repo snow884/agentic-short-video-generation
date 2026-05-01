@@ -106,7 +106,7 @@ class EventsSchema(BaseModel):
 
 
 class EventList(BaseModel):
-    events: List[EventsSchema] | None = []
+    events: list[EventsSchema] | None = []
 
 class VideoSegments(Base):
     __tablename__ = "video_segments"
@@ -125,7 +125,7 @@ class VideoSegmentsSchema(BaseModel):
 
 class VideoSegmentsList(BaseModel):
 
-    video_segments: List[VideoSegmentsSchema] 
+    video_segments: list[VideoSegmentsSchema] | None = []
 
 class MediaType(enum.Enum):
     RELATED_IMAGES = "related_images"
@@ -150,4 +150,4 @@ class MediaSchema(BaseModel):
 
 class MediaList(BaseModel):
 
-    media: List[MediaSchema]  | None = []
+    media: list[MediaSchema]  | None = []
