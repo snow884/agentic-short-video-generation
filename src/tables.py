@@ -15,6 +15,8 @@ import enum
 from dataclasses import dataclass, field
 from pydantic import BaseModel, ConfigDict
 from dataclasses_json import dataclass_json
+from pydantic import BaseModel
+
 
 class Towns(Base):
     __tablename__ = "towns"
@@ -27,14 +29,12 @@ class Towns(Base):
     gps_latitude = Column(String, default="")
     #events: Mapped["Events"] = relationship(back_populates="town")
 
-@dataclass_json
-@dataclass
-class TownsSchema:
-    name: str
-    state: str
-    description: str
-    gps_longitude: str
-    gps_latitude: str
+class TownsSchema(BaseModel):
+    name: str | None = None
+    state: str | None = None
+    description: str | None = None
+    gps_longitude: str | None = None
+    gps_latitude: str | None = None
 
 class Weekends(Base):
     __tablename__ = "weekends"
@@ -46,8 +46,8 @@ class Weekends(Base):
 class WeekendsSchema(BaseModel):
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
-    id: int
-    date: str
+    id: int | None = None
+    date: str | None = None
 
 
 class Weather(Base):
@@ -64,13 +64,13 @@ class Weather(Base):
 class WeatherSchema(BaseModel):
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
-    id: int
-    weekend_id: int
-    town_id: int
-    temperature: str
-    rain: str
-    clouds: str
-    description: str
+    id: int | None = None
+    weekend_id: int | None = None
+    town_id: int | None = None
+    temperature: str | None = None
+    rain: str | None = None
+    clouds: str | None = None
+    description: str | None = None
 
 class Events(Base):
     __tablename__ = "events"
@@ -92,24 +92,20 @@ class Events(Base):
     #weekend: Mapped["Weekends"] = relationship(back_populates="events")
     #town: Mapped["Towns"] = relationship(back_populates="events")
 
-@dataclass_json
-@dataclass
-class EventsSchema:
-    event_name: str = None
-    date: str = None
-    time: str = None
-    location_address:str = None
-    description:str = None
-    gps_longitude: str = None
-    gps_latitude: str = None
-    url: str = None
-    url_facebook: str = None
-    url_instagram: str = None
+class EventsSchema(BaseModel):
+    event_name: str | None = None
+    date: str | None = None
+    time: str | None = None
+    location_address: str | None = None
+    description: str | None = None
+    gps_longitude: str | None = None
+    gps_latitude: str | None = None
+    url: str | None = None
+    url_facebook: str | None = None
+    url_instagram: str | None = None
 
 
-@dataclass_json
-@dataclass
-class EventList:
+class EventList(BaseModel):
     events: List[EventsSchema]
 
 class VideoSegments(Base):
@@ -121,16 +117,13 @@ class VideoSegments(Base):
     media_id = Column(Integer, ForeignKey('media.id'))
 
 class VideoSegmentsSchema(BaseModel):
-    model_config = ConfigDict(arbitrary_types_allowed=True)
 
-    event_id: int
-    script_text: str
-    media_id: int
+    event_id: int | None = None
+    script_text: str | None = None
+    media_id: int | None = None
 
 
-@dataclass_json
-@dataclass
-class VideoSegmentsList:
+class VideoSegmentsList(BaseModel):
 
     video_segments: List[VideoSegmentsSchema] 
 
@@ -149,16 +142,12 @@ class Media(Base):
     description = Column(String, default="")
     title = Column(String, default="")
 
-@dataclass_json
-@dataclass
-class MediaSchema:
-    media_url: str = None
-    file_path: str = None
-    description: str = None
-    title: str = None
+class MediaSchema(BaseModel):
+    media_url: str | None = None
+    file_path: str | None = None
+    description: str | None = None
+    title: str | None = None
 
-@dataclass_json
-@dataclass
-class MediaList:
+class MediaList(BaseModel):
 
     media: List[MediaSchema] 
