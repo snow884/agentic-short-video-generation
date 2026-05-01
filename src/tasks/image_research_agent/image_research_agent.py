@@ -89,5 +89,7 @@ if __name__ == "__main__":
     from dotenv import load_dotenv
     load_dotenv()
     session = next(get_db())
-    event_id = session.query(Events.id).first()[0]
-    main(event_id=event_id)
+    for e in session.query(Events).all():
+        print(e.id, e.event_name)
+        event_id = e.id
+        main(event_id=event_id)
