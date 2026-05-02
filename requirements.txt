@@ -21,3 +21,7 @@ beautifulsoup4
 asyncio
 langchain-tavily
 python-dotenv
+cuda-toolkit
+torch 
+torchvision 
+torchaudio 
