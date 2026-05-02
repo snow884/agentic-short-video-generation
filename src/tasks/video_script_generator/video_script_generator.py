@@ -85,9 +85,9 @@ def check_text_spoken_length_matches_timestamps(segments_list: list):
             res_str = res_str + (f"Error: Segment number {i} at timestamp {segment['timestamp']} has script text length {len(segment['script_text'].split(' '))} words which takes approximately {(len(segment['script_text'].split(' ')))/2} seconds to speak, but the timestamp difference from the previous segment is {(segment['timestamp'] - segments_list[i-1]['timestamp'])} seconds. Consider adjusting the timestamps or script text length for better synchronization.")
             res_str = res_str + "\n"
         
-        if res_str:
-            print(res_str)
-            return res_str
+    if res_str:
+        print(res_str)
+        return res_str
         
     if abs(segments_list[-1]['timestamp']/180-1)>0.05:
         print(f"Error: The last segment has a timestamp of {segments_list[-1]['timestamp']} seconds which is significantly different than the expected video length of 180 seconds. Consider adjusting the timestamps or adding more segments to better utilize the video length.")

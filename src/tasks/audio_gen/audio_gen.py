@@ -7,8 +7,10 @@ text = '''
 '''
 generator = pipeline(text, voice='af_heart')
 
+duration = 0
+
 for i, (gs, ps, audio) in enumerate(generator):
     print(i, gs, ps)
     sf.write(f'your_audio_file.wav', audio, 24000)
     info = sf.info('your_audio_file.wav')
-    duration = info.duration
+    duration = duration + info.duration
