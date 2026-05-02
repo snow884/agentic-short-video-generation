@@ -45,7 +45,7 @@ def get_text_duration(text):
 
     pipeline = KPipeline(lang_code='a')
 
-    generator = pipeline(text, voice='af_heart', speed=2.0)
+    generator = pipeline(text, voice='af_heart', speed=1.5)
 
     duration = 0
 
