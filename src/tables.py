@@ -115,6 +115,8 @@ class VideoSegments(Base):
     event_id = Column(Integer, ForeignKey('events.id'))
     script_text = Column(String, default="")
     Image_id = Column(Integer, ForeignKey('Image.id'))
+    sound_file_path = Column(String, default="")
+    timestamp = Column(Integer, default=0)
 
 class VideoSegmentsSchema(BaseModel):
 

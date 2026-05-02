@@ -76,9 +76,9 @@ def check_text_spoken_length_matches_timestamps(segments_list: list):
     
     for i, segment in enumerate(segments_list):
         
-        durations[i] = get_text_duration(segment['script_text']) / ((segment['timestamp'] - segments_list[i-1]['timestamp']) * 2)
+        durations[i] = get_text_duration(segment['script_text'])
         
-        if i > 0 and abs(( get_text_duration(segment['script_text']) / ((segment['timestamp'] - segments_list[i-1]['timestamp']) * 2))-1)>0.05 :  # Assuming 2 words per second as a speaking rate
+        if i > 0 and abs(( durations[i] / ((segment['timestamp'] - segments_list[i-1]['timestamp']) * 2))-1)>0.05 :  # Assuming 2 words per second as a speaking rate
             
             return (f"Warning: Segment {segment['event_id']} has script text length {len(segment['script_text'].split(' '))} words which takes approximately {(len(segment['script_text'].split(' ')))/2} seconds to speak, but the timestamp difference from the previous segment is {(segment['timestamp'] - segments_list[i-1]['timestamp'])} seconds. Consider adjusting the timestamps or script text length for better synchronization.")
             
