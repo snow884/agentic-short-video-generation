@@ -78,16 +78,23 @@ def check_text_spoken_length_matches_timestamps(segments_list: list):
         
         durations[i] = get_text_duration(segment['script_text'])
         
+        res_str = ""
+        
         if i > 0 and abs(( durations[i] / ((segment['timestamp'] - segments_list[i-1]['timestamp']) * 2))-1)>0.05 :  # Assuming 2 words per second as a speaking rate
             
-            return (f"Warning: Segment {segment['event_id']} has script text length {len(segment['script_text'].split(' '))} words which takes approximately {(len(segment['script_text'].split(' ')))/2} seconds to speak, but the timestamp difference from the previous segment is {(segment['timestamp'] - segments_list[i-1]['timestamp'])} seconds. Consider adjusting the timestamps or script text length for better synchronization.")
-            
+            res_str = res_str + (f"Error: Segment number {i} at timestamp {segment['timestamp']} has script text length {len(segment['script_text'].split(' '))} words which takes approximately {(len(segment['script_text'].split(' ')))/2} seconds to speak, but the timestamp difference from the previous segment is {(segment['timestamp'] - segments_list[i-1]['timestamp'])} seconds. Consider adjusting the timestamps or script text length for better synchronization.")
+            res_str = res_str + "\n"
+        
+        if res_str:
+            print(res_str)
+            return res_str
+        
     if abs(segments_list[-1]['timestamp']/180-1)>0.05:
-        print(f"Warning: The last segment has a timestamp of {segments_list[-1]['timestamp']} seconds which is significantly different than the expected video length of 180 seconds. Consider adjusting the timestamps or adding more segments to better utilize the video length.")
+        print(f"Error: The last segment has a timestamp of {segments_list[-1]['timestamp']} seconds which is significantly different than the expected video length of 180 seconds. Consider adjusting the timestamps or adding more segments to better utilize the video length.")
         return "The total video length is significantly different than 180 seconds."
 
     if (sum(durations) /180-1)>0.05:
-        print(f"Warning: The total duration of all segments is {sum(durations)} seconds which is significantly different than the expected video length of 180 seconds. Consider adjusting the timestamps or script text length for better synchronization.")
+        print(f"Error: The total duration of all segments is {sum(durations)} seconds which is significantly different than the expected video length of 180 seconds. Consider adjusting the timestamps or script text length for better synchronization.")
         return "The total duration of all segments is significantly different than 180 seconds."
         
     print("All segments have correct length relative to their timestamps.")
