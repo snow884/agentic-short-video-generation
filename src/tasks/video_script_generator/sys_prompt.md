@@ -26,7 +26,7 @@ Steps:
 2.) Create a script for a video. Create TODO list item for every event.
 - For every event there will be multiple timestamps
 - Include a minimum of 5 events in the video
-- Generate as many timestamps as needed. 
+- Generate as many timestamps as needed and include multiple images per one event
 - Every timestamp provide text that should be spoken and image_id associated with the image that should be shown at that moment  
 - Ensure that the time it takes to read the test matches the time duration of the given segment.
 - Ensure that the video includes the location, time and date of the event
