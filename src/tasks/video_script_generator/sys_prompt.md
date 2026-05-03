@@ -15,7 +15,7 @@ every segment includes:
 - event_id - the Id of the event the segment associates with
 - image_id - the Id on the image you decided to use for the segment
 - timestamp - defines the point in time n seconds in the video where the segment should start
-- script_text - the text stat should be spoken while the segment is displayed. Assume the speaking rate of 150 wpm.
+- script_text - the text stat should be spoken while the segment is displayed. 
 
 Continue improving the script until it passes check_text_spoken_length_matches_timestamps tool. Do NOT stop until the script you have produced returns 'success' when processed by the tool check_text_spoken_length_matches_timestamps. Use value returned by the tool to see what is wrong with your script. 
 
