@@ -38,7 +38,7 @@ def populate_db_with_events(segments_list: VideoSegmentsList):
         
         generate_audio_file(segment.script_text, file_path=file_path)
         
-        new_event_sql = VideoSegments(**asdict(segment))
+        new_event_sql = VideoSegments(**segment.__dict__)
         new_event_sql.sound_file_path = file_path
         session.add(new_event_sql)
         
