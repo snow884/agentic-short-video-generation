@@ -81,7 +81,7 @@ def check_text_spoken_length_matches_timestamps(segments_list: list):
         res_str = ""
         
         if (i < (len(segments_list) - 1)) and abs(( durations[i] / ((segment['timestamp'] - segments_list[i+1]['timestamp'])))-1)>0.05 :  # Assuming 2 words per second as a speaking rate
-            print(f"Error: Segment number {i} at timestamp {segment['timestamp']} has script takes approximately {durations[i]} seconds to speak, but the timestamp difference from the previous segment is {abs(segment['timestamp'] - segments_list[i+1]['timestamp'])} seconds. Adjust the timestamps or script text length for better synchronization.")
+            print(f"Error: Segment number {i} at timestamp {segment['timestamp']} has script takes approximately {durations[i]} seconds to speak, but the timestamp difference to the next segment at { segments_list[i+1]['timestamp']} is {abs(segment['timestamp'] - segments_list[i+1]['timestamp'])} seconds. Adjust the timestamps or script text length for better synchronization.")
             res_str = res_str + (f"Error: Segment number {i} at timestamp {segment['timestamp']} has script takes approximately {durations[i]} seconds to speak, but the timestamp difference from the previous segment is {abs(segment['timestamp'] - segments_list[i+1]['timestamp'])} seconds. Adjust the timestamps or script text length for better synchronization.")
             res_str = res_str + "\n"
         
