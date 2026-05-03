@@ -12,7 +12,7 @@ from sql_utils import get_db, populate_towns, populate_weekends
 from tables import Base, Events, Image, Towns, Weekends
 
 from pathlib import Path
-from tables import VideoSegmentsList, VideoSegment
+from tables import VideoSegmentsList, VideoSegments
 
 from llm import chat_ollama_with_structured_output
 
@@ -37,7 +37,7 @@ def populate_db_with_events(segments_list: VideoSegmentsList):
         
         generate_audio_file(segment.script_text, file_path=file_path)
         
-        new_event_sql = VideoSegment(**asdict(segment))
+        new_event_sql = VideoSegments(**asdict(segment))
         new_event_sql.sound_file_path = file_path
         session.add(new_event_sql)
         
