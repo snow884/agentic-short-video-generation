@@ -82,10 +82,16 @@ def check_text_spoken_length_matches_timestamps(segments_list: list):
         
         if (i < (len(segments_list) - 1)) and abs(( durations[i] / ((segment['timestamp'] - segments_list[i+1]['timestamp'])))-1)>0.05 :  # Assuming 2 words per second as a speaking rate
             print(f"Error: Segment number {i} at timestamp {segment['timestamp']} has script takes approximately {durations[i]} seconds to speak, but the timestamp difference to the next segment at { segments_list[i+1]['timestamp']} is {abs(segment['timestamp'] - segments_list[i+1]['timestamp'])} seconds. Adjust the timestamps or script text length for better synchronization.")
-            res_str = res_str + (f"Error: Segment number {i} at timestamp {segment['timestamp']} has script takes approximately {durations[i]} seconds to speak, but the timestamp difference from the previous segment is {abs(segment['timestamp'] - segments_list[i+1]['timestamp'])} seconds. Adjust the timestamps or script text length for better synchronization.")
+            res_str = res_str + (f"Error: Segment number {i} at timestamp {segment['timestamp']} has script takes approximately {durations[i]} seconds to speak, but the timestamp difference to the next segment number {i+1} at timestamp { segments_list[i+1]['timestamp']} is {abs(segment['timestamp'] - segments_list[i+1]['timestamp'])} seconds. Adjust the timestamps or script text length for better synchronization.")
             res_str = res_str + "\n"
         
-
+    for i, segment in enumerate(segments_list):
+        
+        if (i < (len(segments_list) - 1)) and (segment['timestamp'] >= segments_list[i+1]['timestamp']):
+            print(f"Error: Segment number {i} at timestamp {segment['timestamp']} has a timestamp that is not less than the next segment number {i+1} at timestamp { segments_list[i+1]['timestamp']}. Adjust the timestamps for better synchronization.")
+            res_str = res_str + (f"Error: Segment number {i} at timestamp {segment['timestamp']} has a timestamp that is not less than the next segment number {i+1} at timestamp { segments_list[i+1]['timestamp']}. Adjust the timestamps for better synchronization.")
+            res_str = res_str + "\n"
+            
         
     if abs(segments_list[-1]['timestamp']/180-1)>0.05:
         print(f"Error: The last segment has a timestamp of {segments_list[-1]['timestamp']} seconds which is significantly different than the expected video length of 180 seconds. Consider adjusting the timestamps or adding more segments to better utilize the video length.")
