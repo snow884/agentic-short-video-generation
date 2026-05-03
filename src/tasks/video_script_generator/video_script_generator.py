@@ -34,7 +34,7 @@ def populate_db_with_events(segments_list: VideoSegmentsList):
     for segment in segments_list.video_segments:
         print("Adding the segment ", segment.script_text)
         
-        file_path=f"data/audio/event_{segment.event_id}_segment_{hashlib.sha256(str(segment.event_id)+str(segment.timestamp)+str(segment.script_text).encode()).hexdigest()}.wav"
+        file_path=f"data/audio/event_{segment.event_id}_segment_{hashlib.sha256((str(segment.event_id)+str(segment.timestamp)+str(segment.script_text)).encode()).hexdigest()}.wav"
         
         generate_audio_file(segment.script_text, file_path=file_path)
         
