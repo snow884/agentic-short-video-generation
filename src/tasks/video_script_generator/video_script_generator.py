@@ -31,7 +31,7 @@ def populate_db_with_events(segments_list: VideoSegmentsList):
     session = next(get_db())
     
     for segment in segments_list.video_segments:
-        print("Adding the segment ", segment.id," ", segment.script_text)
+        print("Adding the segment ", segment.script_text)
         
         file_path=f"data/audio/event_{segment.event_id}_segment_{segment.id}.wav"
         
