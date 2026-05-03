@@ -12,7 +12,7 @@ from sql_utils import get_db, populate_towns, populate_weekends
 from tables import Base, Events, Image, Towns, Weekends
 
 from pathlib import Path
-from tables import VideoSegmentsList
+from tables import VideoSegmentsList, VideoSegment
 
 from llm import chat_ollama_with_structured_output
 
@@ -26,22 +26,26 @@ def object_as_dict(obj):
     return {c.key: getattr(obj, c.key) for c in inspect(obj).mapper.column_attrs}
 
 
-def populate_db_with_events(segments_list: VideoSegmentsList, event_id: int, weekend_id: int):
+def populate_db_with_events(segments_list: VideoSegmentsList):
 
     session = next(get_db())
     
     for segment in segments_list.video_segments:
         print("Adding the segment ", segment.event_name)
-        new_event_sql = Events(**asdict(segment))
-        new_event_sql.town_id = town_id
-        new_event_sql.weekend_id = weekend_id
+        
+        file_path=f"data/audio/event_{segment.event_id}_segment_{segment.id}.wav"
+        
+        generate_audio_file(segment.script_text, file_path=file_path)
+        
+        new_event_sql = VideoSegment(**asdict(segment))
+        new_event_sql.sound_file_path = file_path
         session.add(new_event_sql)
         
     session.commit()
 
     session.close()
 
-def get_text_duration(text):
+def generate_audio_file(text, file_path='your_audio_file.wav'):
 
     pipeline = KPipeline(lang_code='a')
 
@@ -51,8 +55,8 @@ def get_text_duration(text):
 
     for i, (gs, ps, audio) in enumerate(generator):
         print(i, gs, ps)
-        sf.write(f'your_audio_file.wav', audio, 24000)
-        info = sf.info('your_audio_file.wav')
+        sf.write(file_path, audio, 24000)
+        info = sf.info(file_path)
         duration = duration + info.duration
         
     return duration
@@ -76,7 +80,7 @@ def check_text_spoken_length_matches_timestamps(segments_list: list):
     
     for i, segment in enumerate(segments_list):
         
-        durations[i] = get_text_duration(segment['script_text'])
+        durations[i] = generate_audio_file(segment['script_text'])
         
         res_str = ""
         
@@ -136,7 +140,7 @@ def main(weekend_id=0, town_id=0):
 
     Video_Segments_List = run_agent_sync(user_prompt_params=user_prompt_params,system_prompt_params=system_prompt_params, ReturnClass=VideoSegmentsList, prompt_dir=Path(__file__).parent.resolve(), extra_tools=[check_text_spoken_length_matches_timestamps])
     print("Received Video Segments list: ", Video_Segments_List  )
-    populate_db_with_events(Video_Segments_List, event_id=event_id)
+    populate_db_with_events(Video_Segments_List)
 
 if __name__ == "__main__":
 
