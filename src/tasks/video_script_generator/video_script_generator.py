@@ -80,9 +80,9 @@ def check_text_spoken_length_matches_timestamps(segments_list: list):
         
         res_str = ""
         
-        if (i < (len(segments_list) - 1)) and abs(( durations[i] / ((segment['timestamp'] - segments_list[i+1]['timestamp']) * 2))-1)>0.05 :  # Assuming 2 words per second as a speaking rate
-            print(f"Error: Segment number {i} at timestamp {segment['timestamp']} has script text length {len(segment['script_text'].split(' '))} words which takes approximately {(len(segment['script_text'].split(' ')))/2} seconds to speak, but the timestamp difference from the previous segment is {(segment['timestamp'] - segments_list[i-1]['timestamp'])} seconds. Consider adjusting the timestamps or script text length for better synchronization.")
-            res_str = res_str + (f"Error: Segment number {i} at timestamp {segment['timestamp']} has script text length {len(segment['script_text'].split(' '))} words which takes approximately {(len(segment['script_text'].split(' ')))/2} seconds to speak, but the timestamp difference from the previous segment is {(segment['timestamp'] - segments_list[i-1]['timestamp'])} seconds. Consider adjusting the timestamps or script text length for better synchronization.")
+        if (i < (len(segments_list) - 1)) and abs(( durations[i] / ((segment['timestamp'] - segments_list[i+1]['timestamp'])))-1)>0.05 :  # Assuming 2 words per second as a speaking rate
+            print(f"Error: Segment number {i} at timestamp {segment['timestamp']} has script takes approximately {durations[i]} seconds to speak, but the timestamp difference from the previous segment is {abs(segment['timestamp'] - segments_list[i+1]['timestamp'])} seconds. Adjust the timestamps or script text length for better synchronization.")
+            res_str = res_str + (f"Error: Segment number {i} at timestamp {segment['timestamp']} has script takes approximately {durations[i]} seconds to speak, but the timestamp difference from the previous segment is {abs(segment['timestamp'] - segments_list[i+1]['timestamp'])} seconds. Adjust the timestamps or script text length for better synchronization.")
             res_str = res_str + "\n"
         
 
