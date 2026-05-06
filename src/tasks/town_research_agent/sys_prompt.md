@@ -4,6 +4,7 @@
     - Continue research until you are successful in collecting 500 towns meeting the country and population range criteria
     - Make sure the population is included in the collected data and that it matches the value range provided by the user
     - Do not stop until you find at least 500 towns, parse as many sites and files as needed
+    - Do not provide a town unless it meets the population range criteria and the country criteria
 
     Steps:
     0.) Conduct research for every state or province in the provided country.
