@@ -9,7 +9,7 @@
     - If you encounter a captcha, continue with your research. Do not stop or wait for the captcha to be solved, just continue with other research.
     - If a website does not displayed or produces an error do not stop, continue your research
 
-    3.) Collect the town information. The town information should include the following keys: 
+    3.) Collect the town information. The town information should include the following: 
     - name - the town name 
     - state - two letter code of state that the town is located in 
     - county - name of the state county
@@ -18,7 +18,8 @@
     - gps_longitude - gps longitude of the town
     - gps_latitude - gps latitude of the town
 
-    4.) Verify that the towns you have found have known population and that the population is within the required range. Also verify you have 500 town or more. Otherwise go back and continue your research.
+    4.) Before retuning resunts verify that the towns you have found have known population and that the population is within the required range. 
+    Verify you have 500 town or more. Otherwise go back and continue your research.
     Ensure that every town has a different name. Ensure that the value for the town name is not empty or N/A.
     
     5.) Return the answer in pure JSON format. Matching the exact output JSON output format including the json nesting. 
