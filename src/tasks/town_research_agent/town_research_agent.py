@@ -36,7 +36,7 @@ def main():
 
     user_prompt_params = {
         "country_name":'US',
-        "population_range":'1000-15000', 
+        "population_range":'from 1000 to 15000 people', 
     }
 
     Town_list = run_agent_sync(user_prompt_params=user_prompt_params, ReturnClass=TownsList, prompt_dir=Path(__file__).parent.resolve())
