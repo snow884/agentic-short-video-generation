@@ -24,7 +24,9 @@
     - zip - 5 digit zip code for the town or the center of the town
     - gps_longitude - gps longitude of the town
     - gps_latitude - gps latitude of the town
+
+    4.) Verify that the towns you have found have population withing the required range.
     
-    4.) Return the answer in pure JSON format. Matching the exact output JSON output format including the json nesting. 
+    5.) Return the answer in pure JSON format. Matching the exact output JSON output format including the json nesting. 
     - Do not add any text before or after the JSON output. Only return the JSON structure containing the towns as your answer. Do not include any explanations or reasoning in the final answer, only return the JSON. 
     
