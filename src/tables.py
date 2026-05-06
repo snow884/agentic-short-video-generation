@@ -24,7 +24,10 @@ class Towns(Base):
     id = Column(Integer, primary_key=True)
     name = Column(String, default="")
     state = Column(String, default="")
-    description = Column(String, default="")
+    country = Column(String, default="")
+    county = Column(String, default="")
+    population = Column(String, default="")
+    zip = Column(String, default="")
     gps_longitude = Column(String, default="")
     gps_latitude = Column(String, default="")
     #events: Mapped["Events"] = relationship(back_populates="town")
@@ -32,7 +35,10 @@ class Towns(Base):
 class TownsSchema(BaseModel):
     name: str
     state: str
-    description: str
+    country: str
+    county: str
+    population: str
+    zip: str 
     gps_longitude: str
     gps_latitude: str
 
@@ -150,6 +156,6 @@ class ImageSchema(BaseModel):
     description: str
     title: str
 
-class ImageList(BaseModel):
+class TownsList(BaseModel):
 
-    images: List[ImageSchema]  | None = []
+    towns: List[TownsSchema]  | None = []
