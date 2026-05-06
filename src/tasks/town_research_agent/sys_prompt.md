@@ -2,6 +2,7 @@
 
     Rules:
     - Continue research until you are successful in collecting all town meeting the criteria
+    - Do not stop until you find at least 500 towns
 
     Steps:
     1.) Use the Tavily Search API tools {tavity_tools_str} to search for websites that could list towns. Inspect the search results returned by the search API and open them as needed to obtain more information.
