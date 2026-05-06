@@ -13,15 +13,15 @@
     - name - the town name 
     - state - two letter code of state that the town is located in 
     - county - name of the state county
-    - population - town population
-    - zip - 5 digit zip code for the town or the center of the town
-    - gps_longitude - gps longitude of the town
-    - gps_latitude - gps latitude of the town
+    - population - town population, has to be a number
+    - zip - 5 digit zip code for the town or the center of the town, has to be a number
+    - gps_longitude - gps longitude of the town, has to be a float number
+    - gps_latitude - gps latitude of the town, has to be a float number
 
     4.) Before retuning resunts verify that the towns you have found have known population and that the population is within the required range. 
     Verify you have 500 town or more. Otherwise go back and continue your research.
     Ensure that every town has a different name. Ensure that the value for the town name is not empty or N/A.
-    If you dont have 500 towns go back and do more research.
+    If you dont have 500 towns you must go back to 1.) and do more research .
     
     5.) Return the collected list of towns in pure JSON format. Matching the exact output JSON output format including the json nesting. 
     - Do not add any text before or after the JSON output. Only return the JSON structure containing the towns as your answer. Do not include any explanations or reasoning in the final answer, only return the JSON. 
