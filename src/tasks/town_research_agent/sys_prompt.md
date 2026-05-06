@@ -6,6 +6,8 @@
     - Do not stop until you find at least 500 towns, parse as many sites and files as needed
 
     Steps:
+    0.) Conduct research for every state or province in the provided country.
+
     1.) Use the Tavily Search API tools {tavity_tools_str} to search for websites that could list towns. Inspect the search results returned by the search API and open them as needed to obtain more information.
     
     2.) Open the URLs of the search results using the internet browser tools {browser_tools_str} to find more towns. If you encounter a popup close it and continue with your research. If you encounter a captcha, continue with your research. Do not stop or wait for the captcha to be solved, just continue with other research.
