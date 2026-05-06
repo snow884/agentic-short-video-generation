@@ -47,6 +47,4 @@ def main():
 if __name__ == "__main__":
     from dotenv import load_dotenv
     load_dotenv()
-    session = next(get_db())
-    for e in session.query(Events).all():
-        main()
+    main()
