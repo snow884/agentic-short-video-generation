@@ -35,7 +35,7 @@ def populate_db_with_towns(Town_list: TownsList):
 def main():
 
     user_prompt_params = {
-        "country_name":'US',
+        "country_name":'USA',
         "population_range":'from 1000 to 15000 people', 
     }
 
