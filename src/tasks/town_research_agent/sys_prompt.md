@@ -11,6 +11,7 @@
     2.) Open the URLs of the search results using the internet browser tools {browser_tools_str} to find more towns. If you encounter a popup close it and continue with your research. If you encounter a captcha, continue with your research. Do not stop or wait for the captcha to be solved, just continue with other research.
     - If you encounter a popup close it and continue with your research.
     - If you encounter a captcha, continue with your research. Do not stop or wait for the captcha to be solved, just continue with other research.
+    - If a website does not displayed or produces an error do not stop, continue your research
 
     3.) Collect the town information. The town information should include the following keys: 
     - name - the town name 
