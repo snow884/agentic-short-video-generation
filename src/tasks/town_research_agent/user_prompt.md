@@ -1,1 +1,2 @@
-Provide a list of all towns in the country {country_name} with population in range {population_range}. 
+
+Provide towns in {country_name} with population in range {population_range}. 
