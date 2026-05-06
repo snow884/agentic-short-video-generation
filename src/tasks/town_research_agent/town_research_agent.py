@@ -22,7 +22,7 @@ def populate_db_with_towns(Town_list: TownsList):
     session = next(get_db())
     
     for new_Town in Town_list.towns:
-        print("Adding the Town " + new_Town.name + " - " + new_Town.description)
+        print("Adding the Town " + new_Town.name + ", " + new_Town.state + ", population: " + new_Town.population + ", country: " + new_Town.country)
 
         new_Town_sql = Towns(**new_Town.__dict__)
         session.add(new_Town_sql)
@@ -39,7 +39,7 @@ def main():
         "population_range":'from 1000 to 15000 people', 
     }
 
-    Town_list = run_agent_sync(user_prompt_params=user_prompt_params, ReturnClass=TownsList, prompt_dir=Path(__file__).parent.resolve())
+    Town_list = run_agent_sync(user_prompt_params=user_prompt_params,system_prompt_params= {}, ReturnClass=TownsList, prompt_dir=Path(__file__).parent.resolve())
     print("Received Town list: ", Town_list  )
     populate_db_with_towns(Town_list)
     
