@@ -53,7 +53,5 @@ if __name__ == "__main__":
         Base.metadata.create_all(engine) 
 
     create_tables()
-    populate_weekends()
-    populate_towns()
 
     main(town_id=1, weekend_id=1)
