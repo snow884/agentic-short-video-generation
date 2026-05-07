@@ -45,8 +45,7 @@ def populate_towns():
         session.close()
         return
     
-    raw_data = """id, name, state, population, growth_rate
-744,Pinellas Park,Florida,49998,5.9%
+    raw_data = """744,Pinellas Park,Florida,49998,5.9%
 745,Troy,New York,49974,1.5%
 746,West Sacramento,California,49891,55.6%
 747,Burien,Washington,49858,56.7%
@@ -310,16 +309,6 @@ def populate_towns():
     for line in raw_data_lines:
         id, name, state, population, growth_rate = line.split(",")
         town = Towns(id=int(id), name=name, state=state, population=int(population))
-        session.add(town)
-    
-    # Example: Populate towns with some dummy data
-    towns = [
-        Towns(name="Allentown", state="PA")
-        
-        
-    ]
-    
-    for town in towns:
         session.add(town)
     
     session.commit()
