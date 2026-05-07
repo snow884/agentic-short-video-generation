@@ -93,6 +93,7 @@ def main(args):
     if not args.verbose:
         shutil.rmtree(save_dir)
 
+    return save_dir+'.mp4'
     
 if __name__ == '__main__':
 
