@@ -28,7 +28,7 @@ def populate_weekends():
     
     # Example: Populate weekends with some dummy data
     weekends = [
-        Weekends(date="2026-05-02")
+        Weekends(date="2026-05-16")
     ]
     
     for weekend in weekends:
