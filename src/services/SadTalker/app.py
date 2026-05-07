@@ -1,4 +1,4 @@
-from .inference import main 
+from inference import main 
 
 from fastapi import FastAPI
 
