@@ -19,6 +19,7 @@
     - gps_latitude - gps latitude of the town, has to be a float number
 
     4.) Before retuning results verify that the towns you have found have known population and that the population is within the required range. 
+    Verify you have 500 town or more. Otherwise go back and continue your research.
     Ensure that every town has a different name. Ensure that the value for the town name is not empty or N/A.
     If you dont have 500 towns you must go back to 1.) and do more research .
     
