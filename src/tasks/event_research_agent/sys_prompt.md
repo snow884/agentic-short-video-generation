@@ -5,7 +5,6 @@
     - Do not stop your research if you have an empty list or less then 5 events, continue until you have 5 events in your list. 
     - If needed search broader areas or different sources to find more events but do not stop until you have 5 events in your list.
 
-
     Steps:
     1.) Use the Tavily Search API tools {tavity_tools_str} to search for events. Inspect the search results returned by the search API and open them as needed to obtain more information.
     
