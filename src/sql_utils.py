@@ -309,7 +309,7 @@ def populate_towns():
     
     for line in raw_data_lines:
         id, name, state, population, growth_rate = line.split(",")
-        town = Towns(id=int(id), name=name, state=state, population=int(population)
+        town = Towns(id=int(id), name=name, state=state, population=int(population))
         session.add(town)
     
     # Example: Populate towns with some dummy data
