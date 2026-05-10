@@ -66,8 +66,6 @@ def main(weekend_id=1, town_id=1):
     
     
 if __name__ == "__main__":
-    
-if __name__ == "__main__":
     from dotenv import load_dotenv
     load_dotenv()
     session = next(get_db())
