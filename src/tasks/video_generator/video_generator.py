@@ -67,5 +67,11 @@ def main(weekend_id=1, town_id=1):
     
 if __name__ == "__main__":
     
-    
-    main(weekend_id=1, town_id=1)
+if __name__ == "__main__":
+    from dotenv import load_dotenv
+    load_dotenv()
+    session = next(get_db())
+    for e in session.query(Events).all():
+        print(e.id, e.event_name)
+
+        main(weekend_id=e.weekend_id, town_id=e.town_id)
