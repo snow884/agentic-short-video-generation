@@ -14,8 +14,6 @@ def main(weekend_id=1, town_id=1):
     events = session.query(Events).filter(Events.weekend_id==weekend_id, Events.town_id==town_id).all()
     
     video_segments = session.query(VideoSegments).filter(VideoSegments.event_id.in_([e.id for e in events])).order_by(VideoSegments.timestamp).all()
-    
-    video = VideoFileClip("my_video.mp4")
 
     combined_video = None
     combined_audio = None
