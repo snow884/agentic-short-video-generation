@@ -25,3 +25,5 @@ cuda-toolkit
 torch 
 torchvision 
 torchaudio 
+pydub
+moviepy

@@ -5,8 +5,8 @@ from tables import Events, Towns, Weekends, VideoSegments
 from sql_utils import get_db
 import requests
 from pydub import AudioSegment
-from moviepy.editor import ImageClip, VideoFileClip, concatenate_videoclips
-from moviepy.editor import VideoFileClip, CompositeVideoClip, vfx
+from moviepy import ImageClip, VideoFileClip, concatenate_videoclips
+from moviepy import VideoFileClip, CompositeVideoClip, vfx
 
 def main(weekend_id=1, town_id=1):
     session = next(get_db())
