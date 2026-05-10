@@ -22,6 +22,9 @@ from sqlalchemy import inspect
 from kokoro import KPipeline
 import soundfile as sf
 import torch
+from dotenv import load_dotenv
+
+load_dotenv()
 
 def object_as_dict(obj):
     return {c.key: getattr(obj, c.key) for c in inspect(obj).mapper.column_attrs}
@@ -144,7 +147,5 @@ def main(weekend_id=0, town_id=0):
     populate_db_with_events(Video_Segments_List)
 
 if __name__ == "__main__":
-
-    from dotenv import load_dotenv
-    load_dotenv()
+    
     main(town_id=1, weekend_id=1)

@@ -1,0 +1,73 @@
+from dotenv import load_dotenv
+load_dotenv()
+
+from tables import Events, Towns, Weekends, VideoSegments
+from sql_utils import get_db
+import requests
+from pydub import AudioSegment
+from moviepy.editor import ImageClip, VideoFileClip, concatenate_videoclips
+from moviepy.editor import VideoFileClip, CompositeVideoClip, vfx
+
+def main(weekend_id=1, town_id=1):
+    session = next(get_db())
+    
+    events = session.query(Events).filter(Events.weekend_id==weekend_id, Events.town_id==town_id).all()
+    
+    video_segments = session.query(VideoSegments).filter(VideoSegments.event_id.in_([e.id for e in events])).order_by(VideoSegments.timestamp).all()
+    
+    video = VideoFileClip("my_video.mp4")
+
+    combined_video = None
+    combined_audio = None
+    
+    for segment in video_segments:
+        print(f"Segment ID: {segment.id}, Event ID: {segment.event_id}, Timestamp: {segment.timestamp}, Script Text: {segment.script_text}, Sound File Path: {segment.sound_file_path}")
+
+        sound = AudioSegment.from_file(segment.sound_file_path)
+        
+        duration = sound.duration_seconds
+        
+        combined_audio = sound if combined_audio is None else combined_audio + sound
+        
+        image_still = ImageClip(segment.image_path).set_duration(duration).audio(sound) 
+        
+        if combined_video is None:
+            combined_video = image_still
+        else:
+            combined_video = concatenate_videoclips([combined_video, image_still])
+    
+    combined_audio_path = "agentic-tasks/data/video/sad_talker_input/combined_audio.wav"
+    
+    combined_audio.export(combined_audio_path, format="wav")
+    
+    res = requests.post("http://localhost:8000/inference/", json={"image_path": "agentic-tasks/data/video/sad_talker_out/obama.jpg", "audio_path": combined_audio_path, "verbose": True})
+    
+    video_path = res.json()["video_path"]
+    
+    
+    
+    # 1. Load the videos
+    # 'bg_clip' is your main background
+    # 'fg_clip' is the one with the green screen
+    bg_clip = combined_video
+    fg_clip = VideoFileClip(video_path)
+
+    # 2. Apply the green screen mask
+    # 'color' is the RGB value of the green to remove
+    # 'thr' (threshold) and 's' (stiffness) help fine-tune the edges
+    masked_fg = fg_clip.fx(vfx.mask_color, color=[0, 255, 0], thr=100, s=5)
+
+    # 3. Overlay the masked clip onto the background
+    # You can set the position and start time of the overlay
+    final_video = CompositeVideoClip([
+        bg_clip, 
+        masked_fg.set_position("center").set_start(0)
+    ])
+
+    final_video.write_videofile("concatenated_output.mp4", codec="libx264", audio_codec="aac")
+    
+    
+if __name__ == "__main__":
+    
+    
+    main(weekend_id=1, town_id=1)
