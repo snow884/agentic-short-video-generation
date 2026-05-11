@@ -73,7 +73,7 @@ def main(weekend_id=1, town_id=1):
     # 'thr' (threshold) and 's' (stiffness) help fine-tune the edges
     masked_fg = fg_clip.with_effects([vfx.MaskColor(color=[0, 255, 0], threshold=10, stiffness=5)])
     
-    masked_fg = masked_fg.with_position(("right", "bottom")).set_start(0)
+    masked_fg = masked_fg.with_position(("right", "bottom")).with_start(0)
 
     # 3. Overlay the masked clip onto the background
     # You can set the position and start time of the overlay
@@ -82,7 +82,7 @@ def main(weekend_id=1, town_id=1):
         bg_clip, 
         masked_fg
     ])
-    final_video = final_video.set_audio(final_audio)
+    final_video = final_video.with_audio(final_audio)
     
 
     final_video.write_videofile("data/video/concatenated_output.mp4", codec="libx264", audio_codec="aac")
