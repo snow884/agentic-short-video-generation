@@ -13,6 +13,9 @@ from moviepy import VideoFileClip, CompositeVideoClip, vfx
 from prefect import flow, task
 from pathlib import Path
 
+import hashlib
+import time
+
 @task
 def main(weekend_id=1, town_id=1):
     session = next(get_db())
@@ -90,9 +93,17 @@ def main(weekend_id=1, town_id=1):
     ])
     final_video = final_video.with_audio(final_audio)
     
-    
+    # 1. Get the current Unix timestamp
+    timestamp = str(time.time())
 
-    final_video.write_videofile(f"data/video/concatenated_output_{t.name}_{t.state}_{w.date}.mp4", codec="libx264", audio_codec="aac")
+    # 2. Encode to bytes and create SHA-256 hash
+    hash_object = hashlib.sha256(timestamp.encode('utf-8'))
+
+    # 3. Get the hexadecimal representation
+    hex_dig = hash_object.hexdigest()
+    slug = hex_dig[0:5]  # You can take the first 10 characters for a shorter slug
+
+    final_video.write_videofile(f"data/video/concatenated_output_{t.name}_{t.state}_{w.date}_{slug}.mp4", codec="libx264", audio_codec="aac")
     
     
     
