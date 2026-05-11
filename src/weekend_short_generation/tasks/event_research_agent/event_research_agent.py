@@ -1,7 +1,6 @@
 
 from dataclasses import asdict
 
-
 import nest_asyncio
 
 from research_agent import run_agent_sync

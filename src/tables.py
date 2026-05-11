@@ -155,7 +155,14 @@ class ImageSchema(BaseModel):
     image_url: str
     description: str
     title: str
+    
+class ImageList(BaseModel):
+    images: list[ImageSchema] 
 
+class TownsList(BaseModel):
+
+    towns: List[TownsSchema]  
+    
 class TownsList(BaseModel):
 
     towns: List[TownsSchema]  | None = []
