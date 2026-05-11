@@ -32,7 +32,7 @@ def main(weekend_id=1, town_id=1):
         
         combined_audio = sound if combined_audio is None else combined_audio + sound
         
-        image_still = ImageClip(image.file_path).set_duration(duration).audio(sound) 
+        image_still = ImageClip(image.file_path).with_duration(duration).audio(sound) 
         
         if combined_video is None:
             combined_video = image_still
