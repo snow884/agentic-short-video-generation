@@ -1,13 +1,15 @@
 from dotenv import load_dotenv
 load_dotenv()
 
-from tables import Events, Towns, Weekends, VideoSegments
+from tables import Events, Image, Towns, Weekends, VideoSegments
 from sql_utils import get_db
 import requests
 from pydub import AudioSegment
 from moviepy import ImageClip, VideoFileClip, concatenate_videoclips
 from moviepy import VideoFileClip, CompositeVideoClip, vfx
+from prefect import flow, task
 
+@task
 def main(weekend_id=1, town_id=1):
     session = next(get_db())
     
@@ -19,7 +21,10 @@ def main(weekend_id=1, town_id=1):
     combined_audio = None
     
     for segment in video_segments:
-        print(f"Segment ID: {segment.id}, Event ID: {segment.event_id}, Timestamp: {segment.timestamp}, Script Text: {segment.script_text}, Sound File Path: {segment.sound_file_path}")
+        
+        image = session.query(Image).filter(Image.id==segment.Image_id).first()
+        
+        print(f"Segment ID: {segment.id}, Event ID: {segment.event_id}, Timestamp: {segment.timestamp}, Script Text: {segment.script_text}, Sound File Path: {segment.sound_file_path}, Image ID: {segment.Image_id}, Image File Path: {image.file_path}")
 
         sound = AudioSegment.from_file(segment.sound_file_path)
         
@@ -27,7 +32,7 @@ def main(weekend_id=1, town_id=1):
         
         combined_audio = sound if combined_audio is None else combined_audio + sound
         
-        image_still = ImageClip(segment.image_path).set_duration(duration).audio(sound) 
+        image_still = ImageClip(image.file_path).set_duration(duration).audio(sound) 
         
         if combined_video is None:
             combined_video = image_still
