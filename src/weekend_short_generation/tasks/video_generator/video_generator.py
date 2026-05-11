@@ -44,11 +44,11 @@ def main(weekend_id=1, town_id=1):
         
         image_still = ImageClip(image.file_path).with_duration(duration)
         
-        clip_resized_center = image_still.resized(width=1080).with_position(("center", "center"))
+        clip_resized_center = image_still.resized(height=1080).with_position(("center", "center"))
 
         
         if combined_video is None:
-            combined_video =  CompositeVideoClip([clip_resized_center], size=(1920, 1080))
+            combined_video =  CompositeVideoClip([clip_resized_center], size=(1080, 1920))
         else:
             combined_video = concatenate_videoclips([combined_video, CompositeVideoClip([clip_resized_center], size=(1920, 1080))])
     
