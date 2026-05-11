@@ -50,7 +50,7 @@ def main(weekend_id=1, town_id=1):
     parent_dir = Path(__file__).parent.parent.parent.parent.resolve()
     print(f"Parent directory: {parent_dir}")
     
-    res = requests.post("http://localhost:8000/inference/", headers={"Content-Type": "application/json"}, data=json.dumps({"--source_image": os.path.join(parent_dir, "data/portraits/anchor1.png"), "--driven_audio": os.path.join(parent_dir, combined_audio_path), "--result_dir":os.path.join(parent_dir, "data/video/sad_talker_out"), "--checkpoint_dir":os.path.join(parent_dir, "services/SadTalker/checkpoints")}))
+    res = requests.post("http://localhost:8000/inference/", headers={"Content-Type": "application/json"}, data=json.dumps({"source_image": os.path.join(parent_dir, "data/portraits/anchor1.png"), "driven_audio": os.path.join(parent_dir, combined_audio_path), "result_dir":os.path.join(parent_dir, "data/video/sad_talker_out"), "checkpoint_dir":os.path.join(parent_dir, "services/SadTalker/checkpoints")}))
 
     if res.status_code != 200:
         raise Exception(f"Error: {res.status_code}, {res.text}")
