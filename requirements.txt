@@ -27,3 +27,4 @@ torchvision
 torchaudio 
 pydub
 moviepy
+prefect
