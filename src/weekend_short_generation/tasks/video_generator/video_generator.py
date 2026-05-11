@@ -40,11 +40,12 @@ def main(weekend_id=1, town_id=1):
         image_still = ImageClip(image.file_path).with_duration(duration)
         
         clip_resized = resize(image_still, newsize=(1920, 1080)) 
+        clip_resized_center = clip_resized.with_position("center")
         
         if combined_video is None:
-            combined_video = clip_resized
+            combined_video = clip_resized_center
         else:
-            combined_video = concatenate_videoclips([combined_video, clip_resized])
+            combined_video = concatenate_videoclips([combined_video, clip_resized_center])
     
     combined_audio_path = "data/video/sad_talker_input/combined_audio.wav"
     
