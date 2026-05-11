@@ -12,7 +12,6 @@ from moviepy import ImageClip, VideoFileClip, concatenate_videoclips
 from moviepy import VideoFileClip, CompositeVideoClip, vfx
 from prefect import flow, task
 from pathlib import Path
-from moviepy.video.fx.resize import resize
 
 @task
 def main(weekend_id=1, town_id=1):
@@ -39,8 +38,8 @@ def main(weekend_id=1, town_id=1):
         
         image_still = ImageClip(image.file_path).with_duration(duration)
         
-        clip_resized = resize(image_still, newsize=(1920, 1080)) 
-        clip_resized_center = clip_resized.with_position("center")
+        clip_resized_center = image_still.resize(width=1080).set_position("center")
+
         
         if combined_video is None:
             combined_video = clip_resized_center
