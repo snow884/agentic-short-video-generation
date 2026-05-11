@@ -63,6 +63,7 @@ def main(weekend_id=1, town_id=1):
     # 'fg_clip' is the one with the green screen
     bg_clip = combined_video
     fg_clip = VideoFileClip(video_path)
+    final_audio = fg_clip.audio
     
     new_width = bg_clip.w / 3
     fg_clip = fg_clip.resize(width=int(new_width))
@@ -76,10 +77,13 @@ def main(weekend_id=1, town_id=1):
 
     # 3. Overlay the masked clip onto the background
     # You can set the position and start time of the overlay
+    
     final_video = CompositeVideoClip([
         bg_clip, 
         masked_fg
     ])
+    final_video = final_video.set_audio(final_audio)
+    
 
     final_video.write_videofile("data/video/concatenated_output.mp4", codec="libx264", audio_codec="aac")
     
