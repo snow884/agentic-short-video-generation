@@ -49,9 +49,10 @@ def inference(args: Dict[str, Any] = Body(...)):
     parser.add_argument('--z_far', type=float, default=15.)
     
     fake_argv = [item for pair in args.items() for item in pair]
+    fake_args = parser.parse_args(fake_argv)
     
     try:
-        save_dir = main(fake_argv) 
+        save_dir = main(fake_args) 
     except Exception as e:
         raise HTTPException(status_code=400, detail="Sadtaalker inference failed: " + str(e))
     
