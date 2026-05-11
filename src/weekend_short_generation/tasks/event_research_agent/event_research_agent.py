@@ -27,9 +27,8 @@ def populate_db_with_events(event_list: EventList, town_id: int, weekend_id: int
         new_event_sql.town_id = town_id
         new_event_sql.weekend_id = weekend_id
         session.add(new_event_sql)
+        session.commit()
         event_id_list.append(new_event_sql.id)
-        
-    session.commit()
 
     session.close()
     
