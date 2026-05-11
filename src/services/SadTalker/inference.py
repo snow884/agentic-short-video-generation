@@ -31,7 +31,7 @@ def main(args):
     current_root_path = os.path.split(sys.argv[0])[0]
 
     sadtalker_paths = init_path(args.checkpoint_dir, os.path.join(current_root_path, 'src/config'), args.size, args.old_version, args.preprocess)
-
+    print("SadTalker paths: ", sadtalker_paths)
     #init model
     preprocess_model = CropAndExtract(sadtalker_paths, device)
 
