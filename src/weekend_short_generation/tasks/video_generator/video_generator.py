@@ -12,6 +12,7 @@ from moviepy import ImageClip, VideoFileClip, concatenate_videoclips
 from moviepy import VideoFileClip, CompositeVideoClip, vfx
 from prefect import flow, task
 from pathlib import Path
+from moviepy.video.fx.resize import resize
 
 @task
 def main(weekend_id=1, town_id=1):
@@ -38,10 +39,12 @@ def main(weekend_id=1, town_id=1):
         
         image_still = ImageClip(image.file_path).with_duration(duration)
         
+        clip_resized = resize(image_still, newsize=(1920, 1080)) 
+        
         if combined_video is None:
-            combined_video = image_still
+            combined_video = clip_resized
         else:
-            combined_video = concatenate_videoclips([combined_video, image_still])
+            combined_video = concatenate_videoclips([combined_video, clip_resized])
     
     combined_audio_path = "data/video/sad_talker_input/combined_audio.wav"
     
