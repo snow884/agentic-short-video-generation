@@ -48,9 +48,14 @@ def inference(args: Dict[str, Any] = Body(...)):
     parser.add_argument('--z_near', type=float, default=5.)
     parser.add_argument('--z_far', type=float, default=15.)
     
-    fake_argv = [item for pair in args.items() for item in pair]
-    fake_args = parser.parse_args(fake_argv)
-    
+
+    parser.set_defaults(**args)
+
+    # Passing an empty list to parse_args() prevents it from reading sys.argv
+    fake_args = parser.parse_args([])
+
+    args.device = "cuda"
+
     try:
         save_dir = main(fake_args) 
     except Exception as e:
