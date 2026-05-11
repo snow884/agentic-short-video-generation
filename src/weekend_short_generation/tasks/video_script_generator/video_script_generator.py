@@ -19,7 +19,7 @@ from llm import chat_ollama_with_structured_output
 
 from sqlalchemy import inspect
 
-from kokoro import KPipeline
+
 import soundfile as sf
 import torch
 from dotenv import load_dotenv
@@ -51,6 +51,8 @@ def populate_db_with_events(segments_list: VideoSegmentsList):
     session.close()
 
 def generate_audio_file(text, file_path='your_audio_file.wav'):
+    
+    from kokoro import KPipeline
 
     pipeline = KPipeline(lang_code='a')
 
