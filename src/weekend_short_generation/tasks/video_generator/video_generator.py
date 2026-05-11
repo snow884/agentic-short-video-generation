@@ -56,7 +56,7 @@ def main(weekend_id=1, town_id=1):
         raise Exception(f"Error: {res.status_code}, {res.text}")
         return
     
-    video_path = res.json()["video_path"]
+    video_path = res.json()["save_dir"]
     
     # 1. Load the videos
     # 'bg_clip' is your main background
