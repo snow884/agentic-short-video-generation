@@ -10,6 +10,7 @@ from pydub import AudioSegment
 from moviepy import ImageClip, VideoFileClip, concatenate_videoclips
 from moviepy import VideoFileClip, CompositeVideoClip, vfx
 from prefect import flow, task
+from pathlib import Path
 
 @task
 def main(weekend_id=1, town_id=1):
@@ -45,7 +46,7 @@ def main(weekend_id=1, town_id=1):
     
     combined_audio.export(combined_audio_path, format="wav")
     
-    parent_dir = os.path.dirname(os.path.realpath(__file__)).parent.parent.resolve()
+    parent_dir = Path(os.path.realpath(__file__).parent.parent.parent.resolve()
     print(f"Parent directory: {parent_dir}")
     
     res = requests.post("http://localhost:8000/inference/", json={"image_path": os.path.join(parent_dir, "data/portraits/anchor1.png"), "audio_path": os.path.join(parent_dir, combined_audio_path), "result_dir":os.path.join(parent_dir, "data/video/sad_talker_out"), "verbose": True})
