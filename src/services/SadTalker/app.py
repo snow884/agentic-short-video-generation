@@ -54,7 +54,7 @@ def inference(args: Dict[str, Any] = Body(...)):
     # Passing an empty list to parse_args() prevents it from reading sys.argv
     fake_args = parser.parse_args([])
 
-    args.device = "cuda"
+    fake_args.device = "cuda"
 
     try:
         save_dir = main(fake_args) 
