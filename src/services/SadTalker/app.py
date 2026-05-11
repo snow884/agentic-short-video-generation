@@ -9,5 +9,8 @@ app = FastAPI()
 
 @app.post("/inference/")
 def inference(args: Dict[str, Any] = Body(...)):
-    save_dir = main(**args) 
+    try:
+        save_dir = main(**args) 
+    except Exception as e:
+        return {"error": str(e)}
     return {"save_dir": save_dir}
