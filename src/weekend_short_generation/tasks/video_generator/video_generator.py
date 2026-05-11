@@ -16,7 +16,7 @@ from pathlib import Path
 import hashlib
 import time
 
-@task
+@task(task_run_name="video_generator_agent-{weekend_id}-{town_id}")
 def main(weekend_id=1, town_id=1):
     session = next(get_db())
     

@@ -34,7 +34,7 @@ def populate_db_with_events(event_list: EventList, town_id: int, weekend_id: int
     
     return event_id_list
 
-@task
+@task(task_run_name="event_research_agent-{town_id}-{weekend_id}")
 def main(town_id=0, weekend_id=0):
 
     logger = get_run_logger()

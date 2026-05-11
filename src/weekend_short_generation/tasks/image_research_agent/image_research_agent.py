@@ -67,7 +67,7 @@ def populate_db_with_events(Image_list: ImageList, event_id: int):
     
     session.close()
 
-@task
+@task(task_run_name="image_research_agent-{event_id}")
 def main(event_id=0):
     session = next(get_db())
     e = session.query(Events).filter(Events.id==event_id).first()
