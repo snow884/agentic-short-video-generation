@@ -19,6 +19,9 @@ def main(weekend_id=1, town_id=1):
     
     events = session.query(Events).filter(Events.weekend_id==weekend_id, Events.town_id==town_id).all()
     
+    w = session.query(Weekends).filter(Weekends.id==weekend_id).first()
+    t = session.query(Towns).filter(Towns.id==town_id).first()
+    
     video_segments = session.query(VideoSegments).filter(VideoSegments.event_id.in_([e.id for e in events])).order_by(VideoSegments.timestamp).all()
 
     combined_video = None
@@ -53,7 +56,7 @@ def main(weekend_id=1, town_id=1):
     parent_dir = Path(__file__).parent.parent.parent.parent.parent.resolve()
     print(f"Parent directory: {parent_dir}")
     
-    res = requests.post("http://localhost:8000/inference/", headers={"Content-Type": "application/json"}, data=json.dumps({"source_image": os.path.join(parent_dir, "data/portraits/anchor1.png"), "driven_audio": os.path.join(parent_dir, combined_audio_path), "result_dir":os.path.join(parent_dir, "data/video/sad_talker_out"), "checkpoint_dir":os.path.join(parent_dir, "src/services/SadTalker/checkpoints")}))
+    res = requests.post("http://localhost:8000/inference/", headers={"Content-Type": "application/json"}, data=json.dumps({"source_image": os.path.join(parent_dir, "data/portraits/anchor1.png"), "driven_audio": os.path.join(parent_dir, combined_audio_path), "result_dir":os.path.join(parent_dir, "data/video/sad_talker_out"), "checkpoint_dir":os.path.join(parent_dir, "src/services/SadTalker/checkpoints"), "enhancer":"gfpgan"}))
 
     if res.status_code != 200:
         raise Exception(f"Error: {res.status_code}, {res.text}")
@@ -87,8 +90,10 @@ def main(weekend_id=1, town_id=1):
     ])
     final_video = final_video.with_audio(final_audio)
     
+    
 
-    final_video.write_videofile("data/video/concatenated_output.mp4", codec="libx264", audio_codec="aac")
+    final_video.write_videofile(f"data/video/concatenated_output_{t.name}_{t.state}_{w.date}.mp4", codec="libx264", audio_codec="aac")
+    
     
     
 if __name__ == "__main__":
