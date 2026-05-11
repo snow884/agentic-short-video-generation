@@ -1,3 +1,5 @@
+import os
+
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -39,11 +41,14 @@ def main(weekend_id=1, town_id=1):
         else:
             combined_video = concatenate_videoclips([combined_video, image_still])
     
-    combined_audio_path = "agentic-tasks/data/video/sad_talker_input/combined_audio.wav"
+    combined_audio_path = "data/video/sad_talker_input/combined_audio.wav"
     
     combined_audio.export(combined_audio_path, format="wav")
     
-    res = requests.post("http://localhost:8000/inference/", json={"image_path": "agentic-tasks/data/video/sad_talker_out/obama.jpg", "audio_path": combined_audio_path, "verbose": True})
+    parent_dir = os.path.dirname(os.path.realpath(__file__)).parent.parent.resolve()
+    print(f"Parent directory: {parent_dir}")
+    
+    res = requests.post("http://localhost:8000/inference/", json={"image_path": os.path.join(parent_dir, "data/portraits/anchor1.png"), "audio_path": os.path.join(parent_dir, combined_audio_path), "result_dir":os.path.join(parent_dir, "data/video/sad_talker_out"), "verbose": True})
     
     video_path = res.json()["video_path"]
     
