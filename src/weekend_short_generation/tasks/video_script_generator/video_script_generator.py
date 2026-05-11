@@ -3,6 +3,7 @@ from dataclasses import asdict
 import hashlib
 import json
 
+from kokoro import KPipeline
 
 import nest_asyncio
 
@@ -51,10 +52,8 @@ def populate_db_with_events(segments_list: VideoSegmentsList):
     session.close()
 
 def generate_audio_file(text, file_path='your_audio_file.wav'):
-    
-    from kokoro import KPipeline
-
-    pipeline = KPipeline(lang_code='a')
+    device = 'cpu'
+    pipeline = KPipeline(lang_code='a', device=device)
 
     generator = pipeline(text, voice='af_heart', speed=1.2)
 
