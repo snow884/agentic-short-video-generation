@@ -58,27 +58,30 @@ def main(weekend_id=1, town_id=1):
     
     video_path = res.json()["video_path"]
     
-    
-    
     # 1. Load the videos
     # 'bg_clip' is your main background
     # 'fg_clip' is the one with the green screen
     bg_clip = combined_video
     fg_clip = VideoFileClip(video_path)
+    
+    new_width = bg_clip.w / 3
+    fg_clip = fg_clip.resize(width=int(new_width))
 
     # 2. Apply the green screen mask
     # 'color' is the RGB value of the green to remove
     # 'thr' (threshold) and 's' (stiffness) help fine-tune the edges
     masked_fg = fg_clip.fx(vfx.mask_color, color=[0, 255, 0], thr=100, s=5)
+    
+    masked_fg.set_position(("right", "bottom")).set_start(0)
 
     # 3. Overlay the masked clip onto the background
     # You can set the position and start time of the overlay
     final_video = CompositeVideoClip([
         bg_clip, 
-        masked_fg.set_position("center").set_start(0)
+        masked_fg
     ])
 
-    final_video.write_videofile("concatenated_output.mp4", codec="libx264", audio_codec="aac")
+    final_video.write_videofile("data/video/concatenated_output.mp4", codec="libx264", audio_codec="aac")
     
     
 if __name__ == "__main__":
