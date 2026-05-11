@@ -38,7 +38,7 @@ def main(weekend_id=1, town_id=1):
         
         image_still = ImageClip(image.file_path).with_duration(duration)
         
-        clip_resized_center = image_still.resize(width=1080).set_position("center")
+        clip_resized_center = image_still.resized(width=1080).with_position("center")
 
         
         if combined_video is None:
