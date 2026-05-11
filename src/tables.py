@@ -123,7 +123,7 @@ class VideoSegments(Base):
     Image_id = Column(Integer, ForeignKey('Image.id'))
     sound_file_path = Column(String, default="")
     timestamp = Column(Integer, default=0)
-
+    
 class VideoSegmentsSchema(BaseModel):
 
     event_id: int
