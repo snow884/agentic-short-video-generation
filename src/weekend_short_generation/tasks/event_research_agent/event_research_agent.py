@@ -35,6 +35,8 @@ def populate_db_with_events(event_list: EventList, town_id: int, weekend_id: int
 
 @task
 def main(town_id=0, weekend_id=0):
+
+    logger = get_logger()
     session = next(get_db())
     
     w = session.query(Weekends).filter(Weekends.id==weekend_id).first()
