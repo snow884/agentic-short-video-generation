@@ -16,6 +16,7 @@ from tables import ImageList
 
 import requests
 import hashlib
+from prefect import flow, task
 
 def download_file(url, base_filename="downloaded_file"):
     # 1. Fetch the file with streaming enabled
@@ -63,7 +64,7 @@ def populate_db_with_events(Image_list: ImageList, event_id: int):
     
     session.close()
 
-
+@task
 def main(event_id=0):
     session = next(get_db())
     e = session.query(Events).filter(Events.id==event_id).first()

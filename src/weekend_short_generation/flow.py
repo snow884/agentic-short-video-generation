@@ -6,7 +6,7 @@ from tasks.video_generator.video_generator import main as video_generator_agent_
 
 from dotenv import load_dotenv
 
-@flow
+@flow(name="Weekend Short Generation Flow")
 def main_flow(weekend_id, town_id):
         
     load_dotenv()

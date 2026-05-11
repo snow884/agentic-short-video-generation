@@ -23,6 +23,7 @@ from kokoro import KPipeline
 import soundfile as sf
 import torch
 from dotenv import load_dotenv
+from prefect import flow, task
 
 load_dotenv()
 
@@ -119,6 +120,7 @@ def check_text_spoken_length_matches_timestamps(segments_list: list):
     
     return 'success'
     
+@task
 def main(weekend_id=0, town_id=0):
     session = next(get_db())
     
