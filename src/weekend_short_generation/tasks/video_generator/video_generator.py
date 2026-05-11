@@ -50,7 +50,7 @@ def main(weekend_id=1, town_id=1):
     parent_dir = Path(__file__).parent.parent.parent.resolve()
     print(f"Parent directory: {parent_dir}")
     
-    res = requests.post("http://127.0.0.1:8000/inference", headers={"Content-Type": "application/json"}, data=json.dumps({"image_path": os.path.join(parent_dir, "data/portraits/anchor1.png"), "audio_path": os.path.join(parent_dir, combined_audio_path), "result_dir":os.path.join(parent_dir, "data/video/sad_talker_out"), "verbose": True}))
+    res = requests.post("http://127.0.0.1:8000/inference/", headers={"Content-Type": "application/json"}, data=json.dumps({"image_path": os.path.join(parent_dir, "data/portraits/anchor1.png"), "audio_path": os.path.join(parent_dir, combined_audio_path), "result_dir":os.path.join(parent_dir, "data/video/sad_talker_out"), "verbose": True}))
     res.raise_for_status()
     
     video_path = res.json()["video_path"]
