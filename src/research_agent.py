@@ -28,7 +28,11 @@ from deepagents.backends.filesystem import FilesystemBackend
 from langchain.agents.structured_output import ToolStrategy
 from langchain.agents.structured_output import ProviderStrategy
 
+from prefect.logging.loggers import get_logger
+
 async def run_agent(user_prompt_params: dict = {"town_name": "Batavia", "town_state": "NY", "weekend_date": "2026-05-16"}, system_prompt_params: dict = {}, ReturnClass=None, prompt_dir=None, extra_tools=[]):
+    
+    logger = get_logger()
     
     tavity_tools = [TavilySearch(
         max_results=5,
@@ -59,11 +63,11 @@ async def run_agent(user_prompt_params: dict = {"town_name": "Batavia", "town_st
     tavity_tools_str = ', '.join([t.name for t in tavity_tools])
     browser_tools_str =', '.join([t.name for t in browser_tools])
     
-    print("system prompt: ")
-    print(PromptTemplate.from_file(prompt_dir / "sys_prompt.md").format(tavity_tools_str=tavity_tools_str, browser_tools_str=browser_tools_str))
+    logger.info("system prompt: ")
+    logger.info(PromptTemplate.from_file(prompt_dir / "sys_prompt.md").format(tavity_tools_str=tavity_tools_str, browser_tools_str=browser_tools_str))
 
-    print("user prompt: ")
-    print(PromptTemplate.from_file(prompt_dir / "user_prompt.md").format(**user_prompt_params))
+    logger.info("user prompt: ")
+    logger.info(PromptTemplate.from_file(prompt_dir / "user_prompt.md").format(**user_prompt_params))
     
     
     agent_chain = create_deep_agent(
