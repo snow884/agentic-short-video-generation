@@ -1,4 +1,5 @@
 from glob import glob
+from pathlib import Path
 import shutil
 import torch
 from time import  strftime
@@ -28,7 +29,8 @@ def main(args):
     ref_eyeblink = args.ref_eyeblink
     ref_pose = args.ref_pose
 
-    current_root_path = os.path.split(sys.argv[0])[0]
+    #current_root_path = os.path.split(sys.argv[0])[0]
+    current_root_path= Path(__file__).parent.resolve()
     
     print("Checkpoints path: ", args.checkpoint_dir)
 
