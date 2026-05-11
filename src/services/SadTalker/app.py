@@ -3,7 +3,7 @@ from typing import Any, Dict
 
 from inference import main 
 
-from fastapi import FastAPI, Body
+from fastapi import FastAPI, Body, HTTPException
 
 app = FastAPI()
 
@@ -12,5 +12,6 @@ def inference(args: Dict[str, Any] = Body(...)):
     try:
         save_dir = main(**args) 
     except Exception as e:
-        return {"error": str(e)}
+        raise HTTPException(status_code=404, detail="Sadtaalker inference failed: " + str(e))
+    
     return {"save_dir": save_dir}
