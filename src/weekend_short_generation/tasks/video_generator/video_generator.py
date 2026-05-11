@@ -66,7 +66,7 @@ def main(weekend_id=1, town_id=1):
     final_audio = fg_clip.audio
     
     new_width = bg_clip.w / 3
-    fg_clip = fg_clip.resize(width=int(new_width))
+    fg_clip = fg_clip.resized(width=int(new_width))
 
     # 2. Apply the green screen mask
     # 'color' is the RGB value of the green to remove
