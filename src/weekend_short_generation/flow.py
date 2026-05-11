@@ -25,4 +25,4 @@ def main_flow(weekend_id, town_id):
     video_generator_agent_main(weekend_id=weekend_id, town_id=town_id)
 
 if __name__ == "__main__":
-    main_flow(weekend_id=1, town_id=1)
+    main_flow.run(weekend_id=1, town_id=1)
