@@ -82,6 +82,7 @@ async def run_agent(user_prompt_params: dict = {"town_name": "Batavia", "town_st
             initial_delay=1.0,
         ),
     ],
+        timeout=60*15,  # 15 minutes timeout for the entire agent execution
         debug = True
     )
     result = await agent_chain.ainvoke(
