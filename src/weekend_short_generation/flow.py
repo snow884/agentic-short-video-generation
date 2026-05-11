@@ -3,7 +3,7 @@ from tasks.event_research_agent.event_research_agent import main as event_resear
 from tasks.image_research_agent.image_research_agent import main as image_research_agent_main
 from tasks.video_script_generator.video_script_generator import main as video_script_generator_agent_main
 from tasks.video_generator.video_generator import main as video_generator_agent_main
-from prefect import get_logger
+from prefect.logging.loggers import get_logger
 
 from dotenv import load_dotenv
 
