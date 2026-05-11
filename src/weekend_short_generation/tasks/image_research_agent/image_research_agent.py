@@ -1,7 +1,7 @@
 
 from dataclasses import asdict
 import mimetypes
-from multiprocessing import get_logger
+
 
 
 import nest_asyncio
@@ -18,9 +18,10 @@ from tables import ImageList
 import requests
 import hashlib
 from prefect import flow, task
+from prefect.logging import get_run_logger
 
 def download_file(url, base_filename="downloaded_file"):
-    logger = get_logger()
+    logger = get_run_logger()
     # 1. Fetch the file with streaming enabled
     logger.info(f"Downloading file from URL: {url}")
     try:
