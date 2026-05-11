@@ -11,7 +11,7 @@ from tables import Base, Events, Towns, Weekends
 
 from pathlib import Path
 from tables import EventList
-
+from prefect import flow, task
 
 def populate_db_with_events(event_list: EventList, town_id: int, weekend_id: int):
 
@@ -33,7 +33,7 @@ def populate_db_with_events(event_list: EventList, town_id: int, weekend_id: int
     
     return event_id_list
 
-
+@task
 def main(town_id=0, weekend_id=0):
     session = next(get_db())
     
