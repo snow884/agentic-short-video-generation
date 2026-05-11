@@ -28,11 +28,11 @@ from deepagents.backends.filesystem import FilesystemBackend
 from langchain.agents.structured_output import ToolStrategy
 from langchain.agents.structured_output import ProviderStrategy
 
-from prefect.logging.loggers import get_logger
+from prefect.logging import get_run_logger
 
 async def run_agent(user_prompt_params: dict = {"town_name": "Batavia", "town_state": "NY", "weekend_date": "2026-05-16"}, system_prompt_params: dict = {}, ReturnClass=None, prompt_dir=None, extra_tools=[]):
     
-    logger = get_logger()
+    logger = get_run_logger()
     
     tavity_tools = [TavilySearch(
         max_results=5,

@@ -12,12 +12,12 @@ from tables import Base, Events, Towns, Weekends
 from pathlib import Path
 from tables import EventList
 from prefect import flow, task
-from prefect.logging.loggers import get_logger
+from prefect.logging import get_run_logger
 
 def populate_db_with_events(event_list: EventList, town_id: int, weekend_id: int):
 
     session = next(get_db())
-    logger = get_logger()
+    logger = get_run_logger()
     
     event_id_list = []
     
@@ -37,7 +37,7 @@ def populate_db_with_events(event_list: EventList, town_id: int, weekend_id: int
 @task
 def main(town_id=0, weekend_id=0):
 
-    logger = get_logger()
+    logger = get_run_logger()
     session = next(get_db())
     
     w = session.query(Weekends).filter(Weekends.id==weekend_id).first()
