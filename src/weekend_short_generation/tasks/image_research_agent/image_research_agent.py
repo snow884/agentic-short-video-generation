@@ -1,6 +1,7 @@
 
 from dataclasses import asdict
 import mimetypes
+from multiprocessing import get_logger
 
 
 import nest_asyncio
@@ -19,8 +20,9 @@ import hashlib
 from prefect import flow, task
 
 def download_file(url, base_filename="downloaded_file"):
+    logger = get_logger()
     # 1. Fetch the file with streaming enabled
-    print(f"Downloading file from URL: {url}")
+    logger.info(f"Downloading file from URL: {url}")
     try:
         response = requests.get(url, stream=True)
         response.raise_for_status()  # Check for HTTP errors

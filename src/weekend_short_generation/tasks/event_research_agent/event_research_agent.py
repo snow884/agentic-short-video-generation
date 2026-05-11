@@ -12,15 +12,17 @@ from tables import Base, Events, Towns, Weekends
 from pathlib import Path
 from tables import EventList
 from prefect import flow, task
+from prefect.logging.loggers import get_logger
 
 def populate_db_with_events(event_list: EventList, town_id: int, weekend_id: int):
 
     session = next(get_db())
+    logger = get_logger()
     
     event_id_list = []
     
     for new_event in event_list.events:
-        print("Adding the event ", new_event.event_name)
+        logger.info("Adding the event %s", new_event.event_name)
         new_event_sql = Events(**new_event.__dict__)
         new_event_sql.town_id = town_id
         new_event_sql.weekend_id = weekend_id
