@@ -71,7 +71,7 @@ def main(weekend_id=1, town_id=1):
     # 2. Apply the green screen mask
     # 'color' is the RGB value of the green to remove
     # 'thr' (threshold) and 's' (stiffness) help fine-tune the edges
-    masked_fg = fg_clip.with_effects([vfx.MaskColor(color=[0, 255, 0], thr=10, s=5)])
+    masked_fg = fg_clip.with_effects([vfx.MaskColor(color=[0, 255, 0], threshold=10, stiffness=5)])
     
     masked_fg.set_position(("right", "bottom")).set_start(0)
 
