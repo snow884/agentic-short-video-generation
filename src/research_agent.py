@@ -63,8 +63,10 @@ async def run_agent(user_prompt_params: dict = {"town_name": "Batavia", "town_st
     tavity_tools_str = ', '.join([t.name for t in tavity_tools])
     browser_tools_str =', '.join([t.name for t in browser_tools])
     
+    system_prompt_params_combined = {**system_prompt_params, "tavity_tools_str": tavity_tools_str, "browser_tools_str": browser_tools_str}
+    
     logger.info("system prompt: ")
-    logger.info(PromptTemplate.from_file(prompt_dir / "sys_prompt.md").format(tavity_tools_str=tavity_tools_str, browser_tools_str=browser_tools_str))
+    logger.info(PromptTemplate.from_file(prompt_dir / "sys_prompt.md").format(**system_prompt_params_combined))
 
     logger.info("user prompt: ")
     logger.info(PromptTemplate.from_file(prompt_dir / "user_prompt.md").format(**user_prompt_params))
