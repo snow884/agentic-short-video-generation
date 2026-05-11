@@ -48,9 +48,9 @@ def main(weekend_id=1, town_id=1):
 
         
         if combined_video is None:
-            combined_video = clip_resized_center
+            combined_video =  CompositeVideoClip([clip_resized_center], size=(1920, 1080))
         else:
-            combined_video = concatenate_videoclips([combined_video, clip_resized_center])
+            combined_video = concatenate_videoclips([combined_video, CompositeVideoClip([clip_resized_center], size=(1920, 1080))])
     
     combined_audio_path = "data/video/sad_talker_input/combined_audio.wav"
     
