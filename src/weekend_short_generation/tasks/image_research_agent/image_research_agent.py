@@ -84,7 +84,7 @@ def main(event_id=0):
         "url_instagram":e.url_instagram
     }
 
-    Image_list = run_agent_sync(user_prompt_params=user_prompt_params, ReturnClass=ImageList, prompt_dir=Path(__file__).parent.resolve())
+    Image_list = run_agent_sync(user_prompt_params=user_prompt_params, system_prompt_params={"num_images": 5}, ReturnClass=ImageList, prompt_dir=Path(__file__).parent.resolve())
     print("Received Image list: ", Image_list  )
     populate_db_with_events(Image_list, event_id=event_id)
     

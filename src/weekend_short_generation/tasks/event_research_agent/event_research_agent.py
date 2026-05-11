@@ -43,7 +43,7 @@ def main(town_id=0, weekend_id=0):
     w = session.query(Weekends).filter(Weekends.id==weekend_id).first()
     t = session.query(Towns).filter(Towns.id==town_id).first()
     
-    event_list = run_agent_sync(user_prompt_params={"town_name": t.name, "town_state": t.state, "weekend_date": w.date}, ReturnClass=EventList, prompt_dir=Path(__file__).parent.resolve())
+    event_list = run_agent_sync(user_prompt_params={"town_name": t.name, "town_state": t.state, "weekend_date": w.date},system_prompt_params={"num_events": 5}, ReturnClass=EventList, prompt_dir=Path(__file__).parent.resolve())
     event_id_list = populate_db_with_events(event_list, town_id=town_id, weekend_id=weekend_id)
     
     return event_id_list
