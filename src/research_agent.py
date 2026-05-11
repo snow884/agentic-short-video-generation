@@ -75,7 +75,7 @@ async def run_agent(user_prompt_params: dict = {"town_name": "Batavia", "town_st
     agent_chain = create_deep_agent(
         model=model,
         tools=browser_tools+tavity_tools+extra_tools,
-        system_prompt=PromptTemplate.from_file(prompt_dir / "sys_prompt.md").format(tavity_tools_str=tavity_tools_str, browser_tools_str=browser_tools_str),
+        system_prompt=PromptTemplate.from_file(prompt_dir / "sys_prompt.md").format(**system_prompt_params_combined),
         response_format=ProviderStrategy(ReturnClass),
         middleware=[
         ToolRetryMiddleware(
