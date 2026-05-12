@@ -9,7 +9,7 @@ from sql_utils import get_db
 import requests
 from pydub import AudioSegment
 from moviepy import ImageClip, VideoFileClip, concatenate_videoclips
-from moviepy import VideoFileClip, CompositeVideoClip, vfx
+from moviepy import VideoFileClip, CompositeVideoClip, vfx, TextClip
 from prefect import flow, task
 from pathlib import Path
 
@@ -33,6 +33,8 @@ def main(weekend_id=1, town_id=1):
     combined_video = None
     combined_audio = None
     
+    previous_event_id = video_segments[0].event_id if len(video_segments) > 0 else None
+    
     for segment in video_segments:
         
         image = session.query(Image).filter(Image.id==segment.Image_id).first()
@@ -46,6 +48,21 @@ def main(weekend_id=1, town_id=1):
         combined_audio = sound if combined_audio is None else combined_audio + sound
         
         image_still = ImageClip(image.file_path).with_duration(duration)
+        
+        if previous_event_id != segment.event_id:
+            event = session.query(Events).filter(Events.id==segment.event_id).first()
+            text = event.name 
+            limit = 30
+            event_name_truncated = (text[:limit] + "..") if len(text) > limit else text
+            title = TextClip(
+                text=event_name_truncated + "\n" + event.date, 
+                font_size=50, 
+                color='white', 
+                font='Arial.ttf'  # Specify a font file or name
+            ).with_duration(2).with_position('center')
+            
+            image_still = CompositeVideoClip([image_still, title])
+        
         
         clip_resized_center = image_still.resized(height=VID_HEIGHT).with_position(("center", "center"))
 
