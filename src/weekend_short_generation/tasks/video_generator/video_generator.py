@@ -69,7 +69,7 @@ def main(weekend_id=1, town_id=1):
             event_name_truncated = (text[:limit] + "..") if len(text) > limit else text
             title = TextClip(
                 text=event_name_truncated.title() + "\n" + formatted_date, 
-                font_size=50, 
+                font_size=70, 
                 size=(VID_WIDTH, VID_HEIGHT),
                 color='yellow', 
                 method='caption',
