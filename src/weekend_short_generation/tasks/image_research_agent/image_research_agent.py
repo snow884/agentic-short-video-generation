@@ -1,10 +1,9 @@
 
 from dataclasses import asdict
 import mimetypes
+import os
 
 import ollama
-
-
 
 import nest_asyncio
 
@@ -25,7 +24,7 @@ from prefect.logging import get_run_logger
 def describe_image(img_bytes):
     
     response = ollama.chat(
-        model='qwen3.6:27b',
+        model=os.environ["RESEARCH_AGENT_MODEL"],
         messages=[{
             'role': 'user',
             'content': 'What is in this image? One paragraph description.',
@@ -46,20 +45,20 @@ def check_image_url(url):
     Returns:
         str: description of the image or error message
     """
-    try:
-        response = requests.get(url, allow_redirects=True, timeout=5)
-        if response.status_code == 200:
-            image_bytes = response.content
-            description = describe_image(image_bytes)
-            print("success: image loaded successfully, image description: " + description)
-            return "success: image loaded successfully, image description: " + description
-        else:
-            print(f"error: URL did not point to a valid image or was not accessible, received code {response.status_code}")
-            return f"error: URL did not point to a valid image or was not accessible, received code {response.status_code}"
-        
-    except Exception as e:
-        print(f"error: cant load the file, exception: {e}")
-        return "error: cant load the file"
+    #try:
+    response = requests.get(url, allow_redirects=True, timeout=5)
+    if response.status_code == 200:
+        image_bytes = response.content
+        description = describe_image(image_bytes)
+        print("success: image loaded successfully, image description: " + description)
+        return "success: image loaded successfully, image description: " + description
+    else:
+        print(f"error: URL did not point to a valid image or was not accessible, received code {response.status_code}")
+        return f"error: URL did not point to a valid image or was not accessible, received code {response.status_code}"
+    
+    # except Exception as e:
+    #     print(f"error: cant load the file, exception: {e}")
+    #     return "error: cant load the file"
     
 
 def download_file(url, base_filename="downloaded_file"):
@@ -134,8 +133,10 @@ def main(event_id=0):
 if __name__ == "__main__":
     from dotenv import load_dotenv
     load_dotenv()
-    session = next(get_db())
-    for e in session.query(Events).all():
-        print(e.id, e.event_name)
-        event_id = e.id
-        main(event_id=event_id)
+    # session = next(get_db())
+    # for e in session.query(Events).all():
+    #     print(e.id, e.event_name)
+    #     event_id = e.id
+    #     main(event_id=event_id)
+    
+    check_image_url("https://assets.bwbx.io/images/users/iqjWHBFdfxIU/ixI0qpbqzgcg/v3/640x-1.webp")
