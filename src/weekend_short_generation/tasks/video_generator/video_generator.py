@@ -51,7 +51,7 @@ def main(weekend_id=1, town_id=1):
         
         if previous_event_id != segment.event_id:
             event = session.query(Events).filter(Events.id==segment.event_id).first()
-            text = event.name 
+            text = event.event_name 
             limit = 30
             event_name_truncated = (text[:limit] + "..") if len(text) > limit else text
             title = TextClip(
