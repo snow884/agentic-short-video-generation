@@ -23,12 +23,12 @@ from prefect import flow, task
 from prefect.logging import get_run_logger
 
 def describe_image(img_bytes):
-    # Call the chat function with the llava model
+    
     response = ollama.chat(
-        model='llava',
+        model='qwen3.6:27b',
         messages=[{
             'role': 'user',
-            'content': 'What is in this image? Provide a detailed description.',
+            'content': 'What is in this image? One paragraph description.',
             'images': [img_bytes] 
         }]
     )
@@ -39,14 +39,19 @@ def describe_image(img_bytes):
 def check_image_url(url):
     try:
         response = requests.get(url, allow_redirects=True, timeout=5)
-        if response.status_code == 200 and 'image' in response.headers.get('content-type', ''):
+        if response.status_code == 200:
             image_bytes = response.content
             description = describe_image(image_bytes)
-            return description
+            print("success: image loaded successfully, image description: " + description)
+            return "success: image loaded successfully, image description: " + description
+        else:
+            print(f"error: URL did not point to a valid image or was not accessible, received code {response.status_code}")
+            return f"error: URL did not point to a valid image or was not accessible, received code {response.status_code}"
         
     except Exception as e:
-        print(f"Error checking image URL: {e}")
-    return False
+        print(f"error: cant load the file, exception: {e}")
+        return "error: cant load the file"
+    
 
 def download_file(url, base_filename="downloaded_file"):
     logger = get_run_logger()
