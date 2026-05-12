@@ -70,9 +70,9 @@ def main(weekend_id=1, town_id=1):
             title = TextClip(
                 text=event_name_truncated.title() + "\n" + formatted_date, 
                 font_size=50, 
-                size=(int(VID_WIDTH), None),
-                color='white', 
-                method='label',
+                size=(VID_WIDTH, VID_HEIGHT),
+                color='yellow', 
+                method='caption',
                 font="/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf"  # Specify a font file or name
             ).with_duration(5).with_position('center')
             
