@@ -16,7 +16,7 @@ from pathlib import Path
 import hashlib
 import time
 
-@task(task_run_name="video_generator_agent-{weekend_id}-{town_id}")
+@task(task_run_name="video_generator-{weekend_id}-{town_id}")
 def main(weekend_id=1, town_id=1):
     session = next(get_db())
     
@@ -44,9 +44,8 @@ def main(weekend_id=1, town_id=1):
         
         image_still = ImageClip(image.file_path).with_duration(duration)
         
-        clip_resized_center = image_still.resized(height=1080).with_position(("center", "center"))
+        clip_resized_center = image_still.resized(height=1920).with_position(("center", "center"))
 
-        
         if combined_video is None:
             combined_video =  CompositeVideoClip([clip_resized_center], size=(1080, 1920))
         else:

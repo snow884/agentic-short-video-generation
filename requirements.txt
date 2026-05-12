@@ -28,3 +28,4 @@ torchaudio
 pydub
 moviepy
 prefect
+lxml
