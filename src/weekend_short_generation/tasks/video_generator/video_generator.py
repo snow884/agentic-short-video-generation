@@ -15,9 +15,15 @@ from pathlib import Path
 
 import hashlib
 import time
+from datetime import datetime
+
+
+from moviepy.config import change_settings
+change_settings({"FFMPEG_BINARY": "/usr/bin/ffmpeg"})
 
 VID_HEIGHT = int(1920/2)
 VID_WIDTH = int(1080/2)
+
 
 @task(task_run_name="video_generator-{weekend_id}-{town_id}")
 def main(weekend_id=1, town_id=1):
@@ -49,22 +55,27 @@ def main(weekend_id=1, town_id=1):
         
         image_still = ImageClip(image.file_path).with_duration(duration)
         
+        clip_resized_center = image_still.resized(height=VID_HEIGHT).with_position(("center", "center"))
+        
         if previous_event_id != segment.event_id:
             event = session.query(Events).filter(Events.id==segment.event_id).first()
+            
+            date_obj = datetime.strptime(event.date, "%Y-%m-%d")
+            formatted_date = date_obj.strftime("%b %d")
+            
             text = event.event_name 
             limit = 30
             event_name_truncated = (text[:limit] + "..") if len(text) > limit else text
             title = TextClip(
-                text=event_name_truncated + "\n" + event.date, 
+                text=event_name_truncated.title() + "\n" + formatted_date, 
                 font_size=50, 
+                size=(int(VID_WIDTH*0.75), None),
                 color='white', 
+                method='label',
                 font="/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf"  # Specify a font file or name
             ).with_duration(2).with_position('center')
             
-            image_still = CompositeVideoClip([image_still, title])
-        
-        
-        clip_resized_center = image_still.resized(height=VID_HEIGHT).with_position(("center", "center"))
+            clip_resized_center = CompositeVideoClip([clip_resized_center, title])
 
         if combined_video is None:
             combined_video =  CompositeVideoClip([clip_resized_center], size=(VID_WIDTH, VID_HEIGHT))
