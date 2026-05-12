@@ -1,3 +1,5 @@
+os.environ["IMAGEIO_FFMPEG_EXE"] = "/usr/bin/ffmpeg"
+
 import json
 import os
 
@@ -17,7 +19,7 @@ import hashlib
 import time
 from datetime import datetime
 
-os.environ["IMAGEIO_FFMPEG_EXE"] = "/usr/bin/ffmpeg"
+
 
 VID_HEIGHT = int(1920/2)
 VID_WIDTH = int(1080/2)
