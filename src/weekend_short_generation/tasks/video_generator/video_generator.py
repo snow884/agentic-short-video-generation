@@ -58,7 +58,7 @@ def main(weekend_id=1, town_id=1):
         
         clip_resized_center = image_still.resized(height=VID_HEIGHT).with_position(("center", "center"))
         
-        if (not previous_event_id) or previous_event_id != segment.event_id:
+        if previous_event_id != segment.event_id:
             event = session.query(Events).filter(Events.id==segment.event_id).first()
             
             date_obj = datetime.strptime(event.date, "%Y-%m-%d")
@@ -70,11 +70,11 @@ def main(weekend_id=1, town_id=1):
             title = TextClip(
                 text=event_name_truncated.title() + "\n" + formatted_date, 
                 font_size=50, 
-                size=(int(VID_WIDTH*0.75), None),
+                size=(int(VID_WIDTH), None),
                 color='white', 
                 method='label',
                 font="/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf"  # Specify a font file or name
-            ).with_duration(2).with_position('center')
+            ).with_duration(5).with_position('center')
             
             clip_resized_center = CompositeVideoClip([clip_resized_center, title])
             
