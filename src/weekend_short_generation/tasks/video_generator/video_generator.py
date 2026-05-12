@@ -102,7 +102,7 @@ def main(weekend_id=1, town_id=1):
     hex_dig = hash_object.hexdigest()
     slug = hex_dig[0:5]  # You can take the first 10 characters for a shorter slug
 
-    final_video.write_videofile(f"data/video/concatenated_output_{t.name}_{t.state}_{w.date}_{slug}.mp4", codec="libx264", audio_codec="aac")
+    final_video.write_videofile(f"data/video/concatenated_output_{t.name}_{t.state}_{w.date}_{slug}.mp4", codec="h264_nvenc", audio_codec="aac")
     
     
     
