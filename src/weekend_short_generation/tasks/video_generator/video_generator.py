@@ -76,13 +76,13 @@ def main(weekend_id=1, town_id=1):
     fg_clip = VideoFileClip(video_path)
     final_audio = fg_clip.audio
     
-    new_height = bg_clip.h / 2
+    new_height = bg_clip.h / 3
     fg_clip = fg_clip.resized(height=int(new_height))
 
     # 2. Apply the green screen mask
     # 'color' is the RGB value of the green to remove
     # 'thr' (threshold) and 's' (stiffness) help fine-tune the edges
-    masked_fg = fg_clip.with_effects([vfx.MaskColor(color=[94, 184, 99], threshold=10, stiffness=5)])
+    masked_fg = fg_clip.with_effects([vfx.MaskColor(color=[94, 184, 99], threshold=30, stiffness=5)])
     
     masked_fg = masked_fg.with_position(("right", "bottom")).with_start(0)
 
