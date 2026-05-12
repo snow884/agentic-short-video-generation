@@ -17,9 +17,7 @@ import hashlib
 import time
 from datetime import datetime
 
-
-from moviepy.config import change_settings
-change_settings({"FFMPEG_BINARY": "/usr/bin/ffmpeg"})
+os.environ["IMAGEIO_FFMPEG_EXE"] = "/usr/bin/ffmpeg"
 
 VID_HEIGHT = int(1920/2)
 VID_WIDTH = int(1080/2)
