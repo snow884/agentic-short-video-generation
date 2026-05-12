@@ -30,11 +30,13 @@
 
     4.) Collect the image information. The image information should include the following keys: 
     - image_url - URL where the screenshot is to be collected from
+
+
+    5.) Use the tool check_image_url on the values of image_url you collected in 4 to check that the url works and to obtain description of the image. Obtain:
     - title - short title of the image
     - description - one parashraph description of the image
-
-    5.) Validate the image urls and ensure that the image can be collected from this URL using a simple requests.get call in python . Ensure the URL is working by opening it in browser. Ensure that the image is of the type jpg, png or bmp.
-
+    Use the tool check_image_url to validate that the image isnt a logo or graphics.
+    
     6.) Return the answer in pure JSON format. Matching the exact output JSON output format including the json nesting. 
     - Do not add any text before or after the JSON output. Only return the JSON structure containing the images as your answer. Do not include any explanations or reasoning in the final answer, only return the JSON. 
     
