@@ -16,6 +16,9 @@ from pathlib import Path
 import hashlib
 import time
 
+VID_HEIGHT = int(1920/2)
+VID_WIDTH = int(1080/2)
+
 @task(task_run_name="video_generator-{weekend_id}-{town_id}")
 def main(weekend_id=1, town_id=1):
     session = next(get_db())
@@ -44,12 +47,12 @@ def main(weekend_id=1, town_id=1):
         
         image_still = ImageClip(image.file_path).with_duration(duration)
         
-        clip_resized_center = image_still.resized(height=1920).with_position(("center", "center"))
+        clip_resized_center = image_still.resized(height=VID_HEIGHT).with_position(("center", "center"))
 
         if combined_video is None:
-            combined_video =  CompositeVideoClip([clip_resized_center], size=(1080, 1920))
+            combined_video =  CompositeVideoClip([clip_resized_center], size=(VID_WIDTH, VID_HEIGHT))
         else:
-            combined_video = concatenate_videoclips([combined_video, CompositeVideoClip([clip_resized_center], size=(1080, 1920))], method="compose")
+            combined_video = concatenate_videoclips([combined_video, CompositeVideoClip([clip_resized_center], size=(VID_WIDTH, VID_HEIGHT))], method="compose")
     
     combined_audio_path = "data/video/sad_talker_input/combined_audio.wav"
     
@@ -73,7 +76,7 @@ def main(weekend_id=1, town_id=1):
     fg_clip = VideoFileClip(video_path)
     final_audio = fg_clip.audio
     
-    new_height = bg_clip.h / 3
+    new_height = bg_clip.h / 2
     fg_clip = fg_clip.resized(height=int(new_height))
 
     # 2. Apply the green screen mask
