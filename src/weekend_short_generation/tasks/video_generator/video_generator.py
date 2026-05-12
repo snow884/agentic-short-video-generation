@@ -57,7 +57,7 @@ def main(weekend_id=1, town_id=1):
         
         clip_resized_center = image_still.resized(height=VID_HEIGHT).with_position(("center", "center"))
         
-        if previous_event_id != segment.event_id:
+        if (not previous_event_id) or previous_event_id != segment.event_id:
             event = session.query(Events).filter(Events.id==segment.event_id).first()
             
             date_obj = datetime.strptime(event.date, "%Y-%m-%d")
@@ -76,6 +76,8 @@ def main(weekend_id=1, town_id=1):
             ).with_duration(2).with_position('center')
             
             clip_resized_center = CompositeVideoClip([clip_resized_center, title])
+            
+            previous_event_id= segment.event_id
 
         if combined_video is None:
             combined_video =  CompositeVideoClip([clip_resized_center], size=(VID_WIDTH, VID_HEIGHT))
