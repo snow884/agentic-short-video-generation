@@ -1,7 +1,8 @@
+import os
 os.environ["IMAGEIO_FFMPEG_EXE"] = "/usr/bin/ffmpeg"
 
 import json
-import os
+
 
 from dotenv import load_dotenv
 load_dotenv()
