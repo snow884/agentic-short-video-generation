@@ -40,7 +40,7 @@ def main(weekend_id=1, town_id=1):
     combined_video = None
     combined_audio = None
     
-    previous_event_id = video_segments[0].event_id if len(video_segments) > 0 else None
+    previous_event_id = None
     
     for segment in video_segments:
         
@@ -74,7 +74,7 @@ def main(weekend_id=1, town_id=1):
                 color='yellow', 
                 method='caption',
                 font="/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf"  # Specify a font file or name
-            ).with_duration(5).with_position('center')
+            ).with_duration(3).with_position('center')
             
             clip_resized_center = CompositeVideoClip([clip_resized_center, title])
             
