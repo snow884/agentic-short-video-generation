@@ -58,7 +58,7 @@ def main(weekend_id=1, town_id=1):
                 text=event_name_truncated + "\n" + event.date, 
                 font_size=50, 
                 color='white', 
-                font='Arial.ttf'  # Specify a font file or name
+                font="/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf"  # Specify a font file or name
             ).with_duration(2).with_position('center')
             
             image_still = CompositeVideoClip([image_still, title])
