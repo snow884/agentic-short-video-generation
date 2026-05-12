@@ -101,7 +101,14 @@ def check_text_spoken_length_matches_timestamps(segments_list: list):
             print(f"Error: Segment number {i} at timestamp {segment['timestamp']} has a timestamp that is not less than the next segment number {i+1} at timestamp { segments_list[i+1]['timestamp']}. Adjust the timestamps for better synchronization.")
             res_str = res_str + (f"Error: Segment number {i} at timestamp {segment['timestamp']} has a timestamp that is not less than the next segment number {i+1} at timestamp { segments_list[i+1]['timestamp']}. Adjust the timestamps for better synchronization.")
             res_str = res_str + "\n"
-            
+
+    for i, segment in enumerate(segments_list):
+        
+        if durations[i] > 4.0 and durations[i] < 2.0:
+            print(f"Error: Segment number {i} at timestamp {segment['timestamp']} has a timestamp that is not less than the next segment number {i+1} at timestamp { segments_list[i+1]['timestamp']}. Adjust the timestamps for better synchronization.")
+            res_str = res_str + (f"Error: Segment number {i} at timestamp {segment['timestamp']} has a timestamp that is not less than the next segment number {i+1} at timestamp { segments_list[i+1]['timestamp']}. Adjust the timestamps for better synchronization.")
+            res_str = res_str + "\n"
+
         
     if abs(segments_list[-1]['timestamp']/180-1)>0.05:
         print(f"Error: The last segment has a timestamp of {segments_list[-1]['timestamp']} seconds which is significantly different than the expected video length of 180 seconds. Consider adjusting the timestamps or adding more segments to better utilize the video length.")
