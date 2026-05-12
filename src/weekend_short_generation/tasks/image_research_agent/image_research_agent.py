@@ -37,6 +37,15 @@ def describe_image(img_bytes):
 
 
 def check_image_url(url):
+    """
+    check image url and provide description
+
+    Args:
+        url (str): url to check
+
+    Returns:
+        str: description of the image or error message
+    """
     try:
         response = requests.get(url, allow_redirects=True, timeout=5)
         if response.status_code == 200:
