@@ -8,7 +8,7 @@ User will provide you with:
 
 Ensure that you are providing enough information for people be be able to attend the event such as 
 - location in town or around time
-- time and data
+- time, date and weekday (Saturday or Sunday) 
 
 Your job is to create a script for 3 minute (180 second) video using this data. The output will be a video script in a json format.
 every segment includes:
