@@ -2,6 +2,8 @@
 from dataclasses import asdict
 import mimetypes
 
+import ollama
+
 
 
 import nest_asyncio
@@ -19,6 +21,32 @@ import requests
 import hashlib
 from prefect import flow, task
 from prefect.logging import get_run_logger
+
+def describe_image(img_bytes):
+    # Call the chat function with the llava model
+    response = ollama.chat(
+        model='llava',
+        messages=[{
+            'role': 'user',
+            'content': 'What is in this image? Provide a detailed description.',
+            'images': [img_bytes] 
+        }]
+    )
+
+    return (response['message']['content'])
+
+
+def check_image_url(url):
+    try:
+        response = requests.get(url, allow_redirects=True, timeout=5)
+        if response.status_code == 200 and 'image' in response.headers.get('content-type', ''):
+            image_bytes = response.content
+            description = describe_image(image_bytes)
+            return description
+        
+    except Exception as e:
+        print(f"Error checking image URL: {e}")
+    return False
 
 def download_file(url, base_filename="downloaded_file"):
     logger = get_run_logger()
