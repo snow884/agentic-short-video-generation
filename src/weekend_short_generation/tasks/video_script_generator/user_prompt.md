@@ -2,6 +2,3 @@ Provide a script for a video describing events that will take place in {town_nam
 
 Here is the list of events:
 {event_list}
-
-Here is the list of images:
-{Image_list}
