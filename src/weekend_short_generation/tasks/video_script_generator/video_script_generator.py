@@ -119,7 +119,19 @@ def check_text_spoken_length_matches_timestamps(segments_list: list):
         print(f"Error: The total duration of all segments is {sum(durations)} seconds which is significantly different than the expected video length of 180 seconds. Consider adjusting the timestamps or script text length for better synchronization.")
         res_str = res_str +  "The total duration of all segments is significantly different than 180 seconds."
         res_str = res_str + "\n"
+
+    for i, segment in enumerate(segments_list):
         
+        if segment['scene_description'] and len(segment['scene_description']) > 400:
+            print(f"Error: Segment number {i} at timestamp {segment['timestamp']} has a scene description that is too long. Consider shortening the description for better synchronization.")
+            res_str = res_str + (f"Error: Segment number {i} at timestamp {segment['timestamp']} has a scene description that is too long. Consider shortening the description for better synchronization.")
+            res_str = res_str + "\n"
+
+        if segment['scene_description'] and len(segment['scene_description']) < 100:
+            print(f"Error: Segment number {i} at timestamp {segment['timestamp']} has a scene description that is too short. Consider lengthening the description for better synchronization.")
+            res_str = res_str + (f"Error: Segment number {i} at timestamp {segment['timestamp']} has a scene description that is too short. Consider lengthening the description for better synchronization.")
+            res_str = res_str + "\n"
+
     print("All segments have correct length relative to their timestamps.")
 
     if res_str:
