@@ -26,6 +26,7 @@ import soundfile as sf
 import torch
 from dotenv import load_dotenv
 from prefect import flow, task
+import time 
 
 load_dotenv()
 
@@ -174,6 +175,7 @@ def main(weekend_id=0, town_id=0):
 
     # Replace 'llama3' with the name of the model currently in memory
     ollama.generate(model=os.getenv("RESEARCH_AGENT_MODEL"), keep_alive=0)
+    time.sleep(5)  # Wait for a few seconds to ensure the model is cleared from memory
 
 if __name__ == "__main__":
     
