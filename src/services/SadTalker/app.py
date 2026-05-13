@@ -6,6 +6,9 @@ from inference import main
 from fastapi import FastAPI, Body, HTTPException
 import argparse
 
+import torch
+import gc
+
 app = FastAPI()
 
 @app.post("/inference/")
@@ -60,5 +63,20 @@ def inference(args: Dict[str, Any] = Body(...)):
         save_dir = main(fake_args) 
     except Exception as e:
         raise HTTPException(status_code=400, detail="Sadtaalker inference failed: " + str(e))
+    
+
+
+    # 1. Delete large objects (models, tensors, optimizers)
+    # del model
+    # del optimizer
+
+    # 2. Trigger Python's garbage collector
+    gc.collect()
+
+    # 3. Clear the PyTorch CUDA cache
+    torch.cuda.empty_cache()
+
+    # Optional: Release inter-process communication handles
+    torch.cuda.ipc_collect()
     
     return {"save_dir": save_dir}
