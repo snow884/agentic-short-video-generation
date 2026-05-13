@@ -168,6 +168,8 @@ def main(weekend_id=0, town_id=0):
     print("Received Video Segments list: ", Video_Segments_List  )
     populate_db_with_events(Video_Segments_List)
 
+
+    print("clear model from vmem...")
     import ollama
 
     # Replace 'llama3' with the name of the model currently in memory
