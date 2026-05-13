@@ -120,7 +120,7 @@ class VideoSegments(Base):
     id = Column(Integer, primary_key=True)
     event_id = Column(Integer, ForeignKey('events.id'))
     script_text = Column(String, default="")
-    Image_id = Column(Integer, ForeignKey('Image.id'))
+    scene_description = Column(String, default="")
     sound_file_path = Column(String, default="")
     timestamp = Column(Integer, default=0)
     
@@ -128,7 +128,7 @@ class VideoSegmentsSchema(BaseModel):
 
     event_id: int
     script_text: str
-    Image_id: int
+    scene_description: str
     timestamp: int
 
 
