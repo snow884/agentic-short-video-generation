@@ -17,7 +17,7 @@ every segment includes:
 - scene_description - two paragraph description of the scene that should be played at this timestamp
 
 Pay special attention to scene_description. Ensure that you include the following information:
-*Subject: Person, animal, entity.
+*Subject: Person, animal, entity. 
 *Scene: Environment, background.
 *Motion: Specific movement (e.g., rapid, slow, walking).
 *Camera: Shot size, angle, movement (e.g., pan, zoom, dolly).
