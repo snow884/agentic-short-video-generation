@@ -2,6 +2,7 @@
 from dataclasses import asdict
 import hashlib
 import json
+import os
 
 from kokoro import KPipeline
 
@@ -166,6 +167,11 @@ def main(weekend_id=0, town_id=0):
     Video_Segments_List = run_agent_sync(user_prompt_params=user_prompt_params,system_prompt_params=system_prompt_params, ReturnClass=VideoSegmentsList, prompt_dir=Path(__file__).parent.resolve(), extra_tools=[check_text_spoken_length_matches_timestamps])
     print("Received Video Segments list: ", Video_Segments_List  )
     populate_db_with_events(Video_Segments_List)
+
+    import ollama
+
+    # Replace 'llama3' with the name of the model currently in memory
+    ollama.generate(model=os.getenv("RESEARCH_AGENT_MODEL"), keep_alive=0)
 
 if __name__ == "__main__":
     
