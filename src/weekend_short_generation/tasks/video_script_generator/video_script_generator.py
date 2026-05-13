@@ -104,9 +104,9 @@ def check_text_spoken_length_matches_timestamps(segments_list: list):
 
     for i, segment in enumerate(segments_list):
         
-        if durations[i] > 4.0 and durations[i] < 2.0:
-            print(f"Error: Segment number {i} at timestamp {segment['timestamp']} has a timestamp that is not less than the next segment number {i+1} at timestamp { segments_list[i+1]['timestamp']}. Adjust the timestamps for better synchronization.")
-            res_str = res_str + (f"Error: Segment number {i} at timestamp {segment['timestamp']} has a timestamp that is not less than the next segment number {i+1} at timestamp { segments_list[i+1]['timestamp']}. Adjust the timestamps for better synchronization.")
+        if durations[i] > 6.0 or durations[i] < 4.0:
+            print(f"Error: Segment number {i} at timestamp {segment['timestamp']} has a duration of {durations[i]} seconds which is outside the acceptable range of 4 to 6 seconds. Adjust the script text length for better synchronization.")
+            res_str = res_str + (f"Error: Segment number {i} at timestamp {segment['timestamp']} has a duration of {durations[i]} seconds which is outside the acceptable range of 4 to 6 seconds. Adjust the script text length for better synchronization.")
             res_str = res_str + "\n"
 
         
@@ -133,8 +133,7 @@ def main(weekend_id=0, town_id=0):
     session = next(get_db())
     
     events = session.query(Events).filter(Events.weekend_id==weekend_id, Events.town_id==town_id).all()
-    images = session.query(Image).join(Events).filter(Image.event_id.in_([event.id for event in events])).all()
-    
+
     if not events:
         print("No events found for the given weekend and town.")
         return
@@ -149,7 +148,7 @@ def main(weekend_id=0, town_id=0):
     #     prompt_dir=Path(__file__).parent.resolve()
     # )
 
-    user_prompt_params={"town_name": t.name, "state": t.state, "weekend_date": w.date, "event_list":json.dumps([{"name": event.event_name,"address":event.location_address, "description": event.description, "date": event.date, "time": event.time, "id": event.id} for event in events]), "Image_list": json.dumps([{"title": m.title, "description": m.description, "id": m.id, "event_id": m.event_id} for m in images])  }
+    user_prompt_params={"town_name": t.name, "state": t.state, "weekend_date": w.date, "event_list":json.dumps([{"name": event.event_name,"address":event.location_address, "description": event.description, "date": event.date, "time": event.time, "id": event.id} for event in events])  }
     system_prompt_params={}
 
     Video_Segments_List = run_agent_sync(user_prompt_params=user_prompt_params,system_prompt_params=system_prompt_params, ReturnClass=VideoSegmentsList, prompt_dir=Path(__file__).parent.resolve(), extra_tools=[check_text_spoken_length_matches_timestamps])

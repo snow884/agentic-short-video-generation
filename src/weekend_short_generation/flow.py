@@ -14,13 +14,13 @@ def main_flow(weekend_id, town_id):
     
     load_dotenv()
     
-    # event_id_list = event_research_agent_main(town_id=town_id, weekend_id=weekend_id)
+    event_id_list = event_research_agent_main(town_id=town_id, weekend_id=weekend_id)
     
     # for event_id in event_id_list:
     #     logger.info(f"Processing event_id: {event_id}")
     #     image_research_agent_main(event_id=event_id)
         
-    # video_script_generator_agent_main(weekend_id=weekend_id, town_id=town_id)
+    video_script_generator_agent_main(weekend_id=weekend_id, town_id=town_id)
     
     video_generator_agent_main(weekend_id=weekend_id, town_id=town_id)
 
