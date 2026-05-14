@@ -1,5 +1,6 @@
 import argparse
 import gc
+import traceback
 from typing import Any, Dict
 
 from fastapi import Body, FastAPI, HTTPException
@@ -204,8 +205,9 @@ def inference(args: Dict[str, Any] = Body(...)):
     try:
         generate(fake_args)
     except Exception as e:
+        error_message = traceback.format_exc()
         raise HTTPException(
-            status_code=400, detail="Wan2.1 inference failed: " + str(e)
+            status_code=400, detail="Wan2.1 inference failed: " + error_message
         )
 
     # 1. Delete large objects (models, tensors, optimizers)
