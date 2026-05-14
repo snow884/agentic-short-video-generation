@@ -108,7 +108,7 @@ def main(weekend_id=1, town_id=1):
                     text=event_name_truncated.capitalize()
                     + "\n\n"
                     + formatted_date.capitalize(),
-                    font_size=35,
+                    font_size=45,
                     color="white",
                     method="caption",  # Required for 'align' to work
                     text_align="center",
