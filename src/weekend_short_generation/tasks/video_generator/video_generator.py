@@ -155,7 +155,6 @@ def main(weekend_id=1, town_id=1):
         f"data/video/concatenated_output_{t.name}_{t.state}_{w.date}_{slug}.mp4",
         codec="libx264",
         audio_codec="aac",
-        preset="ultrafast",
         threads=32,
     )
 
