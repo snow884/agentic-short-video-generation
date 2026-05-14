@@ -4,7 +4,7 @@ from typing import Any, Dict
 
 import torch
 from fastapi import Body, FastAPI, HTTPException
-from generate import generate
+from generate import generate, str2bool
 
 app = FastAPI()
 
