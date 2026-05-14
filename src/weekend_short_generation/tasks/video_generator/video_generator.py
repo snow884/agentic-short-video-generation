@@ -55,7 +55,7 @@ def main(weekend_id=1, town_id=1):
         print(
             f"Segment ID: {segment.id}, Event ID: {segment.event_id}, Timestamp:"
             f" {segment.timestamp}, Script Text: {segment.script_text}, Sound File"
-            f" Path: {segment.sound_file_path}, Image ID: {segment.Image_id}, Image"
+            f" Path: {segment.sound_file_path}"
         )
 
         sound = AudioSegment.from_file(segment.sound_file_path)
