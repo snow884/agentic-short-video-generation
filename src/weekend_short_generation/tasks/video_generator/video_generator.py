@@ -106,13 +106,13 @@ def main(weekend_id=1, town_id=1):
             title = (
                 TextClip(
                     text=event_name_truncated.title() + "\n" + formatted_date,
-                    font_size=21,
+                    font_size=35,
                     color="white",
                     method="caption",
                     size=(
-                        int(clip_resized_center.w * 0.7),
+                        int(clip_resized_center.w * 0.3),
                         None,
-                    ),  # Width is 70% of video, height auto
+                    ),  # Width is 80% of video, height auto
                     font="/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf",  # Specify a font file or name
                 )
                 .with_duration(3)
