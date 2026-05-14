@@ -160,7 +160,12 @@ def main(weekend_id=1, town_id=1):
         f"data/video/concatenated_output_{t.name}_{t.state}_{w.date}_{slug}.mp4",
         codec="h264_nvenc",
         audio_codec="aac",
-        preset="ultrafast",
+        ffmpeg_params=[
+            "-preset",
+            "p4",  # Use NVIDIA-specific preset (p1-p7)
+            "-tune",
+            "hq",  # Optional: high quality tuning
+        ],
         threads=32,
     )
 
