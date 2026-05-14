@@ -29,9 +29,7 @@ VID_HEIGHT = int(1920 / 2)
 VID_WIDTH = int(1080 / 2)
 
 
-def resize_and_center(input_path, target_size=(1080, 1920)):
-    # 1. Load the video
-    clip = VideoFileClip(input_path)
+def resize_and_center(clip, target_size=(1080, 1920)):
 
     # 2. Resize maintaining aspect ratio (resize to max side)
     # This ensures the video fits within target_size without stretching
