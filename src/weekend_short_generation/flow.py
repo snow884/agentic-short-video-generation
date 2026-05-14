@@ -2,9 +2,6 @@ from dotenv import load_dotenv
 from prefect import flow
 from prefect.logging import get_run_logger
 from tasks.video_generator.video_generator import main as video_generator_agent_main
-from tasks.video_parts_generator.video_parts_generator import (
-    main as video_parts_generator_agent_main,
-)
 
 
 @flow(name="Weekend Short Generation Flow", log_prints=True)
@@ -22,7 +19,7 @@ def main_flow(weekend_id, town_id):
 
     # video_script_generator_agent_main(weekend_id=weekend_id, town_id=town_id)
 
-    video_parts_generator_agent_main(weekend_id=weekend_id, town_id=town_id)
+    # video_parts_generator_agent_main(weekend_id=weekend_id, town_id=town_id)
 
     video_generator_agent_main(weekend_id=weekend_id, town_id=town_id)
 

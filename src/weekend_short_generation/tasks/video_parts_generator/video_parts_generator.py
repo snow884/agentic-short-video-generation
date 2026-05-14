@@ -69,7 +69,7 @@ def main(weekend_id=1, town_id=1):
             data=json.dumps(
                 {
                     "task": "t2v-1.3B",
-                    "size": "832*480",
+                    "size": "480*832",
                     "ckpt_dir": "./Wan2.1-T2V-1.3B",
                     "offload_model": True,
                     "t5_cpu": True,
