@@ -91,7 +91,7 @@ def main(weekend_id=1, town_id=1):
         clip = clip.with_effects([MultiplySpeed(0.7)]).with_end(duration)
 
         clip_resized_center = resize_and_center(
-            clip, target_size=(VID_HEIGHT, VID_WIDTH)
+            clip, target_size=(VID_WIDTH, VID_HEIGHT)
         )
 
         if previous_event_id != segment.event_id:
