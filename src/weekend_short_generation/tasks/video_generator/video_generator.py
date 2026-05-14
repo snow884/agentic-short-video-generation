@@ -102,7 +102,7 @@ def main(weekend_id=1, town_id=1):
             clip_resized_center = CompositeVideoClip([clip_resized_center, title])
 
             clip_resized_center.write_videofile(
-                f"data/video/segment_clip_{segment.id}_{t.name}_{t.state}_{w.date}_{slug}.mp4",
+                f"data/video/segment_clip_{segment.id}_{t.name}_{t.state}_{w.date}.mp4",
                 codec="h264_nvenc",
                 audio_codec="aac",
                 ffmpeg_params=[
@@ -113,7 +113,7 @@ def main(weekend_id=1, town_id=1):
                 ],
                 threads=32,
             )
-
+            sfsfasdfasffsa
             previous_event_id = segment.event_id
 
         if combined_video is None:
