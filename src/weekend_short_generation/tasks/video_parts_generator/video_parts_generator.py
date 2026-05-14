@@ -46,6 +46,8 @@ def main(weekend_id=1, town_id=1):
 
     previous_event_id = None
 
+    parent_dir = Path(__file__).parent.parent.parent.parent.parent.resolve()
+
     for segment in video_segments:
 
         image = session.query(Image).filter(Image.id == segment.Image_id).first()
@@ -70,15 +72,15 @@ def main(weekend_id=1, town_id=1):
             headers={"Content-Type": "application/json"},
             data=json.dumps(
                 {
-                    "source_image": os.path.join(
-                        parent_dir, "data/portraits/anchor2.png"
-                    ),
-                    "driven_audio": os.path.join(parent_dir, combined_audio_path),
-                    "result_dir": os.path.join(parent_dir, "data/video/sad_talker_out"),
-                    "checkpoint_dir": os.path.join(
-                        parent_dir, "src/services/SadTalker/checkpoints"
-                    ),
-                    "enhancer": "gfpgan",
+                    "task": "t2v-1.3B",
+                    "size": "832*480",
+                    "ckpt_dir": "./Wan2.1-T2V-1.3B",
+                    "offload_model": True,
+                    "t5_cpu": True,
+                    "sample_shift": 8,
+                    "sample_guide_scale": 6,
+                    "prompt": scene_description,
+                    "save_file": f"data/video/t2v_output_{segment.id}.mp4",
                 }
             ),
         )
@@ -87,7 +89,6 @@ def main(weekend_id=1, town_id=1):
 
     combined_audio.export(combined_audio_path, format="wav")
 
-    parent_dir = Path(__file__).parent.parent.parent.parent.parent.resolve()
     print(f"Parent directory: {parent_dir}")
 
     res = requests.post(
