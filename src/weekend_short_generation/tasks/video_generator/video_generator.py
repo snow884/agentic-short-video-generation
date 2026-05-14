@@ -92,8 +92,7 @@ def main(weekend_id=1, town_id=1):
                     text=event_name_truncated.title() + "\n" + formatted_date,
                     font_size=70,
                     size=(VID_WIDTH, VID_HEIGHT),
-                    color="yellow",
-                    method="caption",
+                    color="white",
                     font="/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf",  # Specify a font file or name
                 )
                 .with_duration(3)
@@ -101,6 +100,19 @@ def main(weekend_id=1, town_id=1):
             )
 
             clip_resized_center = CompositeVideoClip([clip_resized_center, title])
+
+            clip_resized_center.write_videofile(
+                f"data/video/segment_clip_{segment.id}_{t.name}_{t.state}_{w.date}_{slug}.mp4",
+                codec="h264_nvenc",
+                audio_codec="aac",
+                ffmpeg_params=[
+                    "-preset",
+                    "p4",  # Use NVIDIA-specific preset (p1-p7)
+                    "-tune",
+                    "hq",  # Optional: high quality tuning
+                ],
+                threads=32,
+            )
 
             previous_event_id = segment.event_id
 
