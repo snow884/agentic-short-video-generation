@@ -15,7 +15,7 @@ from prefect import task
 from pydub import AudioSegment
 
 from sql_utils import get_db
-from tables import Events, Image, Towns, VideoSegments, Weekends
+from tables import Events, Towns, VideoSegments, Weekends
 
 VID_HEIGHT = int(1920 / 2)
 VID_WIDTH = int(1080 / 2)
@@ -50,13 +50,11 @@ def main(weekend_id=1, town_id=1):
 
     for segment in video_segments:
 
-        image = session.query(Image).filter(Image.id == segment.Image_id).first()
-
         print(
             f"Segment ID: {segment.id}, Event ID: {segment.event_id}, Timestamp:"
             f" {segment.timestamp}, Script Text: {segment.script_text}, Sound File"
-            f" Path: {segment.sound_file_path}, Image ID: {segment.Image_id}, Image"
-            f" File Path: {image.file_path}"
+            f" Path: {segment.sound_file_path}, Scene Description:"
+            f" {segment.scene_description}"
         )
 
         sound = AudioSegment.from_file(segment.sound_file_path)
@@ -89,6 +87,7 @@ def main(weekend_id=1, town_id=1):
         if res.status_code != 200:
             raise Exception(f"Error: {res.status_code}, {res.text}")
             return
+
     combined_audio_path = os.path.join(
         parent_dir, "data/video/sad_talker_input/combined_audio.wav"
     )
