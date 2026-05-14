@@ -97,7 +97,6 @@ def main(weekend_id=1, town_id=1):
                         clip_resized_center.w * 0.8,
                         None,
                     ),  # Width is 80% of video, height auto
-                    align="center",
                     font="/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf",  # Specify a font file or name
                 )
                 .with_duration(3)
