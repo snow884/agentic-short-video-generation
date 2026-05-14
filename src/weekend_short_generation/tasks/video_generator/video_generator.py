@@ -29,6 +29,24 @@ VID_HEIGHT = int(1920 / 2)
 VID_WIDTH = int(1080 / 2)
 
 
+def resize_and_center(input_path, target_size=(1080, 1920)):
+    # 1. Load the video
+    clip = VideoFileClip(input_path)
+
+    # 2. Resize maintaining aspect ratio (resize to max side)
+    # This ensures the video fits within target_size without stretching
+    clip_resized = clip.resize(height=target_size[1])  # or width=target_size[0]
+
+    # 3. Center the clip
+    clip_centered = clip_resized.set_position("center")
+
+    # 4. Create composite with container size (e.g., black background)
+    final_clip = CompositeVideoClip([clip_centered], size=target_size)
+
+    # 5. Write result
+    return final_clip
+
+
 @task(task_run_name="video_generator-{weekend_id}-{town_id}")
 def main(weekend_id=1, town_id=1):
     session = next(get_db())
@@ -74,8 +92,8 @@ def main(weekend_id=1, town_id=1):
 
         clip = clip.with_effects([MultiplySpeed(0.7)]).with_end(duration)
 
-        clip_resized_center = clip.resized(height=VID_HEIGHT).with_position(
-            ("center", "center")
+        clip_resized_center = resize_and_center(
+            clip, target_size=(VID_HEIGHT, VID_WIDTH)
         )
 
         if previous_event_id != segment.event_id:
@@ -108,16 +126,12 @@ def main(weekend_id=1, town_id=1):
             previous_event_id = segment.event_id
 
         if combined_video is None:
-            combined_video = CompositeVideoClip(
-                [clip_resized_center], size=(VID_WIDTH, VID_HEIGHT)
-            )
+            combined_video = clip_resized_center
         else:
             combined_video = concatenate_videoclips(
                 [
                     combined_video,
-                    CompositeVideoClip(
-                        [clip_resized_center], size=(VID_WIDTH, VID_HEIGHT)
-                    ),
+                    clip_resized_center,
                 ],
                 method="compose",
             )
