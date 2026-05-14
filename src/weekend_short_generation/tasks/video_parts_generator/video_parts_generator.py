@@ -63,8 +63,6 @@ def main(weekend_id=1, town_id=1):
 
         combined_audio = sound if combined_audio is None else combined_audio + sound
 
-        scene_description = f"{segment.script_text}"
-
         res = requests.post(
             "http://localhost:8001/inference/",
             headers={"Content-Type": "application/json"},
@@ -77,7 +75,7 @@ def main(weekend_id=1, town_id=1):
                     "t5_cpu": True,
                     "sample_shift": 8,
                     "sample_guide_scale": 6,
-                    "prompt": scene_description,
+                    "prompt": segment.scene_description,
                     "save_file": os.path.join(
                         parent_dir, f"data/video/t2v_output_{segment.id}.mp4"
                     ),

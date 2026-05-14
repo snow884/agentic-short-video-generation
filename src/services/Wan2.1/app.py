@@ -2,15 +2,16 @@ import argparse
 import gc
 from typing import Any, Dict
 
-import torch
 from fastapi import Body, FastAPI, HTTPException
-from generate import generate, str2bool
 
 app = FastAPI()
 
 
 @app.post("/inference/")
 def inference(args: Dict[str, Any] = Body(...)):
+    import torch
+    from generate import generate, str2bool
+
     parser = argparse.ArgumentParser()
 
     parser.add_argument(
