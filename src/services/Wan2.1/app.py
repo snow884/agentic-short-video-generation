@@ -11,7 +11,7 @@ app = FastAPI()
 @app.post("/inference/")
 def inference(args: Dict[str, Any] = Body(...)):
     import torch
-    from generate import generate, str2bool
+    from generate import _validate_args, generate, str2bool
 
     parser = argparse.ArgumentParser()
 
@@ -201,6 +201,7 @@ def inference(args: Dict[str, Any] = Body(...)):
 
     # Passing an empty list to parse_args() prevents it from reading sys.argv
     fake_args = parser.parse_args([])
+    _validate_args(args)
 
     try:
         generate(fake_args)
