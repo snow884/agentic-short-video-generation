@@ -80,12 +80,18 @@ def main(weekend_id=1, town_id=1):
                     "sample_shift": 8,
                     "sample_guide_scale": 6,
                     "prompt": scene_description,
-                    "save_file": f"data/video/t2v_output_{segment.id}.mp4",
+                    "save_file": os.path.join(
+                        parent_dir, f"data/video/t2v_output_{segment.id}.mp4"
+                    ),
                 }
             ),
         )
-
-    combined_audio_path = "data/video/sad_talker_input/combined_audio.wav"
+        if res.status_code != 200:
+            raise Exception(f"Error: {res.status_code}, {res.text}")
+            return
+    combined_audio_path = os.path.join(
+        parent_dir, "data/video/sad_talker_input/combined_audio.wav"
+    )
 
     combined_audio.export(combined_audio_path, format="wav")
 
