@@ -33,10 +33,10 @@ def resize_and_center(clip, target_size=(1080, 1920)):
 
     # 2. Resize maintaining aspect ratio (resize to max side)
     # This ensures the video fits within target_size without stretching
-    clip_resized = clip.resize(height=target_size[1])  # or width=target_size[0]
+    clip_resized = clip.resized(height=target_size[1])  # or width=target_size[0]
 
     # 3. Center the clip
-    clip_centered = clip_resized.set_position("center")
+    clip_centered = clip_resized.with_position("center")
 
     # 4. Create composite with container size (e.g., black background)
     final_clip = CompositeVideoClip([clip_centered], size=target_size)
