@@ -156,7 +156,7 @@ def main(weekend_id=1, town_id=1):
         codec="libx264",
         audio_codec="aac",
         preset="ultrafast",
-        threads=8,
+        threads=32,
     )
 
 
