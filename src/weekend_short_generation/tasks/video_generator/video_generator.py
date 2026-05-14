@@ -2,6 +2,11 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+import os
+
+# Must be set BEFORE importing moviepy
+os.environ["IMAGEIO_FFMPEG_EXE"] = "/usr/bin/ffmpeg"
+
 import hashlib
 import time
 from datetime import datetime
@@ -154,7 +159,7 @@ def main(weekend_id=1, town_id=1):
     final_video.write_videofile(
         f"data/video/concatenated_output_{t.name}_{t.state}_{w.date}_{slug}.mp4",
         codec="libx264",
-        audio_codec="aac",
+        audio_codec="h264_nvenc",
         threads=32,
     )
 
