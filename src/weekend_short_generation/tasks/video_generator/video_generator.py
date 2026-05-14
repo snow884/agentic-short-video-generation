@@ -116,7 +116,9 @@ def main(weekend_id=1, town_id=1):
                         int(clip_resized_center.w * 0.6),
                         int(clip_resized_center.h * 0.6),
                     ),  # Width is 80% of video, height auto
-                    font="/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf",  # Specify a font file or name
+                    font=(  # Specify a font file or name
+                        "/usr/share/fonts/truetype/liberation/LiberationSans-Bold.ttf"
+                    ),
                 )
                 .with_duration(3)
                 .with_position("center")
@@ -137,19 +139,19 @@ def main(weekend_id=1, town_id=1):
                 method="compose",
             )
 
-        combined_video.write_videofile(
-            f"data/video/segment_clip_{segment.id}_{t.name}_{t.state}_{w.date}.mp4",
-            codec="h264_nvenc",
-            audio_codec="aac",
-            ffmpeg_params=[
-                "-preset",
-                "p4",  # Use NVIDIA-specific preset (p1-p7)
-                "-tune",
-                "hq",  # Optional: high quality tuning
-            ],
-            threads=32,
-        )
-        sfsfasdfasffsa
+        # combined_video.write_videofile(
+        #     f"data/video/segment_clip_{segment.id}_{t.name}_{t.state}_{w.date}.mp4",
+        #     codec="h264_nvenc",
+        #     audio_codec="aac",
+        #     ffmpeg_params=[
+        #         "-preset",
+        #         "p4",  # Use NVIDIA-specific preset (p1-p7)
+        #         "-tune",
+        #         "hq",  # Optional: high quality tuning
+        #     ],
+        #     threads=32,
+        # )
+        # sfsfasdfasffsa
 
     video_path = "/home/adaivasnky/Documents/src/agentic_tasks/agentic-tasks/data/video/sad_talker_out/2026_05_14_10.20.52.mp4"
 
