@@ -1,9 +1,6 @@
 from dotenv import load_dotenv
 from prefect import flow
 from prefect.logging import get_run_logger
-from tasks.event_research_agent.event_research_agent import (
-    main as event_research_agent_main,
-)
 from tasks.video_generator.video_generator import main as video_generator_agent_main
 from tasks.video_parts_generator.video_parts_generator import (
     main as video_parts_generator_agent_main,
@@ -17,7 +14,7 @@ def main_flow(weekend_id, town_id):
 
     load_dotenv()
 
-    event_id_list = event_research_agent_main(town_id=town_id, weekend_id=weekend_id)
+    # event_id_list = event_research_agent_main(town_id=town_id, weekend_id=weekend_id)
 
     # for event_id in event_id_list:
     #     logger.info(f"Processing event_id: {event_id}")
