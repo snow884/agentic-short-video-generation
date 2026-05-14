@@ -201,7 +201,7 @@ def inference(args: Dict[str, Any] = Body(...)):
 
     # Passing an empty list to parse_args() prevents it from reading sys.argv
     fake_args = parser.parse_args([])
-    _validate_args(args)
+    _validate_args(fake_args)
 
     try:
         generate(fake_args)
