@@ -106,7 +106,7 @@ def main(weekend_id=1, town_id=1):
             title = (
                 TextClip(
                     text=event_name_truncated.capitalize()
-                    + "\n"
+                    + "\n\n"
                     + formatted_date.capitalize(),
                     font_size=35,
                     color="white",
