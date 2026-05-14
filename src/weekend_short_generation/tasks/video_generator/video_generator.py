@@ -67,7 +67,7 @@ def main(weekend_id=1, town_id=1):
 
         clip = VideoFileClip(f"data/video/t2v_output_{segment.id}.mp4")
 
-        clip = clip.with_effects([MultiplySpeed(1.3)]).with_end(duration)
+        clip = clip.with_effects([MultiplySpeed(0.7)]).with_end(duration)
 
         clip_resized_center = clip.resized(height=VID_HEIGHT).with_position(
             ("center", "center")
