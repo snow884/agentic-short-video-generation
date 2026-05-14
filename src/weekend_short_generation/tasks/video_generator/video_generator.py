@@ -111,7 +111,7 @@ def main(weekend_id=1, town_id=1):
                     font_size=21,
                     color="white",
                     method="caption",  # Required for 'align' to work
-                    align="center",
+                    text_align="center",
                     size=(
                         int(clip_resized_center.w * 0.6),
                         int(clip_resized_center.h * 0.6),
