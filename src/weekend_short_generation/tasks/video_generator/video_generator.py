@@ -110,7 +110,7 @@ def main(weekend_id=1, town_id=1):
                     color="white",
                     method="caption",
                     size=(
-                        int(clip_resized_center.w * 0.3),
+                        int(clip_resized_center.w * 0.6),
                         None,
                     ),  # Width is 80% of video, height auto
                     font="/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf",  # Specify a font file or name
