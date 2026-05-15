@@ -15,6 +15,7 @@ every segment includes:
 - timestamp - defines the point in time n seconds in the video where the segment should start
 - script_text - the text stat should be spoken while the segment is displayed. 
 - scene_description - two paragraph description of the scene that should be played at this timestamp
+- caption - Caption that should be displayed on the screen when this segment begins, include name of the event when introducing new event
 
 Pay special attention to scene_description. Ensure that you include the following information:
 *Subject: Person, animal, entity. 

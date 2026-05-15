@@ -99,17 +99,18 @@ def main(weekend_id=1, town_id=1):
 
             date_obj = datetime.strptime(event.date, "%Y-%m-%d")
             formatted_date = date_obj.strftime("%b %d")
+            weekday = date_obj.strftime("%a")
 
             text = event.event_name
-            limit = 30
-            event_name_truncated = (text[:limit] + "..") if len(text) > limit else text
             title = (
                 TextClip(
-                    text=event_name_truncated.capitalize()
+                    text=text.capitalize()
                     + "\n\n"
+                    + weekday.capitalize()
+                    + ", "
                     + formatted_date.capitalize(),
                     # font_size=25,
-                    color="white",
+                    color="yellow",
                     method="caption",  # Required for 'align' to work
                     text_align="center",
                     size=(
@@ -121,7 +122,7 @@ def main(weekend_id=1, town_id=1):
                     ),
                     margin=(40, 20),
                 )
-                .with_duration(3)
+                .with_duration(5)
                 .with_position("center")
             )
 

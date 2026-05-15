@@ -129,9 +129,9 @@ class VideoSegments(Base):
     script_text = Column(String, default="")
     scene_description = Column(String, default="")
     sound_file_path = Column(String, default="")
-    # video_file_path = Column(String, default="")
+    video_file_path = Column(String, default="")
     timestamp = Column(Integer, default=0)
-    # caption = Column(String, default="")
+    caption = Column(String, default="")
 
 
 class VideoSegmentsSchema(BaseModel):
