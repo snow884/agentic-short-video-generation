@@ -86,7 +86,7 @@ def main(weekend_id=1, town_id=1):
 
         combined_audio = sound if combined_audio is None else combined_audio + sound
 
-        clip = VideoFileClip(f"data/video/t2v_output_{segment.id}.mp4")
+        clip = VideoFileClip(segment.video_file_path)
 
         clip = clip.with_effects([MultiplySpeed(0.7)]).with_end(duration)
 

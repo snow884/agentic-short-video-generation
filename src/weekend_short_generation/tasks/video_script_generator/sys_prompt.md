@@ -17,7 +17,7 @@ every segment includes:
 - scene_description - two paragraph description of the scene that should be played at this timestamp
 - caption - Caption that should be displayed on the screen when this segment begins, include name of the event when introducing new event
 
-Pay special attention to scene_description. Ensure that you include the following information:
+Pay spescial attention to scene_description. Ensure that you include the following information:
 *Subject: Person, animal, entity. 
 *Scene: Environment, background.
 *Motion: Specific movement (e.g., rapid, slow, walking).

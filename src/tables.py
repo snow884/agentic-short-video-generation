@@ -121,10 +121,30 @@ class EventList(BaseModel):
     events: list[EventsSchema] | None = []
 
 
+class Video(Base):
+    __tablename__ = "video"
+
+    id = Column(Integer, primary_key=True)
+    town_id = Column(Integer, ForeignKey("towns.id"))
+    weekend_id = Column(Integer, ForeignKey("weekends.id"))
+    video_file_path = Column(String, default="")
+    audio_file_path = Column(String, default="")
+    sad_talker_video_path = Column(String, default="")
+
+
+class VideoSchema(BaseModel):
+    town_id: int
+    weekend_id: int
+    video_file_path: str
+    audio_file_path: str
+    sad_talker_video_path: str
+
+
 class VideoSegments(Base):
     __tablename__ = "video_segments"
 
     id = Column(Integer, primary_key=True)
+    video_id = Column(Integer, ForeignKey("video.id"))
     event_id = Column(Integer, ForeignKey("events.id"))
     script_text = Column(String, default="")
     scene_description = Column(String, default="")

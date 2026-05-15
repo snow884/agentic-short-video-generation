@@ -5,12 +5,9 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-import hashlib
-import time
 from pathlib import Path
 
 import requests
-from moviepy import CompositeVideoClip, VideoFileClip, vfx
 from prefect import task
 from pydub import AudioSegment
 
@@ -86,6 +83,11 @@ def main(weekend_id=1, town_id=1):
             raise Exception(f"Error: {res.status_code}, {res.text}")
             return
 
+        segment.video_file_path = os.path.join(
+            parent_dir, f"data/video/t2v_output_{segment.id}.mp4"
+        )
+        session.commit()
+
     combined_audio_path = os.path.join(
         parent_dir, "data/video/sad_talker_input/combined_audio.wav"
     )
@@ -115,49 +117,6 @@ def main(weekend_id=1, town_id=1):
         return
 
     video_path = res.json()["save_dir"]
-
-    # 1. Load the videos
-    # 'bg_clip' is your main background
-    # 'fg_clip' is the one with the green screen
-    bg_clip = combined_video
-    fg_clip = VideoFileClip(video_path)
-    final_audio = fg_clip.audio
-
-    new_height = bg_clip.h / 3
-    fg_clip = fg_clip.resized(height=int(new_height))
-
-    # 2. Apply the green screen mask
-    # 'color' is the RGB value of the green to remove
-    # 'thr' (threshold) and 's' (stiffness) help fine-tune the edges
-    masked_fg = fg_clip.with_effects(
-        [vfx.MaskColor(color=[94, 184, 99], threshold=30, stiffness=5)]
-    )
-
-    masked_fg = masked_fg.with_position(("right", "bottom")).with_start(0)
-
-    # 3. Overlay the masked clip onto the background
-    # You can set the position and start time of the overlay
-
-    final_video = CompositeVideoClip([bg_clip, masked_fg])
-    final_video = final_video.with_audio(final_audio)
-
-    # 1. Get the current Unix timestamp
-    timestamp = str(time.time())
-
-    # 2. Encode to bytes and create SHA-256 hash
-    hash_object = hashlib.sha256(timestamp.encode("utf-8"))
-
-    # 3. Get the hexadecimal representation
-    hex_dig = hash_object.hexdigest()
-    slug = hex_dig[0:5]  # You can take the first 10 characters for a shorter slug
-
-    final_video.write_videofile(
-        f"data/video/concatenated_output_{t.name}_{t.state}_{w.date}_{slug}.mp4",
-        codec="libx264",
-        audio_codec="aac",
-        preset="ultrafast",
-        threads=8,
-    )
 
 
 if __name__ == "__main__":
