@@ -1,10 +1,12 @@
-from sqlalchemy.orm import Session
-
 from sqlalchemy import create_engine
+from sqlalchemy.orm import Session
 
 from tables import Base, Towns, Weekends
 
-engine = create_engine('sqlite:///data/local.db', echo=False) # echo=True shows SQL logs
+engine = create_engine(
+    "sqlite:///data/local.db", echo=False
+)  # echo=True shows SQL logs
+
 
 def get_db():
     db = Session(engine)
@@ -12,40 +14,41 @@ def get_db():
         yield db
     finally:
         db.close()
-        
+
+
 def create_tables():
-        
-    Base.metadata.create_all(engine) 
-    
+
+    Base.metadata.create_all(engine)
+
 
 def populate_weekends():
-    
+
     session = next(get_db())
-    
+
     if session.query(Weekends).first():
         session.close()
         return
-    
+
     # Example: Populate weekends with some dummy data
-    weekends = [
-        Weekends(date="2026-05-16")
-    ]
-    
+    weekends = [Weekends(date="2026-05-30")]
+
     for weekend in weekends:
         session.add(weekend)
-    
+
     session.commit()
     session.close()
-    
+
+
 def populate_towns():
-    
+
     session = next(get_db())
-    
+
     if session.query(Towns).first():
         session.close()
         return
-    
-    raw_data = """744,Pinellas Park,Florida,49998,5.9%
+
+    raw_data = """773, Batavia, New York, 14020, -0.5%
+744,Pinellas Park,Florida,49998,5.9%
 745,Troy,New York,49974,1.5%
 746,West Sacramento,California,49891,55.6%
 747,Burien,Washington,49858,56.7%
@@ -303,14 +306,14 @@ def populate_towns():
 999,Beloit,Wisconsin,36888,2.9%
 1000,Panama City,Florida,36877,0.1%
     """
-    
+
     raw_data_lines = raw_data.strip().split("\n")[1:]  # Skip header line
-    
+
     for line in raw_data_lines:
         id, name, state, population, growth_rate = line.split(",")
         town = Towns(name=name, state=state, population=int(population))
         print(f"Adding town: {name}, {state} with population {population}")
         session.add(town)
-    
+
     session.commit()
     session.close()
