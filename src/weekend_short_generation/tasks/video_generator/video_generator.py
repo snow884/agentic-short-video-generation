@@ -23,7 +23,7 @@ from prefect import task
 from pydub import AudioSegment
 
 from sql_utils import get_db
-from tables import Events, Towns, VideoSegments, Weekends
+from tables import Events, Towns, Video, VideoSegments, Weekends
 
 VID_HEIGHT = int(1920 / 2)
 VID_WIDTH = int(1080 / 2)
@@ -57,6 +57,12 @@ def main(weekend_id=1, town_id=1):
 
     w = session.query(Weekends).filter(Weekends.id == weekend_id).first()
     t = session.query(Towns).filter(Towns.id == town_id).first()
+
+    video = (
+        session.query(Video)
+        .filter(Video.weekend_id == weekend_id, Video.town_id == town_id)
+        .first()
+    )
 
     video_segments = (
         session.query(VideoSegments)
@@ -155,13 +161,13 @@ def main(weekend_id=1, town_id=1):
         # )
         # sfsfasdfasffsa
 
-    video_path = "/home/adaivasnky/Documents/src/agentic_tasks/agentic-tasks/data/video/sad_talker_out/2026_05_14_10.20.52.mp4"
+    # video_path = "/home/adaivasnky/Documents/src/agentic_tasks/agentic-tasks/data/video/sad_talker_out/2026_05_14_10.20.52.mp4"
 
     # 1. Load the videos
     # 'bg_clip' is your main background
     # 'fg_clip' is the one with the green screen
     bg_clip = combined_video
-    fg_clip = VideoFileClip(video_path)
+    fg_clip = VideoFileClip(video.sad_talker_video_path)
     final_audio = fg_clip.audio
 
     new_height = bg_clip.h / 3

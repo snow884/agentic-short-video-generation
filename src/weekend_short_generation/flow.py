@@ -17,7 +17,7 @@ def main_flow(weekend_id, town_id):
 
     load_dotenv()
 
-    # event_id_list = event_research_agent_main(town_id=town_id, weekend_id=weekend_id)
+    event_id_list = event_research_agent_main(town_id=town_id, weekend_id=weekend_id)
 
     video_script_generator_agent_main(weekend_id=weekend_id, town_id=town_id)
 
