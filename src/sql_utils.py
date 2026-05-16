@@ -47,7 +47,8 @@ def populate_towns():
         session.close()
         return
 
-    raw_data = """773, Batavia, New York, 14020, -0.5%
+    raw_data = """772, New City, New York, 50000, 0.0%
+773, Batavia, New York, 50000, -0.5%
 744,Pinellas Park,Florida,49998,5.9%
 745,Troy,New York,49974,1.5%
 746,West Sacramento,California,49891,55.6%
