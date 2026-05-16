@@ -25,9 +25,15 @@ def populate_db_with_events(segments_list: VideoSegmentsList):
 
     session = next(get_db())
 
+    event = (
+        session.query(Events)
+        .filter(Events.id == segments_list.video_segments[0].event_id)
+        .first()
+    )
+
     video = Video(
-        town_id=segments_list.town_id,
-        weekend_id=segments_list.weekend_id,
+        town_id=event.town_id,
+        weekend_id=event.weekend_id,
         video_file_path="",
         audio_file_path="",
     )
