@@ -1,6 +1,9 @@
 from dotenv import load_dotenv
 from prefect import flow
 from prefect.logging import get_run_logger
+from tasks.event_research_agent.event_research_agent import (
+    main as event_research_agent_main,
+)
 from tasks.video_generator.video_generator import main as video_generator_agent_main
 from tasks.video_parts_generator.video_parts_generator import (
     main as video_parts_generator_agent_main,
