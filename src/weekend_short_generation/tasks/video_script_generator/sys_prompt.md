@@ -15,14 +15,13 @@ every segment includes:
 - timestamp - defines the point in time n seconds in the video where the segment should start
 - script_text - the text stat should be spoken while the segment is displayed. 
 - scene_description - two paragraph description of the scene that should be played at this timestamp
-- caption - Caption that should be displayed on the screen when this segment begins, include name of the event when introducing new event
-
 Pay spescial attention to scene_description. Ensure that you include the following information:
 *Subject: Person, animal, entity. 
 *Scene: Environment, background.
 *Motion: Specific movement (e.g., rapid, slow, walking).
 *Camera: Shot size, angle, movement (e.g., pan, zoom, dolly).
 *Style/Atmosphere: Lighting, mood (e.g., dreamy, moody, cinematic).
+- caption - Caption that should be displayed on the screen when this segment begins, include name of the event when introducing new event
 
 Continue improving the script until it passes check_text_spoken_length_matches_timestamps tool. Do NOT stop until the script you have produced returns 'success' when processed by the tool check_text_spoken_length_matches_timestamps. Use value returned by the tool to see what is wrong with your script. 
 

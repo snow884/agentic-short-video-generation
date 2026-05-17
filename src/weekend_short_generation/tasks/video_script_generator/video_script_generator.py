@@ -308,7 +308,6 @@ def main(weekend_id=0, town_id=0):
     time.sleep(60)  # Wait for a few seconds to ensure the model is cleared from memory
 
     print(Video_Segments_List.video_segments[0])
-    sfsfdsdsdssdsdds
 
 
 if __name__ == "__main__":

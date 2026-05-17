@@ -12,7 +12,7 @@ from prefect import task
 from pydub import AudioSegment
 
 from sql_utils import get_db
-from tables import Events, Towns, VideoSegments, Weekends
+from tables import Events, Towns, Video, VideoSegments, Weekends
 
 VID_HEIGHT = int(1920 / 2)
 VID_WIDTH = int(1080 / 2)
@@ -36,6 +36,12 @@ def main(weekend_id=1, town_id=1):
         .filter(VideoSegments.event_id.in_([e.id for e in events]))
         .order_by(VideoSegments.timestamp)
         .all()
+    )
+
+    video = (
+        session.query(Video)
+        .filter(Video.weekend_id == weekend_id, Video.town_id == town_id)
+        .first()
     )
 
     combined_video = None
@@ -117,6 +123,9 @@ def main(weekend_id=1, town_id=1):
         return
 
     video_path = res.json()["save_dir"]
+
+    video.sad_talker_video_path = video_path
+    session.commit()
 
 
 if __name__ == "__main__":
