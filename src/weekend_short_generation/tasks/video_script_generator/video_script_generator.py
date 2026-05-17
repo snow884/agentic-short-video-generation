@@ -25,11 +25,9 @@ def populate_db_with_events(segments_list: VideoSegmentsList):
 
     session = next(get_db())
 
-    event = (
-        session.query(Events)
-        .filter(Events.id == segments_list.video_segments[0].event_id)
-        .first()
-    )
+    event_id = [vs.event_id for vs in segments_list.video_segments if vs.event_id][0]
+
+    event = session.query(Events).filter(Events.id == event_id).first()
 
     video = Video(
         town_id=event.town_id,
