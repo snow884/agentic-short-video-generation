@@ -192,17 +192,19 @@ def check_text_spoken_length_matches_timestamps(segments_list: list):
 
     for i, segment in enumerate(segments_list):
 
-        if segment["scene_description"] and len(segment["scene_description"]) > 400:
+        if segment["scene_description"] and len(segment["scene_description"]) > 500:
             print(
                 f"Error: Segment number {i} at timestamp {segment['timestamp']} has a"
                 " scene description that is too long. Consider shortening the"
-                " description for better synchronization."
+                " description so that it provides enough context without being"
+                " overwhelming."
             )
             res_str = (
                 res_str
                 + f"Error: Segment number {i} at timestamp {segment['timestamp']} has a"
                 " scene description that is too long. Consider shortening the"
-                " description for better synchronization."
+                " description so that it provides enough context without being"
+                " overwhelming."
             )
             res_str = res_str + "\n"
 
@@ -210,13 +212,29 @@ def check_text_spoken_length_matches_timestamps(segments_list: list):
             print(
                 f"Error: Segment number {i} at timestamp {segment['timestamp']} has a"
                 " scene description that is too short. Consider lengthening the"
-                " description for better synchronization."
+                " description so that it provides enough context."
             )
             res_str = (
                 res_str
                 + f"Error: Segment number {i} at timestamp {segment['timestamp']} has a"
                 " scene description that is too short. Consider lengthening the"
-                " description for better synchronization."
+                " description so that it provides enough context."
+            )
+            res_str = res_str + "\n"
+
+    for i, segment in enumerate(segments_list):
+
+        if segment["caption"] and len(segment["caption"]) > 30:
+            print(
+                f"Error: Segment number {i} at timestamp {segment['timestamp']} has a"
+                " caption that is too long. Consider shortening the"
+                " caption so that it fits on screen."
+            )
+            res_str = (
+                res_str
+                + f"Error: Segment number {i} at timestamp {segment['timestamp']} has a"
+                " caption that is too long. Consider shortening the"
+                " caption so that it fits on screen."
             )
             res_str = res_str + "\n"
 
