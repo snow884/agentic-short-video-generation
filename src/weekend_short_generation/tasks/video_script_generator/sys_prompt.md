@@ -14,7 +14,7 @@ every segment includes:
 - event_id - the Id of the event the segment associates with
 - timestamp - defines the point in time n seconds in the video where the segment should start
 - script_text - the text stat should be spoken while the segment is displayed. 
-- caption - Caption that should be displayed on the screen when this segment begins, include name of the event when introducing new event
+- caption - Caption that should be displayed on the screen when this segment begins, include name of the event when introducing new event. Do NOT include caption for every segment.
 - scene_description - two paragraph description of the scene that should be played at this timestamp
 Pay special attention to scene_description. Ensure that you include the following information:
 *Subject: Person, animal, entity. 

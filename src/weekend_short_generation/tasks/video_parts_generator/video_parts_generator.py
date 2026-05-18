@@ -80,7 +80,7 @@ def main(weekend_id=1, town_id=1):
                     "sample_guide_scale": 6,
                     "prompt": segment.scene_description,
                     "save_file": os.path.join(
-                        parent_dir, f"data/video/t2v_output_{segment.id}.mp4"
+                        parent_dir, f"data/video/t2v_{video.id}_output_{segment.id}.mp4"
                     ),
                 }
             ),
@@ -90,12 +90,12 @@ def main(weekend_id=1, town_id=1):
             return
 
         segment.video_file_path = os.path.join(
-            parent_dir, f"data/video/t2v_output_{segment.id}.mp4"
+            parent_dir, f"data/video/t2v_{video.id}_output_{segment.id}.mp4"
         )
         session.commit()
 
     combined_audio_path = os.path.join(
-        parent_dir, "data/video/sad_talker_input/combined_audio.wav"
+        parent_dir, f"data/video/sad_talker_input/combined_audio{video.id}.wav"
     )
 
     combined_audio.export(combined_audio_path, format="wav")
