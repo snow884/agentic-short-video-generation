@@ -23,7 +23,7 @@ from prefect import task
 from pydub import AudioSegment
 
 from sql_utils import get_db
-from tables import Events, Towns, Video, VideoSegments, Weekends
+from tables import Events, Video, VideoSegments
 
 VID_HEIGHT = int(1920 / 2)
 VID_WIDTH = int(1080 / 2)
@@ -46,27 +46,15 @@ def resize_and_center(clip, target_size=(1080, 1920)):
 
 
 @task(task_run_name="video_generator-{weekend_id}-{town_id}")
-def main(weekend_id=1, town_id=1):
+def main(video_id):
+
     session = next(get_db())
 
-    events = (
-        session.query(Events)
-        .filter(Events.weekend_id == weekend_id, Events.town_id == town_id)
-        .all()
-    )
-
-    w = session.query(Weekends).filter(Weekends.id == weekend_id).first()
-    t = session.query(Towns).filter(Towns.id == town_id).first()
-
-    video = (
-        session.query(Video)
-        .filter(Video.weekend_id == weekend_id, Video.town_id == town_id)
-        .first()
-    )
+    video = session.query(Video).filter(Video.id == video_id).first()
 
     video_segments = (
         session.query(VideoSegments)
-        .filter(VideoSegments.event_id.in_([e.id for e in events]))
+        .filter(VideoSegments.video_id == video.id)
         .order_by(VideoSegments.timestamp)
         .all()
     )

@@ -130,6 +130,8 @@ class Video(Base):
     video_file_path = Column(String, default="")
     audio_file_path = Column(String, default="")
     sad_talker_video_path = Column(String, default="")
+    description = Column(String, default="")
+    title = Column(String, default="")
 
 
 class VideoSchema(BaseModel):
@@ -138,6 +140,8 @@ class VideoSchema(BaseModel):
     video_file_path: str
     audio_file_path: str
     sad_talker_video_path: str
+    description: str
+    title: str
 
 
 class VideoSegments(Base):

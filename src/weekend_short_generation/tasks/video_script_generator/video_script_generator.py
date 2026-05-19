@@ -21,23 +21,9 @@ def object_as_dict(obj):
     return {c.key: getattr(obj, c.key) for c in inspect(obj).mapper.column_attrs}
 
 
-def populate_db_with_events(segments_list: VideoSegmentsList):
+def populate_db_with_events(video_id, segments_list: VideoSegmentsList):
 
     session = next(get_db())
-
-    event_id = [vs.event_id for vs in segments_list.video_segments if vs.event_id][0]
-
-    event = session.query(Events).filter(Events.id == event_id).first()
-
-    video = Video(
-        town_id=event.town_id,
-        weekend_id=event.weekend_id,
-        video_file_path="",
-        audio_file_path="",
-    )
-    session.add(video)
-    session.commit()
-    video_id = video.id
 
     for segment in segments_list.video_segments:
         print("Adding the segment ", segment.script_text)
@@ -280,12 +266,14 @@ def check_text_spoken_length_matches_timestamps(segments_list: list):
 
 
 @task(task_run_name="video_script_generator_agent-{weekend_id}-{town_id}")
-def main(weekend_id=0, town_id=0):
+def main(video_id):
     session = next(get_db())
+
+    video = session.query(Video).filter(Video.id == video_id).first()
 
     events = (
         session.query(Events)
-        .filter(Events.weekend_id == weekend_id, Events.town_id == town_id)
+        .filter(Events.weekend_id == video.weekend_id, Events.town_id == video.town_id)
         .all()
     )
 
@@ -293,8 +281,8 @@ def main(weekend_id=0, town_id=0):
         print("No events found for the given weekend and town.")
         return
 
-    w = session.query(Weekends).filter(Weekends.id == weekend_id).first()
-    t = session.query(Towns).filter(Towns.id == town_id).first()
+    w = session.query(Weekends).filter(Weekends.id == video.weekend_id).first()
+    t = session.query(Towns).filter(Towns.id == video.town_id).first()
 
     # chat_ollama_with_structured_output(
     #     user_prompt_params={"town_name": t.name, "state": t.state, "weekend_date": w.date, "event_list":json.dumps([{"name": event.event_name,"address":event.location_address, "description": event.description, "date": event.date, "time": event.time, "id": event.id} for event in events]), "Image_list": json.dumps([{"title": m.title, "description": m.description, "id": m.id, "event_id": m.event_id} for m in images])  },
@@ -331,7 +319,7 @@ def main(weekend_id=0, town_id=0):
         extra_tools=[check_text_spoken_length_matches_timestamps],
     )
     print("Received Video Segments list: ", Video_Segments_List)
-    populate_db_with_events(Video_Segments_List)
+    populate_db_with_events(video.id, Video_Segments_List)
 
     print("clear model from vmem...")
     import ollama
