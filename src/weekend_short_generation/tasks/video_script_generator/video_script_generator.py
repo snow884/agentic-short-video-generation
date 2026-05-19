@@ -265,7 +265,7 @@ def check_text_spoken_length_matches_timestamps(segments_list: list):
     return "success"
 
 
-@task(task_run_name="video_script_generator_agent-{weekend_id}-{town_id}")
+@task(task_run_name="video_script_generator_agent-{video_id}")
 def main(video_id):
     session = next(get_db())
 

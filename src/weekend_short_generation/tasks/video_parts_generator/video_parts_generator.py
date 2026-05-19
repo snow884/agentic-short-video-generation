@@ -18,7 +18,7 @@ VID_HEIGHT = int(1920 / 2)
 VID_WIDTH = int(1080 / 2)
 
 
-@task(task_run_name="video_parts_generator-{weekend_id}-{town_id}")
+@task(task_run_name="video_parts_generator-{video_id}")
 def main(video_id):
     session = next(get_db())
 
