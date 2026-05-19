@@ -104,7 +104,10 @@ def main(weekend_id=1, town_id=1):
             event = session.query(Events).filter(Events.id == segment.event_id).first()
 
             date_obj = datetime.strptime(event.date, "%Y-%m-%d")
-            formatted_date = date_obj.strftime("%b %d")
+            formatted_date_time = date_obj.strftime("%b %d")
+            if event.time:
+                formatted_date_time += " at " + event.time
+
             weekday = date_obj.strftime("%a")
 
             text = event.event_name
@@ -114,7 +117,7 @@ def main(weekend_id=1, town_id=1):
                     + "\n\n"
                     + weekday.capitalize()
                     + ", "
-                    + formatted_date.capitalize(),
+                    + formatted_date_time.capitalize(),
                     # font_size=25,
                     color="yellow",
                     method="caption",  # Required for 'align' to work
