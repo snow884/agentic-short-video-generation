@@ -45,7 +45,7 @@ def resize_and_center(clip, target_size=(1080, 1920)):
     return final_clip
 
 
-@task(task_run_name="video_generator-{weekend_id}-{town_id}")
+@task(task_run_name="video_generator-{video_id}")
 def main(video_id):
 
     session = next(get_db())
