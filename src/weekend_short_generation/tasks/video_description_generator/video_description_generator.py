@@ -9,7 +9,7 @@ from sqlalchemy import inspect
 
 from research_agent import run_agent_sync
 from sql_utils import get_db
-from tables import Events, Towns, Video, VideoSchema, VideoSegmentsList, Weekends
+from tables import Events, Towns, Video, VideoSchema, Weekends
 
 load_dotenv()
 
@@ -18,21 +18,15 @@ def object_as_dict(obj):
     return {c.key: getattr(obj, c.key) for c in inspect(obj).mapper.column_attrs}
 
 
-def populate_db_vid_desc(segments_list: VideoSegmentsList):
+def populate_db_vid_desc(video_id: int, video_in: VideoSchema):
 
     session = next(get_db())
 
-    event_id = [vs.event_id for vs in segments_list.video_segments if vs.event_id][0]
+    video = session.query(Video).filter(Video.id == video_id).first()
 
-    event = session.query(Events).filter(Events.id == event_id).first()
+    video.description = video_in.description
+    video.title = video_in.title
 
-    video = Video(
-        town_id=event.town_id,
-        weekend_id=event.weekend_id,
-        video_file_path="",
-        audio_file_path="",
-    )
-    session.add(video)
     session.commit()
 
     session.commit()
