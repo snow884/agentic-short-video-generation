@@ -9,7 +9,7 @@ from sqlalchemy import inspect
 
 from research_agent import run_agent_sync
 from sql_utils import get_db
-from tables import Events, Video, VideoSchema, VideoSegmentsList
+from tables import Events, Towns, Video, VideoSchema, VideoSegmentsList
 
 load_dotenv()
 
@@ -70,7 +70,7 @@ def main(video_id):
         .town_id
     )
 
-    town = session.query(Events).filter(Events.town_id == town_id).first()
+    town = session.query(Towns).filter(Towns.id == town_id).first()
 
     weekend_id = (
         session.query(Events)
@@ -79,7 +79,7 @@ def main(video_id):
         .weekend_id
     )
 
-    weekend = session.query(Events).filter(Events.weekend_id == weekend_id).first()
+    weekend = session.query(Weekends).filter(Weekends.id == weekend_id).first()
 
     user_prompt_params = {
         "town_name": town.name,
