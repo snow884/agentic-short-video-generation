@@ -14,8 +14,8 @@ pipe = WanPipeline.from_pretrained(
     transformer_gguf_path=ckpt_name,  # Local or downloaded GGUF path
     gguf_config=quant_config,
     torch_dtype=torch.bfloat16,
-    device_map="cuda",
 )
+pipe.to("cuda")
 
 # 2. Prepare inputs
 prompt = "A cinematic shot of a sunset over a digital ocean, high quality, 4k"
