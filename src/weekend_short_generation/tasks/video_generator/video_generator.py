@@ -23,7 +23,7 @@ from prefect import task
 from pydub import AudioSegment
 
 from sql_utils import get_db
-from tables import Events, Video, VideoSegments
+from tables import Events, Towns, Video, VideoSegments, Weekends
 
 VID_HEIGHT = int(1920 / 2)
 VID_WIDTH = int(1080 / 2)
@@ -188,6 +188,9 @@ def main(video_id):
     # 3. Get the hexadecimal representation
     hex_dig = hash_object.hexdigest()
     slug = hex_dig[0:5]  # You can take the first 10 characters for a shorter slug
+
+    t = session.query(Towns).filter(Towns.id == video.town_id).first()
+    w = session.query(Weekends).filter(Weekends.id == video.weekend_id).first()
 
     final_video.write_videofile(
         f"data/video/concatenated_output_{t.name}_{t.state}_{w.date}_{slug}.mp4",
