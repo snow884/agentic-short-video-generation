@@ -4,7 +4,9 @@ from diffusers.utils import export_to_video, load_image
 
 # 1. Load the GGUF model and configuration
 model_id = "city96/Wan2.1-I2V-14B-480P-gguf"  # Community GGUF repo
-ckpt_name = "wan2.1-i2v-480p-Q4_K_M.gguf"  # Specific quant file
+ckpt_name = (  # Specific quant file
+    "src/services/Wan2.1/Wan2.1-T2V-14B-gguf/wan2.1-i2v-480p-Q4_K_M.gguf"
+)
 
 # Use GGUFQuantizationConfig for memory-efficient loading
 quant_config = GGUFQuantizationConfig(compute_dtype=torch.bfloat16)
