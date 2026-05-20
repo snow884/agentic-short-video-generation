@@ -70,7 +70,7 @@ def main(video_id):
         .town_id
     )
 
-    town = session.query(Events).filter(Events.town_id == town_id).first().town
+    town = session.query(Events).filter(Events.town_id == town_id).first()
 
     weekend_id = (
         session.query(Events)
@@ -79,9 +79,7 @@ def main(video_id):
         .weekend_id
     )
 
-    weekend = (
-        session.query(Events).filter(Events.weekend_id == weekend_id).first().weekend
-    )
+    weekend = session.query(Events).filter(Events.weekend_id == weekend_id).first()
 
     user_prompt_params = {
         "town_name": town.name,
