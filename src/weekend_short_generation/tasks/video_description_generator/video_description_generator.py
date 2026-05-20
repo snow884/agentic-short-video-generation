@@ -9,7 +9,7 @@ from sqlalchemy import inspect
 
 from research_agent import run_agent_sync
 from sql_utils import get_db
-from tables import Events, Towns, Video, VideoSchema, Weekends
+from tables import Events, Towns, Video, VideoSchema, VideoSegments, Weekends
 
 load_dotenv()
 
@@ -43,6 +43,13 @@ def main(video_id):
     events = (
         session.query(Events)
         .filter(Events.weekend_id == video.weekend_id, Events.town_id == video.town_id)
+        .all()
+    )
+
+    segments = (
+        session.query(VideoSegments)
+        .filter(VideoSegments.video_id == video.id)
+        .order_by(VideoSegments.timestamp)
         .all()
     )
 
@@ -95,14 +102,12 @@ def main(video_id):
         "segment_list": json.dumps(
             [
                 {
-                    "name": event.event_name,
-                    "address": event.location_address,
-                    "description": event.description,
-                    "date": event.date,
-                    "time": event.time,
-                    "id": event.id,
+                    "timestamp": segment.timestamp,
+                    "event_id": segment.event_id,
+                    "script_text": segment.script_text,
+                    "scene_description": segment.scene_description,
                 }
-                for event in events
+                for segment in segments
             ]
         ),
     }

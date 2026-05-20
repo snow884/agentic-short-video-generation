@@ -6,7 +6,7 @@ User also provides you a list of events the video is about.
 
 Provide user with a description for a Youtube short video.
 
-Make sure the description includes timestamps when various events are discussed. Also include links to event URLs . 
+Make sure the description includes video timestamps when various events are discussed. Also include links to event URLs . 
 
 Optimize SEO of description to maximize engagement.
 
@@ -23,6 +23,10 @@ Events in Troy New York on May 30 weekend include
 01:24 Bluegrass Sunday ( https://downtownbatavia.com/event/bluegrass-sunday-19-2/2026-03-01/ )
 
 ```
+
+Video timestamp in the format MM:SS - you will have to convert the timestamp from the script that is in seconds
+
+
 
 Return the collected list of towns in pure JSON format. Matching the exact output JSON output format including the json nesting. 
 Do not add any text before or after the JSON output. Only return the JSON structure containing the video title and description as your answer. Do not include any explanations or reasoning in the final answer, only return the JSON. 
