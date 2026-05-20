@@ -51,7 +51,6 @@ def main(video_id):
         .filter(VideoSegments.video_id == video.id)
         .order_by(VideoSegments.timestamp)
         .all()
-        .order_by(VideoSegments.timestamp)
     )
 
     if not events:
