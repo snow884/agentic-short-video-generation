@@ -40,7 +40,7 @@ def populate_db_vid_desc(segments_list: VideoSegmentsList):
     session.close()
 
 
-@task(task_run_name="video_description_generator-{weekend_id}-{town_id}")
+@task(task_run_name="video_description_generator-{video_id}")
 def main(video_id):
     session = next(get_db())
 
