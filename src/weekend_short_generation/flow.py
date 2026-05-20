@@ -42,7 +42,7 @@ def main_flow(weekend_id, town_id_list):
     # for town_id in town_id_list:
 
     # video_id = create_video(weekend_id, town_id)
-    video_id = 1
+    video_id = 2
 
     # logger.info(f"Processing town_id: {town_id} for weekend_id: {weekend_id}")
 
