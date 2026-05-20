@@ -135,11 +135,11 @@ class Video(Base):
 
 
 class VideoSchema(BaseModel):
-    town_id: int
-    weekend_id: int
-    video_file_path: str
-    audio_file_path: str
-    sad_talker_video_path: str
+    # town_id: int
+    # weekend_id: int
+    # video_file_path: str
+    # audio_file_path: str
+    # sad_talker_video_path: str
     description: str
     title: str
 
