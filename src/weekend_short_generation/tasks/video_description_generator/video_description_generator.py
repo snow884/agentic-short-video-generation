@@ -9,7 +9,7 @@ from sqlalchemy import inspect
 
 from research_agent import run_agent_sync
 from sql_utils import get_db
-from tables import Events, Towns, Video, VideoSchema, VideoSegmentsList
+from tables import Events, Towns, Video, VideoSchema, VideoSegmentsList, Weekends
 
 load_dotenv()
 
