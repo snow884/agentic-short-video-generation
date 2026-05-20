@@ -12,7 +12,7 @@ ckpt_name = (  # Specific quant file
 quant_config = GGUFQuantizationConfig(compute_dtype=torch.bfloat16)
 
 pipe = WanPipeline.from_pretrained(
-    "src/services/Wan2.1/Wan2.1-T2V-1.3B/config.json",  # Base config from official repo
+    "src/services/Wan2.1/Wan2.1-T2V-1.3B",  # Base config from official repo
     transformer_gguf_path=ckpt_name,  # Local or downloaded GGUF path
     gguf_config=quant_config,
     torch_dtype=torch.bfloat16,
