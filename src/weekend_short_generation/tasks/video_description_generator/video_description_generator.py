@@ -116,7 +116,7 @@ def main(video_id):
         extra_tools=[],
     )
     print("Received Video data: ", VideoData)
-    populate_db_vid_desc(VideoData)
+    populate_db_vid_desc(video_id=video_id, video_in=VideoData)
 
     print("clear model from vmem...")
     import ollama
