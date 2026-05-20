@@ -6,7 +6,9 @@ User also provides you a list of events the video is about.
 
 Provide user with an improved description for the Youtube short video.
 
-Optimize SEO of description to maximize engagement.
+Optimize SEO of description to maximize engagement. 
+
+Do not change the timestamps in the description you have received.
 
 Include hashtags to maximize reach.
 
