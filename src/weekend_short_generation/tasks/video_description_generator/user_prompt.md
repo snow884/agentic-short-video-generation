@@ -1,7 +1,4 @@
-Improve a description for a video describing events that will take place in {town_name}, {state} on {weekend_date}.
+Improve the following description for a video describing events that will take place in {town_name}, {state} on {weekend_date}.
 
-Here is the description:
+Description:
 {description}
-
-Here are details for the events from this video:
-{events_list}
