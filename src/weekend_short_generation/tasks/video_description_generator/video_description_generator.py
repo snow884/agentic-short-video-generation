@@ -63,10 +63,24 @@ def main(video_id):
     #     prompt_dir=Path(__file__).parent.resolve()
     # )
 
+    town = (
+        session.query(Events)
+        .filter(Events.weekend_id == video.weekend_id, Events.town_id == video.town_id)
+        .first()
+        .town
+    )
+
+    weekend = (
+        session.query(Events)
+        .filter(Events.weekend_id == video.weekend_id, Events.town_id == video.town_id)
+        .first()
+        .weekend
+    )
+
     user_prompt_params = {
-        "town_name": video.town.name,
-        "state": video.town.state,
-        "weekend_date": video.weekend.date,
+        "town_name": town.name,
+        "state": town.state,
+        "weekend_date": weekend.date,
         "event_list": json.dumps(
             [
                 {
