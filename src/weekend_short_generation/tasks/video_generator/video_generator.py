@@ -82,7 +82,7 @@ def main(video_id):
 
         clip = VideoFileClip(segment.video_file_path)
 
-        clip = clip.with_effects([MultiplySpeed(0.7)]).with_end(duration)
+        clip = clip.with_effects([MultiplySpeed(0.6)]).with_end(duration)
 
         clip_resized_center = resize_and_center(
             clip, target_size=(VID_WIDTH, VID_HEIGHT)
