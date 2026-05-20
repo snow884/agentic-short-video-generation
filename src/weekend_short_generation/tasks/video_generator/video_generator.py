@@ -161,7 +161,9 @@ def main(video_id):
     print(video.sad_talker_video_path)
 
     bg_clip = combined_video
-    fg_clip = VideoFileClip(video.sad_talker_video_path)
+    fg_clip = VideoFileClip(
+        "/home/adaivasnky/Documents/src/agentic_tasks/agentic-tasks/data/video/sad_talker_out/2026_05_20_00.59.53.mp4"
+    )
     final_audio = fg_clip.audio
 
     new_height = bg_clip.h / 3
