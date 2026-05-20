@@ -51,6 +51,7 @@ def main(video_id):
         .filter(VideoSegments.video_id == video.id)
         .order_by(VideoSegments.timestamp)
         .all()
+        .order_by(VideoSegments.timestamp)
     )
 
     if not events:
@@ -93,11 +94,11 @@ def main(video_id):
         event = session.query(Events).filter(Events.id == segment.event_id).first()
 
         s = segment.timestamp % 60
-        m = s // 60
+        m = segment.timestamp // 60
         if not last_event_id or event.id != last_event_id:
             description = (
                 description
-                + f"{m}:{s} {event.event_name} at {event.location_address}."
+                + f"{m:02d}:{s:02d} {event.event_name} at {event.location_address}."
                 f" {event.url if event.url else ''} {event.url_facebook if event.url_facebook else ''} {event.url_instagram if event.url_instagram else ''}. \n"
             )
 
