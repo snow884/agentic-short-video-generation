@@ -82,11 +82,33 @@ def main(video_id):
 
     weekend = session.query(Weekends).filter(Weekends.id == weekend_id).first()
 
+    description = f"Events in {town.name}, {town.state} on {weekend.date}: \n"
+
+    last_event_id = None
+
+    for segment in segments:
+        if segment.event_id is None or segment.event_id in [0, -1]:
+            continue
+
+        event = session.query(Events).filter(Events.id == segment.event_id).first()
+
+        s = segment.timestamp % 60
+        m = s // 60
+        if not last_event_id or event.id != last_event_id:
+            description = (
+                description
+                + f"{m}:{s} {event.event_name} at {event.location_address}."
+                f" {event.url if event.url else ''} {event.url_facebook if event.url_facebook else ''} {event.url_instagram if event.url_instagram else ''}. \n"
+            )
+
+        last_event_id = segment.event_id
+
     user_prompt_params = {
         "town_name": town.name,
         "state": town.state,
         "weekend_date": weekend.date,
-        "event_list": json.dumps(
+        "description": description,
+        "events_list": json.dumps(
             [
                 {
                     "name": event.event_name,
@@ -97,17 +119,6 @@ def main(video_id):
                     "id": event.id,
                 }
                 for event in events
-            ]
-        ),
-        "segment_list": json.dumps(
-            [
-                {
-                    "timestamp": segment.timestamp,
-                    "event_id": segment.event_id,
-                    "script_text": segment.script_text,
-                    "scene_description": segment.scene_description,
-                }
-                for segment in segments
             ]
         ),
     }
