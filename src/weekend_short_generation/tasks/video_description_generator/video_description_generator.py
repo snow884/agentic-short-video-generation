@@ -27,6 +27,13 @@ def populate_db_vid_desc(video_id: int, video_in: VideoSchema):
     video.description = video_in.description
     video.title = video_in.title
 
+    video_file_path = video.video_file_path
+
+    desc_file_path = video_file_path.replace(".mp4", "_desc.txt")
+
+    with open(desc_file_path, "w") as f:
+        f.write(video_in.title + "\n" + "\n" + video_in.description)
+
     session.commit()
 
     session.commit()
