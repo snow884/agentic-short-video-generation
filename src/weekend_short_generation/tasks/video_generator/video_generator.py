@@ -88,7 +88,11 @@ def main(video_id):
             clip, target_size=(VID_WIDTH, VID_HEIGHT)
         )
 
-        if previous_event_id != segment.event_id and segment.event_id is not None:
+        if (
+            previous_event_id != segment.event_id
+            and segment.event_id is not None
+            and segment.event_id not in [0, -1]
+        ):
             event = session.query(Events).filter(Events.id == segment.event_id).first()
 
             date_obj = datetime.strptime(event.date, "%Y-%m-%d")
