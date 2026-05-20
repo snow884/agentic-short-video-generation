@@ -14,7 +14,7 @@ pipe = WanPipeline.from_pretrained(
     transformer_gguf_path=ckpt_name,  # Local or downloaded GGUF path
     gguf_config=quant_config,
     torch_dtype=torch.bfloat16,
-    device_map="auto",
+    device_map="cuda",
 )
 
 # 2. Prepare inputs
