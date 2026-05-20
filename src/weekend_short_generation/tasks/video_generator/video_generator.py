@@ -157,6 +157,9 @@ def main(video_id):
     # 1. Load the videos
     # 'bg_clip' is your main background
     # 'fg_clip' is the one with the green screen
+
+    print(video.sad_talker_video_path)
+
     bg_clip = combined_video
     fg_clip = VideoFileClip(video.sad_talker_video_path)
     final_audio = fg_clip.audio
