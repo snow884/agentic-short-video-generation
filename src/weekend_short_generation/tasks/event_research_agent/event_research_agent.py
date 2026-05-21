@@ -43,7 +43,11 @@ def check_events(events_list: list):
             return False
 
     for event in events_list:
-        if not event.event_name or not event.event_time or not event.event_description:
+        if (
+            not event["event_name"]
+            or not event["event_time"]
+            or not event["event_description"]
+        ):
             res = (
                 res
                 + f"Event {event} is missing required fields. Please ensure all events"
@@ -51,7 +55,7 @@ def check_events(events_list: list):
             )
             res = res + "\n"
 
-        if not event.location_address:
+        if not event["location_address"]:
             res = (
                 res
                 + f"Event {event} has a location provided but is missing location_name"
@@ -62,7 +66,7 @@ def check_events(events_list: list):
 
         address_pattern = r"^\d+\s[A-z0-9\s]+,\s[A-z\s]+,\s[A-Z]{2}\s\d{5}$"
 
-        if not re.match(address_pattern, event.location_address):
+        if not re.match(address_pattern, event["location_address"]):
             res = (
                 res
                 + f"Event {event} has an invalid location address format. Please ensure"
@@ -70,7 +74,7 @@ def check_events(events_list: list):
             )
             res = res + "\n"
 
-        if not validate_time(event.event_time, "%I:%M %p"):
+        if not validate_time(event["event_time"], "%I:%M %p"):
             res = (
                 res
                 + f"Event {event} has an invalid event time format. Please ensure the"
