@@ -201,8 +201,12 @@ def main(video_id):
     t = session.query(Towns).filter(Towns.id == video.town_id).first()
     w = session.query(Weekends).filter(Weekends.id == video.weekend_id).first()
 
+    video.video_file_path = (
+        f"data/video/concatenated_output_{t.name}_{t.state}_{w.date}_{slug}.mp4"
+    )
+
     final_video.write_videofile(
-        f"data/video/concatenated_output_{t.name}_{t.state}_{w.date}_{slug}.mp4",
+        video.video_file_path,
         codec="h264_nvenc",
         audio_codec="aac",
         ffmpeg_params=[
@@ -214,6 +218,8 @@ def main(video_id):
         threads=32,
         fps=24,
     )
+
+    session.commit()
 
 
 if __name__ == "__main__":
