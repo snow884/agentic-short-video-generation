@@ -181,30 +181,32 @@ def check_text_spoken_length_matches_timestamps(segments_list: list):
         if segment["scene_description"] and len(segment["scene_description"]) > 1000:
             print(
                 f"Error: Segment number {i} at timestamp {segment['timestamp']} has a"
-                " scene description that is too long. Consider shortening the"
-                " description so that it provides enough context without being"
-                " overwhelming."
+                " scene description that is too long, make sure it is at most 1000"
+                " characters. Consider shortening the description so that it provides"
+                " enough context without being overwhelming."
             )
             res_str = (
                 res_str
                 + f"Error: Segment number {i} at timestamp {segment['timestamp']} has a"
-                " scene description that is too long. Consider shortening the"
-                " description so that it provides enough context without being"
-                " overwhelming."
+                " scene description that is too long, make sure it is at most 1000"
+                " characters. Consider shortening the description so that it"
+                " provides enough context without being overwhelming."
             )
             res_str = res_str + "\n"
 
         if segment["scene_description"] and len(segment["scene_description"]) < 300:
             print(
                 f"Error: Segment number {i} at timestamp {segment['timestamp']} has a"
-                " scene description that is too short. Consider lengthening the"
-                " description so that it provides enough context."
+                " scene description that is too short, make sure it is at least 300"
+                " characters. Consider lengthening the description so that it provides"
+                " enough context."
             )
             res_str = (
                 res_str
                 + f"Error: Segment number {i} at timestamp {segment['timestamp']} has a"
-                " scene description that is too short. Consider lengthening the"
-                " description so that it provides enough context."
+                " scene description that is too short, make sure it is at least 300"
+                " characters. Consider lengthening the description so that it"
+                " provides enough context."
             )
             res_str = res_str + "\n"
 
