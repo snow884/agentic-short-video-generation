@@ -364,4 +364,28 @@ def main(video_id):
 
 if __name__ == "__main__":
 
-    main(town_id=1, weekend_id=1)
+    check_text_spoken_length_matches_timestamps(
+        [
+            {
+                "script_text": "This is a test script.",
+                "timestamp": 0,
+                "scene_description": "This is a test scene description.",
+                "caption": "Test caption",
+                "event_id": None,
+            },
+            {
+                "script_text": (
+                    "This is another test script that is significantly longer than the"
+                    " previous one to ensure that it takes more time to speak."
+                ),
+                "timestamp": 5,
+                "scene_description": (
+                    "This is another test scene description that is significantly"
+                    " longer than the previous one to ensure that it provides enough"
+                    " context for the video segment."
+                ),
+                "caption": "Another test caption that is quite long",
+                "event_id": 1,
+            },
+        ]
+    )

@@ -7,7 +7,7 @@ from prefect.logging import get_run_logger
 
 from research_agent import run_agent_sync
 from sql_utils import get_db
-from tables import Base, EventList, Events, Towns, Weekends
+from tables import EventList, Events, Towns, Weekends
 
 
 def check_events(events_list: list):
@@ -15,7 +15,7 @@ def check_events(events_list: list):
     Checks the event list, ensuring that there are at least 5 events and that each event has the required fields (event_name, event_time, event_description) populated. If a location is provided, it checks for the presence of location_name and location_address, and validates the format of the location_address and event_time. It returns a message indicating any issues found with the events or "success" if all events are appropriately matched.
 
     Args:
-        events_list (list): The list of events to check.
+        events_list (list): The list of dict events to check. Example [{ "event_name": "Test Event", "time": "afasdfda", "description": "This is a test event.", "location_address": "123 Main St, City, ST 12345", "date": "2026-05-1ada6"}]
 
     Returns:
         str: A message indicating whether there is at least 5 events and that the values are correctly populated. Returns "success" if all events are appropriately matched.
@@ -42,25 +42,37 @@ def check_events(events_list: list):
             # If parsing fails, the format is incorrect
             return False
 
+    def validate_date(date_string, date_format):
+        try:
+            # Tries to parse the string using the format
+            datetime.strptime(date_string, date_format)
+            return True
+        except ValueError:
+            # Returns False if parsing fails (wrong format or invalid date like Feb 30)
+            return False
+
     for event in events_list:
         if (
             not event["event_name"]
-            or not event["event_time"]
-            or not event["event_description"]
+            or not event["date"]
+            or not event["time"]
+            or not event["description"]
         ):
+
             res = (
                 res
-                + f"Event {event} is missing required fields. Please ensure all events"
-                " have an event_name, event_time, and event_description."
+                + f"Event {event['event_name']} is missing required fields. Please"
+                " ensure all events have an event_name, event_time, and"
+                " event_description."
             )
             res = res + "\n"
 
         if not event["location_address"]:
             res = (
                 res
-                + f"Event {event} has a location provided but is missing location_name"
-                " or location_address. Please ensure that if a location address is"
-                " provided."
+                + f"Event {event['event_name']} has a location provided but is missing"
+                " location_name or location_address. Please ensure that if a"
+                " location address is provided."
             )
             res = res + "\n"
 
@@ -69,16 +81,25 @@ def check_events(events_list: list):
         if not re.match(address_pattern, event["location_address"]):
             res = (
                 res
-                + f"Event {event} has an invalid location address format. Please ensure"
-                " the address follows the format: '123 Main St, City, ST 12345'."
+                + f"Event {event['event_name']} has an invalid location address format."
+                " Please ensure the address follows the format: '123 Main St, City,"
+                " ST 12345'."
             )
             res = res + "\n"
 
-        if not validate_time(event["event_time"], "%I:%M %p"):
+        if not validate_time(event["time"], "%I:%M %p"):
             res = (
                 res
-                + f"Event {event} has an invalid event time format. Please ensure the"
-                " time follows the format: '7:00 PM'."
+                + f"Event {event['event_name']} has an invalid event time format."
+                " Please ensure the time follows the format: '7:00 PM'."
+            )
+            res = res + "\n"
+
+        if not validate_date(event["date"], "%Y-%m-%d"):
+            res = (
+                res
+                + f"Event {event['event_name']} has an invalid event date format."
+                " Please ensure the date follows the format: 'YYYY-MM-DD'."
             )
             res = res + "\n"
 
@@ -137,19 +158,17 @@ def main(town_id=0, weekend_id=0):
 
 
 if __name__ == "__main__":
-    from dotenv import load_dotenv
-    from sqlalchemy import create_engine
-
-    engine = create_engine(
-        "sqlite:///data/local.db", echo=False
-    )  # echo=True shows SQL logs
-
-    load_dotenv()
-
-    def create_tables():
-
-        Base.metadata.create_all(engine)
-
-    create_tables()
-
-    main(town_id=1, weekend_id=1)
+    print(
+        check_events(
+            events_list=5
+            * [
+                {
+                    "event_name": "Test Event",
+                    "time": "afasdfda",
+                    "description": "This is a test event.",
+                    "location_address": "123 Main St, City, ST 12345",
+                    "date": "2026-05-1ada6",
+                }
+            ]
+        )
+    )
