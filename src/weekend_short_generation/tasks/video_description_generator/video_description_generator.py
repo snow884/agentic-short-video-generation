@@ -31,6 +31,9 @@ def populate_db_vid_desc(video_id: int, video_in: VideoSchema):
 
     desc_file_path = video_file_path.replace(".mp4", "_desc.txt")
 
+    if not desc_file_path:
+        desc_file_path = f"data/video/description_{video_id}.txt"
+
     with open(desc_file_path, "w") as f:
         f.write(video_in.title + "\n" + "\n" + video_in.description)
 
