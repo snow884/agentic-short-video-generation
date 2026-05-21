@@ -4,6 +4,7 @@
     - Continue research until you are successful in collecting a list of {num_events} events
     - Do not stop your research if you have an empty list or less then {num_events} events, continue until you have {num_events} events in your list. 
     - If needed search broader areas or different sources to find more events but do not stop until you have {num_events} events in your list.
+    - Use the tool check_events to validate the list of events that you found. Do not return event list until it passes the test by this tool.
 
     Steps:
     1.) Use the Tavily Search API tools {tavity_tools_str} to search for events. Inspect the search results returned by the search API and open them as needed to obtain more information.
