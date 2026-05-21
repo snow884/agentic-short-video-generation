@@ -47,11 +47,10 @@ def populate_towns():
         session.close()
         return
 
-    raw_data = """
+    raw_data = """748,Commerce City,Colorado,49799,135.4%
 771,West Dover,Vermont,50000,0.0%
 772,New City,New York,50000,0.0%
 773,Batavia,New York,50000,-0.5%
-748,Commerce City,Colorado,49799,135.4%
 749,Monroe,Louisiana,49761,-6.1%
 750,Cerritos,California,49707,-3.6%
 751,Downers Grove,Illinois,49670,0.0%
