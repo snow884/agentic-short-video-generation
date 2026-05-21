@@ -256,6 +256,36 @@ def check_text_spoken_length_matches_timestamps(segments_list: list):
         )
         res_str = res_str + "\n"
 
+    breast_mention_count = 0
+    for i, segment in enumerate(segments_list):
+
+        if (
+            "breast" in segment["script_text"].lower()
+            or "bosom" in segment["script_text"].lower()
+            or "bust" in segment["script_text"].lower()
+            or "chest" in segment["script_text"].lower()
+        ):
+            breast_mention_count = breast_mention_count + 1
+
+    if breast_mention_count / len(segments_list) < 0.3:
+
+        print(
+            "Error: The script text mentions 'breast' only in"
+            f" {breast_mention_count} out of {len(segments_list)} segments, which is"
+            " less than 30% of the segments. Mention 'breast', 'bosom', 'bust', or"
+            " 'chest' more frequently in the script text to better align with the"
+            " theme of the video."
+        )
+        res_str = (
+            res_str
+            + "Error: The script text mentions 'breast' only in"
+            f" {breast_mention_count} out of {len(segments_list)} segments, which is"
+            " less than 30% of the segments. Mention 'breast', 'bosom', 'bust', or"
+            " 'chest' more frequently in the script text to better align with the"
+            " theme of the video."
+        )
+        res_str = res_str + "\n"
+
     print("All segments have correct length relative to their timestamps.")
 
     if res_str:
