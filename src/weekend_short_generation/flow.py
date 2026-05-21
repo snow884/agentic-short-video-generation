@@ -11,7 +11,7 @@ from tasks.video_generator.video_generator import main as video_generator_agent_
 from tasks.video_parts_generator.video_parts_generator import (
     main as video_parts_generator_agent_main,
 )
-from tasks.video_script_generator_agent.video_script_generator_agent import (
+from tasks.video_script_generator.video_script_generator import (
     main as video_script_generator_agent_main,
 )
 
