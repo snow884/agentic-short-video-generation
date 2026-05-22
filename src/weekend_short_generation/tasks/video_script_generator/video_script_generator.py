@@ -178,33 +178,33 @@ def check_text_spoken_length_matches_timestamps(segments_list: list):
 
     for i, segment in enumerate(segments_list):
 
-        if segment["scene_description"] and len(segment["scene_description"]) > 1000:
+        if segment["scene_description"] and len(segment["scene_description"]) > 400:
             print(
                 f"Error: Segment number {i} at timestamp {segment['timestamp']} has a"
-                " scene description that is too long, make sure it is at most 1000"
+                " scene description that is too long, make sure it is at most 400"
                 " characters. Consider shortening the description so that it provides"
                 " enough context without being overwhelming."
             )
             res_str = (
                 res_str
                 + f"Error: Segment number {i} at timestamp {segment['timestamp']} has a"
-                " scene description that is too long, make sure it is at most 1000"
+                " scene description that is too long, make sure it is at most 400"
                 " characters. Consider shortening the description so that it"
                 " provides enough context without being overwhelming."
             )
             res_str = res_str + "\n"
 
-        if segment["scene_description"] and len(segment["scene_description"]) < 300:
+        if segment["scene_description"] and len(segment["scene_description"]) < 100:
             print(
                 f"Error: Segment number {i} at timestamp {segment['timestamp']} has a"
-                " scene description that is too short, make sure it is at least 300"
+                " scene description that is too short, make sure it is at least 100"
                 " characters. Consider lengthening the description so that it provides"
                 " enough context."
             )
             res_str = (
                 res_str
                 + f"Error: Segment number {i} at timestamp {segment['timestamp']} has a"
-                " scene description that is too short, make sure it is at least 300"
+                " scene description that is too short, make sure it is at least 100"
                 " characters. Consider lengthening the description so that it"
                 " provides enough context."
             )
@@ -269,12 +269,31 @@ def check_text_spoken_length_matches_timestamps(segments_list: list):
         ):
             breast_mention_count = breast_mention_count + 1
 
-    if breast_mention_count / len(segments_list) < 0.3:
+    if breast_mention_count / len(segments_list) > 0.3:
 
         print(
             "Error: The script text mentions 'breast' only in"
             f" {breast_mention_count} out of {len(segments_list)} segments, which is"
-            " less than 30% of the segments. Mention 'breast', 'bosom', 'bust', or"
+            " more than 30% of the segments. Mention 'breast', 'bosom', 'bust', or"
+            " 'chest' less frequently in the script text to better align with the"
+            " theme of the video."
+        )
+        res_str = (
+            res_str
+            + "Error: The script text mentions 'breast' only in"
+            f" {breast_mention_count} out of {len(segments_list)} segments, which is"
+            " more than 30% of the segments. Mention 'breast', 'bosom', 'bust', or"
+            " 'chest' less frequently in the script text to better align with the"
+            " theme of the video."
+        )
+        res_str = res_str + "\n"
+
+    if breast_mention_count / len(segments_list) < 0.2:
+
+        print(
+            "Error: The script text mentions 'breast' only in"
+            f" {breast_mention_count} out of {len(segments_list)} segments, which is"
+            " less than 20% of the segments. Mention 'breast', 'bosom', 'bust', or"
             " 'chest' more frequently in the script text to better align with the"
             " theme of the video."
         )
@@ -282,7 +301,7 @@ def check_text_spoken_length_matches_timestamps(segments_list: list):
             res_str
             + "Error: The script text mentions 'breast' only in"
             f" {breast_mention_count} out of {len(segments_list)} segments, which is"
-            " less than 30% of the segments. Mention 'breast', 'bosom', 'bust', or"
+            " less than 20% of the segments. Mention 'breast', 'bosom', 'bust', or"
             " 'chest' more frequently in the script text to better align with the"
             " theme of the video."
         )
