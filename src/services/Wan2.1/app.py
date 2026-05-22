@@ -219,7 +219,8 @@ def inference(args: Dict[str, Any] = Body(...)):
     gc.collect()
 
     # 3. Clear the PyTorch CUDA cache
-    torch.cuda.empty_cache()
+    with torch.no_grad():
+        torch.cuda.empty_cache()
 
     # Optional: Release inter-process communication handles
     torch.cuda.ipc_collect()
