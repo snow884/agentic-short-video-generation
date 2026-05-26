@@ -11,7 +11,7 @@ from diffusers.utils import export_to_video, load_image
 from transformers import CLIPVisionModel
 
 # Setup paths and device
-BASE_MODEL_ID = Path("src/services/Wan2.1/Wan-AI/Wan2.1-I2V-14B-480P")
+BASE_MODEL_ID = Path("src/services/Wan2.1/Wan-AI/Wan2.1-I2V-14B-480P/")
 GGUF_FILE_PATH = Path(
     "src/services/Wan2.1/Wan2.1-I2V-14B-480P-gguf/wan2.1-i2v-14b-480p-Q4_K_S.gguf"
 )
