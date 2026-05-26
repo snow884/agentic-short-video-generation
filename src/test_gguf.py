@@ -17,15 +17,19 @@ device = "cuda"
 
 # Load components: VAE, Image Encoder, and quantized Transformer
 image_encoder = CLIPVisionModel.from_pretrained(
-    BASE_MODEL_ID, subfolder="image_encoder", torch_dtype=torch.float32
+    BASE_MODEL_ID,
+    subfolder="image_encoder",
+    torch_dtype=torch.float32,
+    local_files_only=True,
 )
 vae = AutoencoderKLWan.from_pretrained(
-    BASE_MODEL_ID, subfolder="vae", torch_dtype=torch.float32
+    BASE_MODEL_ID, subfolder="vae", torch_dtype=torch.float32, local_files_only=True
 )
 transformer = WanTransformer3DModel.from_single_file(
     GGUF_FILE_PATH,
     quantization_config=GGUFQuantizationConfig(compute_dtype=torch.bfloat16),
     torch_dtype=torch.bfloat16,
+    local_files_only=True,
 )
 
 # Initialize pipeline with necessary components
