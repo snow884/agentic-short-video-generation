@@ -1,41 +1,57 @@
 import torch
-from diffusers import GGUFQuantizationConfig, WanPipeline
-from diffusers.utils import export_to_video, load_image
-
-# 1. Load the GGUF model and configuration
-model_id = "city96/Wan2.1-I2V-14B-480P-gguf"  # Community GGUF repo
-ckpt_name = (  # Specific quant file
-    "src/services/Wan2.1/Wan2.1-T2V-14B-gguf/wan2.1-i2v-480p-Q4_K_M.gguf"
+from diffusers import (
+    AutoencoderKLWan,
+    GGUFQuantizationConfig,
+    WanImageToVideoPipeline,
+    WanTransformer3DModel,
+    export_to_video,
+    load_image,
 )
+from transformers import CLIPVisionModel
 
-# Use GGUFQuantizationConfig for memory-efficient loading
-quant_config = GGUFQuantizationConfig(compute_dtype=torch.bfloat16)
+# Setup paths and device
+BASE_MODEL_ID = "src/services/Wan2.1/Wan-AI/Wan2.1-I2V-14B-480P"
+GGUF_FILE_PATH = (
+    "src/services/Wan2.1/Wan2.1-I2V-14B-480P-gguf/wan2.1-i2v-14b-480p-Q4_K_S.gguf"
+)
+device = "cuda"
 
-pipe = WanPipeline.from_pretrained(
-    "src/services/Wan2.1/Wan2.1-T2V-1.3B",  # Base config from official repo
-    transformer_gguf_path=ckpt_name,  # Local or downloaded GGUF path
-    gguf_config=quant_config,
+# Load components: VAE, Image Encoder, and quantized Transformer
+image_encoder = CLIPVisionModel.from_pretrained(
+    BASE_MODEL_ID, subfolder="image_encoder", torch_dtype=torch.float32
+)
+vae = AutoencoderKLWan.from_pretrained(
+    BASE_MODEL_ID, subfolder="vae", torch_dtype=torch.float32
+)
+transformer = WanTransformer3DModel.from_single_file(
+    GGUF_FILE_PATH,
+    quantization_config=GGUFQuantizationConfig(compute_dtype=torch.bfloat16),
     torch_dtype=torch.bfloat16,
 )
-pipe.to("cuda")
 
-# 2. Prepare inputs
-prompt = "A cinematic shot of a sunset over a digital ocean, high quality, 4k"
-negative_prompt = "blurry, low quality, distorted"
-input_image = load_image("https://example.com")  # Replace with your image
+# Initialize pipeline with necessary components
+pipe = WanImageToVideoPipeline.from_pretrained(
+    BASE_MODEL_ID,
+    transformer=transformer,
+    vae=vae,
+    image_encoder=image_encoder,
+    torch_dtype=torch.bfloat16,
+)
 
-# 3. Generate the video
-# Note: num_frames=81 is typical for a 5-second video at 16 fps
-video_frames = pipe(
-    prompt=prompt,
-    negative_prompt=negative_prompt,
-    image=input_image,
+pipe.to(device)
+pipe.enable_model_cpu_offload()  # Reduces VRAM usage
+
+# Generate video
+image = load_image("path_to_your_image.jpg")
+video = pipe(
+    prompt="A cinematic shot of a white cat...",
+    image=image,
     num_frames=81,
     height=480,
-    width=832,  # Standard 16:9 for 480p
-    guidance_scale=5.0,
-    num_inference_steps=50,
+    width=832,
+    num_inference_steps=40,
+    guidance_scale=6.0,
 ).frames[0]
 
-# 4. Save result
-export_to_video(video_frames, "output_video.mp4", fps=16)
+# Export result
+export_to_video(video, "output.mp4", fps=16)
