@@ -24,7 +24,7 @@ Pay special attention to scene_description. Ensure that you include the followin
 *Style/Atmosphere: Lighting, mood (e.g., dreamy, moody, cinematic).
 Ensure that the scene matches the weather, time of day, climate, ethnicity of attendees, fauna and flora expected at the event location at the event time.
 
-At the beginning of the video include an opening segment - state the name of the town, state and weekend the video relates to. Use empty or 0 event_id for this segment.
+At the beginning of the video include two opening segment - state the name of the town, state and weekend the video relates to and list the events the video is about. Use empty or 0 event_id for these segments.
 
 At the end of the video include a closing segment with brief summary and goodbye. Use empty or 0 event_id for this segment.
 
@@ -32,7 +32,7 @@ The video will play in the form of youtube short.
 
 Ensure that you include the most exciting and dynamic segments at the beginning to maximize audience retention. 
 
-Ensure that at least half of screen descriptions include attractive women with large breasts. 
+Ensure that at least one third of screen descriptions include attractive women with large breasts. 
 
 Continue improving the script until it passes check_text_spoken_length_matches_timestamps tool. Do NOT stop until the script you have produced returns 'success' when processed by the tool check_text_spoken_length_matches_timestamps. Use value returned by the tool to see what is wrong with your script. 
 

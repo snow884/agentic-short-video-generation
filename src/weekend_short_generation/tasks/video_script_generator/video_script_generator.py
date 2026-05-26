@@ -226,35 +226,63 @@ def check_text_spoken_length_matches_timestamps(segments_list: list):
             )
             res_str = res_str + "\n"
 
-    if not segments_list[0]["event_id"] is None:
+    if (
+        not segments_list[0]["event_id"] is None
+        or not segments_list[0]["event_id"] == 0
+        or not segments_list[0]["event_id"] == -1
+    ):
         print(
             "Error: The first segment has an event_id of"
             f" {segments_list[0]['event_id']} which is not None. Set the event_id of"
-            " the first segment to None to indicate that it is an introduction segment"
-            " without a specific event."
+            " the first segment to None, 0 or -1 to indicate that it is an"
+            " introduction segment without a specific event."
         )
         res_str = (
             res_str
             + "Error: The first segment has an event_id of"
             f" {segments_list[0]['event_id']} which is not None. Set the event_id of"
-            " the first segment to None to indicate that it is an introduction"
+            " the first segment to None, 0 or -1 to indicate that it is an introduction"
             " segment without a specific event."
         )
         res_str = res_str + "\n"
 
-    if not segments_list[-1]["event_id"] is None:
+    if (
+        not segments_list[1]["event_id"] is None
+        or not segments_list[1]["event_id"] == 0
+        or not segments_list[1]["event_id"] == -1
+    ):
+        print(
+            "Error: The second segment has an event_id of"
+            f" {segments_list[1]['event_id']} which is not None. Set the event_id of"
+            " the second segment to None, 0 or -1 to indicate that it is an"
+            " introduction segment without a specific event."
+        )
+        res_str = (
+            res_str
+            + "Error: The second segment has an event_id of"
+            f" {segments_list[1]['event_id']} which is not None. Set the event_id of"
+            " the second segment to None, 0 or -1 to indicate that it is an"
+            " introduction segment without a specific event."
+        )
+        res_str = res_str + "\n"
+
+    if (
+        not segments_list[-1]["event_id"] is None
+        or not segments_list[-1]["event_id"] == 0
+        or not segments_list[-1]["event_id"] == -1
+    ):
         print(
             "Error: The last segment has an event_id of"
             f" {segments_list[-1]['event_id']} which is not None. Set the event_id of"
-            " the last segment to None to indicate that it is a conclusion segment"
-            " without a specific event."
+            " the last segment to None, 0 or -1 to indicate that it is a conclusion"
+            " segment without a specific event."
         )
         res_str = (
             res_str
             + "Error: The last segment has an event_id of"
             f" {segments_list[-1]['event_id']} which is not None. Set the event_id of"
-            " the last segment to None to indicate that it is a conclusion segment"
-            " without a specific event."
+            " the last segment to None, 0 or -1 to indicate that it is a conclusion"
+            " segment without a specific event."
         )
         res_str = res_str + "\n"
 
@@ -269,12 +297,12 @@ def check_text_spoken_length_matches_timestamps(segments_list: list):
         ):
             breast_mention_count = breast_mention_count + 1
 
-    if breast_mention_count / len(segments_list) > 0.3:
+    if breast_mention_count / len(segments_list) > 0.3333:
 
         print(
             "Error: The script text mentions 'breast' only in"
             f" {breast_mention_count} out of {len(segments_list)} segments, which is"
-            " more than 30% of the segments. Mention 'breast', 'bosom', 'bust', or"
+            " more than 33.33% of the segments. Mention 'breast', 'bosom', 'bust', or"
             " 'chest' less frequently in the script text to better align with the"
             " theme of the video."
         )
@@ -282,9 +310,9 @@ def check_text_spoken_length_matches_timestamps(segments_list: list):
             res_str
             + "Error: The script text mentions 'breast' only in"
             f" {breast_mention_count} out of {len(segments_list)} segments, which is"
-            " more than 30% of the segments. Mention 'breast', 'bosom', 'bust', or"
-            " 'chest' less frequently in the script text to better align with the"
-            " theme of the video."
+            " more than 33.33 percent of the segments. Mention 'breast', 'bosom',"
+            " 'bust', or 'chest' less frequently in the script text to better align"
+            " with the theme of the video."
         )
         res_str = res_str + "\n"
 
@@ -293,17 +321,17 @@ def check_text_spoken_length_matches_timestamps(segments_list: list):
         print(
             "Error: The script text mentions 'breast' only in"
             f" {breast_mention_count} out of {len(segments_list)} segments, which is"
-            " less than 20% of the segments. Mention 'breast', 'bosom', 'bust', or"
-            " 'chest' more frequently in the script text to better align with the"
+            " less than 20 percent of the segments. Mention 'breast', 'bosom', 'bust',"
+            " or 'chest' more frequently in the script text to better align with the"
             " theme of the video."
         )
         res_str = (
             res_str
             + "Error: The script text mentions 'breast' only in"
             f" {breast_mention_count} out of {len(segments_list)} segments, which is"
-            " less than 20% of the segments. Mention 'breast', 'bosom', 'bust', or"
-            " 'chest' more frequently in the script text to better align with the"
-            " theme of the video."
+            " less than 20 percent of the segments. Mention 'breast', 'bosom',"
+            " 'bust', or 'chest' more frequently in the script text to better align"
+            " with the theme of the video."
         )
         res_str = res_str + "\n"
 
