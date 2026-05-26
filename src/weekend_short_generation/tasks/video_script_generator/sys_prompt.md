@@ -38,7 +38,7 @@ The video will play in the form of youtube short.
 
 Ensure that you include the most exciting and dynamic segments at the beginning to maximize audience retention. 
 
-Ensure that at least one third of screen descriptions include attractive women with large breasts. 
+Ensure that at least one third of screen descriptions include women with large breasts. 
 
 Continue improving the script until it passes check_text_spoken_length_matches_timestamps tool. Do NOT stop until the script you have produced returns 'success' when processed by the tool check_text_spoken_length_matches_timestamps. Use value returned by the tool to see what is wrong with your script. 
 
