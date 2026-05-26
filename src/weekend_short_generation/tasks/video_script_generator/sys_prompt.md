@@ -24,6 +24,12 @@ Pay special attention to scene_description. Ensure that you include the followin
 *Style/Atmosphere: Lighting, mood (e.g., dreamy, moody, cinematic).
 Ensure that the scene matches the weather, time of day, climate, ethnicity of attendees, fauna and flora expected at the event location at the event time.
 
+Do not include multiple scenes or multiple camera angles into scene description. 
+
+Do not include any names such as cit or street names in the scene description.
+
+Do not include any complex interactions in scene description.
+
 At the beginning of the video include two opening segment - state the name of the town, state and weekend the video relates to and list the events the video is about. Use empty or 0 event_id for these segments.
 
 At the end of the video include a closing segment with brief summary and goodbye. Use empty or 0 event_id for this segment.
