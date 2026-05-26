@@ -4,9 +4,8 @@ from diffusers import (
     GGUFQuantizationConfig,
     WanImageToVideoPipeline,
     WanTransformer3DModel,
-    export_to_video,
-    load_image,
 )
+from diffusers.utils import export_to_video, load_image
 from transformers import CLIPVisionModel
 
 # Setup paths and device
