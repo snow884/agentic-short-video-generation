@@ -43,7 +43,6 @@ pipe = WanImageToVideoPipeline.from_pretrained(
     image_encoder=image_encoder,
     torch_dtype=torch.bfloat16,
 )
-pipe.enable_sequential_cpu_offload()
 
 pipe.to(device)
 pipe.enable_model_cpu_offload()  # Reduces VRAM usage
