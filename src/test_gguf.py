@@ -8,9 +8,8 @@ from diffusers import (
     WanTransformer3DModel,
 )
 from diffusers.utils import export_to_video, load_image
-from transformers import CLIPVisionModel
 
-# 1. Prevent memory fragmentation at the CUDA allocator level
+# 1. Enforce allocator configurations immediately
 os.environ["PYTORCH_CUDA_ALLOC_CONF"] = "expandable_segments:True"
 
 local_model_path = "./src/services/Wan2.1/Wan2.1-I2V-14B-480P-Diffusers/"
@@ -18,26 +17,7 @@ GGUF_FILE_PATH = (
     "./src/services/Wan2.1/Wan2.1-I2V-14B-480P-gguf/wan2.1-i2v-14b-480p-Q4_K_S.gguf"
 )
 
-# 2. Load Image Encoder onto GPU 1
-print("Loading Image Encoder onto cuda:1...")
-image_encoder = CLIPVisionModel.from_pretrained(
-    local_model_path,
-    subfolder="image_encoder",
-    torch_dtype=torch.bfloat16,
-    local_files_only=True,
-).to("cuda:1")
-image_encoder.gradient_checkpointing_enable()
-
-# 3. FIX: Cast VAE to bfloat16 instead of float32 to instantly save ~2.5GB of VRAM on GPU 1
-print("Loading VAE onto cuda:1 in bfloat16...")
-vae = AutoencoderKLWan.from_pretrained(
-    local_model_path,
-    subfolder="vae",
-    torch_dtype=torch.bfloat16,  # Changed from float32 to bfloat16
-    local_files_only=True,
-).to("cuda:1")
-
-# 4. Load the heavy 14B GGUF Transformer onto GPU 0
+# 2. Load ONLY the Transformer to cuda:0
 print("Loading Quantized Transformer onto cuda:0...")
 transformer = WanTransformer3DModel.from_single_file(
     GGUF_FILE_PATH,
@@ -46,29 +26,31 @@ transformer = WanTransformer3DModel.from_single_file(
     local_files_only=True,
 ).to("cuda:0")
 
-# 5. Initialize pipeline
+# 3. Load other components on CPU first!
+# DO NOT use .to("cuda:1") here. If you do, they stay stuck there forever.
+print("Loading supporting components to CPU memory...")
+vae = AutoencoderKLWan.from_pretrained(
+    local_model_path, subfolder="vae", torch_dtype=torch.bfloat16, local_files_only=True
+)
+
+# 4. Initialize pipeline with components still on CPU
 pipe = WanImageToVideoPipeline.from_pretrained(
     local_model_path,
     transformer=transformer,
     vae=vae,
-    image_encoder=image_encoder,
     torch_dtype=torch.bfloat16,
 )
 
-# 6. Push Text Encoders to GPU 1 explicitly
-if hasattr(pipe, "text_encoder"):
-    pipe.text_encoder.to("cuda:1")
-if hasattr(pipe, "text_encoder_2"):
-    pipe.text_encoder_2.to("cuda:1")
+# 5. Apply the CPU Offload directly to GPU 1
+# This tells Diffusers: "Keep text_encoder, image_encoder, and VAE on CPU,
+# and only send them to cuda:1 when they are actively processing data."
+print("Registering dynamic offloading hooks for GPU 1...")
+pipe.enable_model_cpu_offload(gpu_id=1)
 
-# 7. CRITICAL MEMORY OPTIMIZATIONS FOR GPU 1
+# 6. Apply strict patch/tile-based processing memory saves
 pipe.vae.enable_tiling()
 pipe.vae.enable_slicing()
 pipe.enable_attention_slicing()
-
-# FIX: Force GPU 1 components to offload memory sequentially if they overlap
-# Using device_map or component-level offloading handles the text-to-image encoder handoff
-pipe.enable_model_cpu_offload(gpu_id=1)
 
 # Generate video
 image = load_image(
@@ -76,7 +58,6 @@ image = load_image(
 )
 
 print("Starting generation loop...")
-# Clear cache before starting the heavy inference loop
 torch.cuda.empty_cache()
 
 with torch.no_grad():
