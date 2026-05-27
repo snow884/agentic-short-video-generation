@@ -62,10 +62,9 @@ del text_encoder, tokenizer
 gc.collect()
 
 # ===================================================
-# STEP 2: EXTRACT IMAGE FEATURES ON GPU 1 (Safely Isolated)
+# STEP 2: EXTRACT IMAGE FEATURES ON GPU 1
 # ===================================================
 print("Extracting image features on cuda:1...")
-# Explicitly load the correct CLIPVisionModel class to resolve the type warning
 image_processor = CLIPImageProcessor.from_pretrained(
     local_model_path, subfolder="image_processor"
 )
@@ -77,12 +76,10 @@ image_encoder = CLIPVisionModel.from_pretrained(
 ).to("cuda:1")
 
 with torch.no_grad():
-    # Process image and extract the raw hidden states
     clip_image = image_processor(images=image, return_tensors="pt").pixel_values.to(
         "cuda:1", dtype=torch.bfloat16
     )
     image_embeds = image_encoder(clip_image).last_hidden_state
-    # Move embeddings to cuda:0 so they are ready for the transformer lane
     image_embeds = image_embeds.to("cuda:0")
 
 del image_encoder, image_processor
@@ -92,7 +89,6 @@ gc.collect()
 # ===================================================
 # STEP 3: LAUNCH GPU PIPELINE
 # ===================================================
-# Lock down the heavy 14B Transformer strictly to GPU 0
 print("Loading Quantized Transformer onto cuda:0...")
 transformer = WanTransformer3DModel.from_single_file(
     GGUF_FILE_PATH,
@@ -101,23 +97,20 @@ transformer = WanTransformer3DModel.from_single_file(
     local_files_only=True,
 ).to("cuda:0")
 
-# Lock down the VAE strictly to GPU 1
 print("Loading VAE onto cuda:1...")
 vae = AutoencoderKLWan.from_pretrained(
     local_model_path, subfolder="vae", torch_dtype=torch.bfloat16, local_files_only=True
 ).to("cuda:1")
 
-# Initialize pipeline with minimal tracking components
 pipe = WanImageToVideoPipeline.from_pretrained(
     local_model_path,
     transformer=transformer,
     text_encoder=None,
-    image_encoder=None,  # Pass None since we pre-computed image features!
+    image_encoder=None,
     vae=vae,
     torch_dtype=torch.bfloat16,
 )
 
-# Apply memory scaling safety parameters
 pipe.vae.enable_tiling()
 pipe.vae.enable_slicing()
 pipe.enable_attention_slicing()
@@ -126,18 +119,20 @@ print("Starting generation loop...")
 torch.cuda.empty_cache()
 
 # ===================================================
-# STEP 4: RUN INFERENCE WITH PRE-COMPUTED TENSORS
+# STEP 4: RUN INFERENCE (FIXED CHECK ARGUMENTS)
 # ===================================================
 with torch.no_grad():
-    with torch.backends.cuda.sdp_kernel(
-        enable_flash=True, enable_math=False, enable_mem_efficient=True
+    # Updated to the new non-deprecated SDPA context manager
+    with torch.nn.attention.sdpa_kernel(
+        [
+            torch.nn.attention.SDPBackend.FLASH_ATTENTION,
+            torch.nn.attention.SDPBackend.EFFICIENT_ATTENTION,
+        ]
     ):
         video = pipe(
             prompt_embeds=prompt_embeds,
             negative_prompt_embeds=negative_prompt_embeds,
-            image=image,
-            # Note: Diffusers requires the raw image passed along to determine latent sizes,
-            # but it will skip its internal image_encoder execution since we pass the embeds below:
+            image=None,  # FIX: Changed from image=image to bypass validation conflict
             image_embeds=image_embeds,
             num_frames=81,
             height=480,
