@@ -1,3 +1,4 @@
+import gc
 import os
 
 import torch
@@ -8,7 +9,12 @@ from diffusers import (
     WanTransformer3DModel,
 )
 from diffusers.utils import export_to_video, load_image
-from transformers import AutoTokenizer, T5EncoderModel
+from transformers import (
+    AutoTokenizer,
+    CLIPImageProcessor,
+    CLIPVisionModel,
+    T5EncoderModel,
+)
 
 # 1. Device and allocator setup
 os.environ["PYTORCH_CUDA_ALLOC_CONF"] = "expandable_segments:True"
@@ -19,10 +25,15 @@ GGUF_FILE_PATH = (
 )
 prompt = "A cinematic shot of a white cat."
 
-# ==========================================
-# STEP 1: EXTRACT EMBEDDINGS ENTIRELY ON CPU
-# ==========================================
-print("Loading Text Encoder onto CPU...")
+# Load source image
+image = load_image(
+    "src/services/Wan2.1/Wan2.1-I2V-14B-480P-Diffusers/examples/i2v_input.JPG"
+)
+
+# ===================================================
+# STEP 1: EXTRACT TEXT EMBEDDINGS ON CPU
+# ===================================================
+print("Encoding text prompts on CPU...")
 tokenizer = AutoTokenizer.from_pretrained(local_model_path, subfolder="tokenizer")
 text_encoder = T5EncoderModel.from_pretrained(
     local_model_path,
@@ -32,7 +43,6 @@ text_encoder = T5EncoderModel.from_pretrained(
     local_files_only=True,
 )
 
-print("Encoding prompt text...")
 with torch.no_grad():
     text_inputs = tokenizer(
         prompt,
@@ -48,15 +58,41 @@ with torch.no_grad():
     )
     negative_prompt_embeds = text_encoder(uncond_inputs.input_ids)[0]
 
-del text_encoder
-import gc
-
+del text_encoder, tokenizer
 gc.collect()
 
-# ==========================================
-# STEP 2: LAUNCH BALANCED GPU ARCHITECTURE
-# ==========================================
-# Force the heavy 14B Transformer onto GPU 0 exclusively
+# ===================================================
+# STEP 2: EXTRACT IMAGE FEATURES ON GPU 1 (Safely Isolated)
+# ===================================================
+print("Extracting image features on cuda:1...")
+# Explicitly load the correct CLIPVisionModel class to resolve the type warning
+image_processor = CLIPImageProcessor.from_pretrained(
+    local_model_path, subfolder="image_processor"
+)
+image_encoder = CLIPVisionModel.from_pretrained(
+    local_model_path,
+    subfolder="image_encoder",
+    torch_dtype=torch.bfloat16,
+    local_files_only=True,
+).to("cuda:1")
+
+with torch.no_grad():
+    # Process image and extract the raw hidden states
+    clip_image = image_processor(images=image, return_tensors="pt").pixel_values.to(
+        "cuda:1", dtype=torch.bfloat16
+    )
+    image_embeds = image_encoder(clip_image).last_hidden_state
+    # Move embeddings to cuda:0 so they are ready for the transformer lane
+    image_embeds = image_embeds.to("cuda:0")
+
+del image_encoder, image_processor
+torch.cuda.empty_cache()
+gc.collect()
+
+# ===================================================
+# STEP 3: LAUNCH GPU PIPELINE
+# ===================================================
+# Lock down the heavy 14B Transformer strictly to GPU 0
 print("Loading Quantized Transformer onto cuda:0...")
 transformer = WanTransformer3DModel.from_single_file(
     GGUF_FILE_PATH,
@@ -65,45 +101,33 @@ transformer = WanTransformer3DModel.from_single_file(
     local_files_only=True,
 ).to("cuda:0")
 
-# Force the VAE onto GPU 1 exclusively to keep its massive memory footprint isolated
+# Lock down the VAE strictly to GPU 1
 print("Loading VAE onto cuda:1...")
 vae = AutoencoderKLWan.from_pretrained(
     local_model_path, subfolder="vae", torch_dtype=torch.bfloat16, local_files_only=True
 ).to("cuda:1")
 
-# Initialize pipeline
+# Initialize pipeline with minimal tracking components
 pipe = WanImageToVideoPipeline.from_pretrained(
     local_model_path,
     transformer=transformer,
     text_encoder=None,
+    image_encoder=None,  # Pass None since we pre-computed image features!
     vae=vae,
     torch_dtype=torch.bfloat16,
 )
 
-# FIX: Keep the Image Encoder on cuda:0 so it matches the transformer cross-attention devices
-if hasattr(pipe, "image_encoder") and pipe.image_encoder is not None:
-    print("Moving Image Encoder to cuda:0 to align with transformer context...")
-    pipe.image_encoder.to("cuda:0")
-
-# Lock the transformer layer properties to GPU 0
-pipe.transformer.to("cuda:0")
-
-# Memory saving measures
+# Apply memory scaling safety parameters
 pipe.vae.enable_tiling()
 pipe.vae.enable_slicing()
 pipe.enable_attention_slicing()
 
-# Load source image
-image = load_image(
-    "src/services/Wan2.1/Wan2.1-I2V-14B-480P-Diffusers/examples/i2v_input.JPG"
-)
-
 print("Starting generation loop...")
 torch.cuda.empty_cache()
 
-# ==========================================
-# STEP 3: RUN INFERENCE
-# ==========================================
+# ===================================================
+# STEP 4: RUN INFERENCE WITH PRE-COMPUTED TENSORS
+# ===================================================
 with torch.no_grad():
     with torch.backends.cuda.sdp_kernel(
         enable_flash=True, enable_math=False, enable_mem_efficient=True
@@ -112,6 +136,9 @@ with torch.no_grad():
             prompt_embeds=prompt_embeds,
             negative_prompt_embeds=negative_prompt_embeds,
             image=image,
+            # Note: Diffusers requires the raw image passed along to determine latent sizes,
+            # but it will skip its internal image_encoder execution since we pass the embeds below:
+            image_embeds=image_embeds,
             num_frames=81,
             height=480,
             width=832,
