@@ -89,6 +89,13 @@ pipe = WanImageToVideoPipeline.from_pretrained(
 )
 print(f"Pipeline execution device: {pipe._execution_device}")
 
+# Keep sharded transformer placement, but pin lightweight encoders to the
+# pipeline execution device so tokenizer indices and encoder weights align.
+if pipe.text_encoder is not None:
+    pipe.text_encoder.to(pipe._execution_device)
+if pipe.image_encoder is not None:
+    pipe.image_encoder.to(pipe._execution_device)
+
 # Performance tweaks for dual-GPU VRAM overhead
 pipe.vae.enable_tiling()
 pipe.vae.enable_slicing()
