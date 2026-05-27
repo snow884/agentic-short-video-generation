@@ -36,7 +36,7 @@ transformer = WanTransformer3DModel.from_single_file(
 
 # Initialize pipeline with necessary components
 pipe = WanImageToVideoPipeline.from_pretrained(
-    BASE_MODEL_ID,
+    local_model_path,
     transformer=transformer,
     vae=vae,
     image_encoder=image_encoder,
@@ -47,9 +47,11 @@ pipe.to(device)
 pipe.enable_model_cpu_offload()  # Reduces VRAM usage
 
 # Generate video
-image = load_image("path_to_your_image.jpg")
+image = load_image(
+    "src/services/Wan2.1/Wan2.1-I2V-14B-480P-Diffusers/examples/i2v_input.JPG"
+)
 video = pipe(
-    prompt="A cinematic shot of a white cat...",
+    prompt="A cinematic shot of a white cat.",
     image=image,
     num_frames=81,
     height=480,
