@@ -1,28 +1,51 @@
 import os
+from pathlib import Path
 
-import av
-import numpy as np
 import torch
-from diffusers import WanImageToVideoPipeline, WanTransformer3DModel
-from diffusers.quantization_config import GGUFQuantizationConfig
-from PIL import Image
+from diffusers import (
+    GGUFQuantizationConfig,
+    WanImageToVideoPipeline,
+    WanTransformer3DModel,
+)
+from diffusers.utils import export_to_video, load_image
+
+REPO_ROOT = Path(__file__).resolve().parent.parent
+WAN_ROOT = REPO_ROOT / "src" / "services" / "Wan2.1"
+DEFAULT_GGUF_PATH = (
+    WAN_ROOT / "Wan2.1-I2V-14B-480P-gguf" / "wan2.1-i2v-14b-480p-Q4_K_S.gguf"
+)
+DEFAULT_MODEL_PATH = WAN_ROOT / "Wan2.1-I2V-14B-480P-Diffusers"
+DEFAULT_INPUT_IMAGE = WAN_ROOT / "examples" / "i2v_input.JPG"
+
+
+def resolve_existing_path(
+    env_var_name: str, default_path: Path, description: str
+) -> Path:
+    candidate = Path(os.environ.get(env_var_name, default_path)).expanduser()
+    if not candidate.exists():
+        raise FileNotFoundError(
+            f"Could not find {description} at: {candidate}. "
+            f"Set {env_var_name} to override the default path."
+        )
+    return candidate
+
 
 # 1. Configuration & Local Paths
-# Set this to the absolute or relative path where your .gguf file is stored
-LOCAL_GGUF_PATH = (
-    "./src/services/Wan2.1/Wan2.1-I2V-14B-480P-gguf/wan2.1-i2v-14b-480p-Q4_K_S.gguf"
+local_gguf_path = resolve_existing_path("WAN_GGUF_PATH", DEFAULT_GGUF_PATH, "GGUF file")
+local_model_path = resolve_existing_path(
+    "WAN_DIFFUSERS_PATH", DEFAULT_MODEL_PATH, "Wan diffusers model directory"
 )
-
-if not os.path.exists(LOCAL_GGUF_PATH):
-    raise FileNotFoundError(f"Could not find the local GGUF file at: {LOCAL_GGUF_PATH}")
+input_image_path = resolve_existing_path(
+    "WAN_INPUT_IMAGE", DEFAULT_INPUT_IMAGE, "input image"
+)
 
 # Define VRAM allocations to split the model across both RTX 5070s
 max_memory = {0: "14GB", 1: "14GB"}
 
 # 2. Load the Transformer locally from the GGUF file
-print(f"Loading quantized transformer from local file: {LOCAL_GGUF_PATH}...")
+print(f"Loading quantized transformer from local file: {local_gguf_path}...")
 transformer = WanTransformer3DModel.from_single_file(
-    LOCAL_GGUF_PATH,
+    str(local_gguf_path),
     quantization_config=GGUFQuantizationConfig(compute_dtype=torch.bfloat16),
     torch_dtype=torch.bfloat16,
     device_map="auto",
@@ -34,7 +57,7 @@ print("Assembling WanImageToVideoPipeline...")
 # The pipeline structure configuration is fetched from the base hub layout,
 # but we override the transformer with our locally loaded GGUF instance.
 pipe = WanImageToVideoPipeline.from_pretrained(
-    "./src/services/Wan2.1/Wan2.1-I2V-14B-480P-Diffusers/",
+    str(local_model_path),
     transformer=transformer,
     torch_dtype=torch.bfloat16,
     device_map="auto",
@@ -46,13 +69,7 @@ pipe.vae.enable_tiling()
 pipe.vae.enable_slicing()
 
 # 4. Input Processing
-input_image_path = "input_scene.jpg"
-if not os.path.exists(input_image_path):
-    print("Creating placeholder image...")
-    img = Image.new("RGB", (832, 480), color=(40, 40, 40))
-    img.save(input_image_path)
-
-init_image = Image.open(input_image_path).convert("RGB").resize((832, 480))
+init_image = load_image(str(input_image_path)).convert("RGB").resize((832, 480))
 prompt = "Cinematic slow motion camera pan, hyperrealistic details, 4k resolution"
 negative_prompt = "blurry, low quality, distorted"
 
@@ -70,30 +87,9 @@ with torch.inference_mode():
         guidance_scale=6.0,
     ).frames[0]
 
-# 6. Save Video File via PyAV
-output_video_path = "local_model_output.mp4"
+# 6. Save the video file
+output_video_path = REPO_ROOT / "local_model_output.mp4"
 print(f"Encoding frames into {output_video_path}...")
-
-container = av.open(output_video_path, mode="w")
-stream = container.add_stream("libx264", rate=16)
-stream.width = 832
-stream.height = 480
-stream.pix_fmt = "yuv420p"
-
-for frame in video_frames:
-    if isinstance(frame, torch.Tensor):
-        frame = frame.cpu().numpy()
-    if isinstance(frame, np.ndarray):
-        img_frame = Image.fromarray((frame * 255).astype(np.uint8))
-    else:
-        img_frame = frame
-
-    av_frame = av.VideoFrame.from_image(img_frame)
-    for packet in stream.encode(av_frame):
-        container.mux(packet)
-
-for packet in stream.encode():
-    container.mux(packet)
-container.close()
+export_to_video(video_frames, str(output_video_path), fps=16)
 
 print("Process finished successfully!")
