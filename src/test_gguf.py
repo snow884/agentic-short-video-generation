@@ -65,13 +65,13 @@ transformer = WanTransformer3DModel.from_single_file(
     local_files_only=True,
 ).to("cuda:0")
 
-# Force the VAE onto GPU 1 exclusively
+# Force the VAE onto GPU 1 exclusively to keep its massive memory footprint isolated
 print("Loading VAE onto cuda:1...")
 vae = AutoencoderKLWan.from_pretrained(
     local_model_path, subfolder="vae", torch_dtype=torch.bfloat16, local_files_only=True
 ).to("cuda:1")
 
-# Initialize pipeline without automatic offloading wrappers
+# Initialize pipeline
 pipe = WanImageToVideoPipeline.from_pretrained(
     local_model_path,
     transformer=transformer,
@@ -80,16 +80,15 @@ pipe = WanImageToVideoPipeline.from_pretrained(
     torch_dtype=torch.bfloat16,
 )
 
-# Force the CLIP vision image encoder component to stay on GPU 1
+# FIX: Keep the Image Encoder on cuda:0 so it matches the transformer cross-attention devices
 if hasattr(pipe, "image_encoder") and pipe.image_encoder is not None:
-    print("Moving Image Encoder to cuda:1...")
-    pipe.image_encoder.to("cuda:1")
+    print("Moving Image Encoder to cuda:0 to align with transformer context...")
+    pipe.image_encoder.to("cuda:0")
 
-# FIX: Force internal pipeline components to target specific hardware domains
-# instead of relying on the global pipe.enable_model_cpu_offload() tool.
+# Lock the transformer layer properties to GPU 0
 pipe.transformer.to("cuda:0")
 
-# VAE & Attention foot-saving features
+# Memory saving measures
 pipe.vae.enable_tiling()
 pipe.vae.enable_slicing()
 pipe.enable_attention_slicing()
@@ -103,10 +102,9 @@ print("Starting generation loop...")
 torch.cuda.empty_cache()
 
 # ==========================================
-# STEP 3: RUN INFERENCE WITH STRICT GRAPHICS CONTEXTS
+# STEP 3: RUN INFERENCE
 # ==========================================
 with torch.no_grad():
-    # Force PyTorch SDPA to tightly compress cross-attention layer matrices
     with torch.backends.cuda.sdp_kernel(
         enable_flash=True, enable_math=False, enable_mem_efficient=True
     ):
