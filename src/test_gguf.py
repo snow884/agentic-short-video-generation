@@ -63,7 +63,11 @@ input_image_path = resolve_existing_path(
 # Define VRAM allocations to split the model across both RTX 5070s
 device_map = "balanced"
 allow_cpu_offload = os.environ.get("WAN_ALLOW_CPU_OFFLOAD", "0") == "1"
-max_memory = build_max_memory(allow_cpu_offload=allow_cpu_offload)
+reserve_gib = int(os.environ.get("WAN_GPU_RESERVE_GIB", "1"))
+max_memory = build_max_memory(
+    reserve_gib=reserve_gib,
+    allow_cpu_offload=allow_cpu_offload,
+)
 print(f"Using max_memory={max_memory}")
 
 # 2. Load the Transformer locally from the GGUF file
@@ -88,13 +92,6 @@ pipe = WanImageToVideoPipeline.from_pretrained(
     max_memory=max_memory,
 )
 print(f"Pipeline execution device: {pipe._execution_device}")
-
-# Keep sharded transformer placement, but pin lightweight encoders to the
-# pipeline execution device so tokenizer indices and encoder weights align.
-if pipe.text_encoder is not None:
-    pipe.text_encoder.to(pipe._execution_device)
-if pipe.image_encoder is not None:
-    pipe.image_encoder.to(pipe._execution_device)
 
 # Performance tweaks for dual-GPU VRAM overhead
 pipe.vae.enable_tiling()
