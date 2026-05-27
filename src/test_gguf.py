@@ -11,6 +11,16 @@ from diffusers import (
 )
 from diffusers.utils import export_to_video, load_image
 
+
+class CpuExecutionWanImageToVideoPipeline(WanImageToVideoPipeline):
+    @property
+    def _execution_device(self):
+        override = getattr(self, "_execution_device_override", None)
+        if override is not None:
+            return override
+        return super()._execution_device
+
+
 REPO_ROOT = Path(__file__).resolve().parent.parent
 WAN_ROOT = REPO_ROOT / "src" / "services" / "Wan2.1"
 DEFAULT_GGUF_PATH = (
@@ -81,6 +91,11 @@ pipe = WanImageToVideoPipeline.from_pretrained(
     transformer=transformer,
     torch_dtype=torch.bfloat16,
 )
+pipe.__class__ = CpuExecutionWanImageToVideoPipeline
+pipe._execution_device_override = torch.device(
+    os.environ.get("WAN_EXECUTION_DEVICE", "cpu")
+)
+print(f"Using execution device override: {pipe._execution_device_override}")
 
 # Performance tweaks for dual-GPU VRAM overhead
 pipe.vae.enable_tiling()
