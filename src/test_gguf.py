@@ -125,7 +125,17 @@ pipe.vae.enable_tiling()
 pipe.vae.enable_slicing()
 
 # 4. Input Processing
-init_image = load_image(str(input_image_path)).convert("RGB").resize((832, 480))
+default_width = int(os.environ.get("WAN_WIDTH", "704"))
+default_height = int(os.environ.get("WAN_HEIGHT", "384"))
+default_num_frames = int(os.environ.get("WAN_NUM_FRAMES", "49"))
+default_num_inference_steps = int(os.environ.get("WAN_NUM_INFERENCE_STEPS", "24"))
+default_guidance_scale = float(os.environ.get("WAN_GUIDANCE_SCALE", "5.5"))
+
+init_image = (
+    load_image(str(input_image_path))
+    .convert("RGB")
+    .resize((default_width, default_height))
+)
 prompt = "Cinematic slow motion camera pan, hyperrealistic details, 4k resolution"
 negative_prompt = "blurry, low quality, distorted"
 
@@ -136,11 +146,11 @@ with torch.inference_mode():
         prompt=prompt,
         negative_prompt=negative_prompt,
         image=init_image,
-        num_frames=81,  # Wan2.1 native frame length
-        height=480,
-        width=832,
-        num_inference_steps=40,
-        guidance_scale=6.0,
+        num_frames=default_num_frames,
+        height=default_height,
+        width=default_width,
+        num_inference_steps=default_num_inference_steps,
+        guidance_scale=default_guidance_scale,
     )
     try:
         video_frames = pipe(**generation_kwargs).frames[0]
