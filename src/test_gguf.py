@@ -11,16 +11,6 @@ from diffusers import (
 )
 from diffusers.utils import export_to_video, load_image
 
-
-class CpuExecutionWanImageToVideoPipeline(WanImageToVideoPipeline):
-    @property
-    def _execution_device(self):
-        override = getattr(self, "_execution_device_override", None)
-        if override is not None:
-            return override
-        return super()._execution_device
-
-
 REPO_ROOT = Path(__file__).resolve().parent.parent
 WAN_ROOT = REPO_ROOT / "src" / "services" / "Wan2.1"
 DEFAULT_GGUF_PATH = (
@@ -42,7 +32,9 @@ def resolve_existing_path(
     return candidate
 
 
-def build_max_memory(reserve_gib: int = 2) -> dict[int | str, str]:
+def build_max_memory(
+    reserve_gib: int = 2, allow_cpu_offload: bool = False
+) -> dict[int | str, str]:
     if not torch.cuda.is_available() or torch.cuda.device_count() == 0:
         return {"cpu": "64GiB"}
 
@@ -54,7 +46,8 @@ def build_max_memory(reserve_gib: int = 2) -> dict[int | str, str]:
         usable_gib = max(1, total_gib - reserve_gib)
         memory_budget[device_index] = f"{usable_gib}GiB"
 
-    memory_budget["cpu"] = os.environ.get("WAN_CPU_MAX_MEMORY", "64GiB")
+    if allow_cpu_offload:
+        memory_budget["cpu"] = os.environ.get("WAN_CPU_MAX_MEMORY", "64GiB")
     return memory_budget
 
 
@@ -69,7 +62,8 @@ input_image_path = resolve_existing_path(
 
 # Define VRAM allocations to split the model across both RTX 5070s
 device_map = "balanced"
-max_memory = build_max_memory()
+allow_cpu_offload = os.environ.get("WAN_ALLOW_CPU_OFFLOAD", "0") == "1"
+max_memory = build_max_memory(allow_cpu_offload=allow_cpu_offload)
 print(f"Using max_memory={max_memory}")
 
 # 2. Load the Transformer locally from the GGUF file
@@ -90,12 +84,10 @@ pipe = WanImageToVideoPipeline.from_pretrained(
     str(local_model_path),
     transformer=transformer,
     torch_dtype=torch.bfloat16,
+    device_map=device_map,
+    max_memory=max_memory,
 )
-pipe.__class__ = CpuExecutionWanImageToVideoPipeline
-pipe._execution_device_override = torch.device(
-    os.environ.get("WAN_EXECUTION_DEVICE", "cpu")
-)
-print(f"Using execution device override: {pipe._execution_device_override}")
+print(f"Pipeline execution device: {pipe._execution_device}")
 
 # Performance tweaks for dual-GPU VRAM overhead
 pipe.vae.enable_tiling()
