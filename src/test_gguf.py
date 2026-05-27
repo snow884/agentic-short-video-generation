@@ -9,7 +9,7 @@ from diffusers.utils import export_to_video, load_image
 from transformers import CLIPVisionModel
 
 # Setup paths and device
-BASE_MODEL_ID = "./src/services/Wan2.1/Wan2.1-I2V-14B-480P/"
+local_model_path = "./src/services/Wan2.1/Wan2.1-I2V-14B-480P/"
 GGUF_FILE_PATH = (
     "./src/services/Wan2.1/Wan2.1-I2V-14B-480P-gguf/wan2.1-i2v-14b-480p-Q4_K_S.gguf"
 )
@@ -17,10 +17,10 @@ device = "cuda"
 
 # Load components: VAE, Image Encoder, and quantized Transformer
 image_encoder = CLIPVisionModel.from_pretrained(
-    BASE_MODEL_ID,
+    local_model_path,
     subfolder="image_encoder",
-    torch_dtype=torch.float32,
-    local_files_only=True,
+    torch_dtype=torch.bfloat16,  # Matches the precision Wan2.1 native weights use
+    local_files_only=True,  # Prevents Transformers from checking Hugging Face online
 )
 vae = AutoencoderKLWan.from_pretrained(
     BASE_MODEL_ID, subfolder="vae", torch_dtype=torch.float32, local_files_only=True
