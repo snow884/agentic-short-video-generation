@@ -41,7 +41,6 @@ pipe = WanImageToVideoPipeline.from_pretrained(
     vae=vae,
     image_encoder=image_encoder,
     torch_dtype=torch.bfloat16,
-    device_map="auto",
 )
 
 pipe.to(device)
