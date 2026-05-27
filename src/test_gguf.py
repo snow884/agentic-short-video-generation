@@ -22,6 +22,7 @@ image_encoder = CLIPVisionModel.from_pretrained(
     torch_dtype=torch.bfloat16,  # Matches the precision Wan2.1 native weights use
     local_files_only=True,  # Prevents Transformers from checking Hugging Face online
 )
+image_encoder.gradient_checkpointing_enable()
 
 vae = AutoencoderKLWan.from_pretrained(
     local_model_path, subfolder="vae", torch_dtype=torch.float32, local_files_only=True
@@ -42,6 +43,7 @@ pipe = WanImageToVideoPipeline.from_pretrained(
     image_encoder=image_encoder,
     torch_dtype=torch.bfloat16,
 )
+pipe.enable_sequential_cpu_offload()
 
 pipe.to(device)
 pipe.enable_model_cpu_offload()  # Reduces VRAM usage
