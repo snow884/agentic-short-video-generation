@@ -103,17 +103,23 @@ vae = AutoencoderKLWan.from_pretrained(
     local_model_path, subfolder="vae", torch_dtype=torch.bfloat16, local_files_only=True
 ).to("cuda:1")
 
-# FIX: Create a tiny dummy mock class to trick the pipeline validation.
-# This satisfies `self.check_inputs()` so it allows BOTH `image` and `image_embeds`.
-class DummyImageEncoder:
-    pass
+# FIX: Create a mock class inheriting from torch.nn.Module
+# This satisfies the internal type checks inside Diffusers pipeline loaders.
+class MockImageEncoder(torch.nn.Module):
+    def __init__(self):
+        super().__init__()
+        # Create a dummy config class so that `image_encoder.config` doesn't throw an AttributeError
+        class DummyConfig:
+            pass
+
+        self.config = DummyConfig()
 
 
 pipe = WanImageToVideoPipeline.from_pretrained(
     local_model_path,
     transformer=transformer,
     text_encoder=None,
-    image_encoder=DummyImageEncoder(),  # Trick pipeline check
+    image_encoder=MockImageEncoder(),  # Passes the type validation check
     vae=vae,
     torch_dtype=torch.bfloat16,
 )
