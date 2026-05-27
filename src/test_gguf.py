@@ -57,17 +57,6 @@ input_image_path = resolve_existing_path(
     "WAN_INPUT_IMAGE", DEFAULT_INPUT_IMAGE, "input image"
 )
 
-if torch.cuda.is_available() and torch.cuda.device_count() > 1:
-    default_execution_device = "cuda:1"
-elif torch.cuda.is_available():
-    default_execution_device = "cuda:0"
-else:
-    default_execution_device = "cpu"
-
-execution_device = torch.device(
-    os.environ.get("WAN_EXECUTION_DEVICE", default_execution_device)
-)
-
 # Define VRAM allocations to split the model across both RTX 5070s
 device_map = "balanced"
 max_memory = build_max_memory()
@@ -91,15 +80,7 @@ pipe = WanImageToVideoPipeline.from_pretrained(
     str(local_model_path),
     transformer=transformer,
     torch_dtype=torch.bfloat16,
-    device_map=device_map,
-    max_memory=max_memory,
 )
-
-print(f"Pinning text/image/VAE components to {execution_device}...")
-pipe.text_encoder.to(execution_device)
-pipe.vae.to(execution_device)
-if pipe.image_encoder is not None:
-    pipe.image_encoder.to(execution_device)
 
 # Performance tweaks for dual-GPU VRAM overhead
 pipe.vae.enable_tiling()
