@@ -80,7 +80,7 @@ max_memory = build_max_memory(
     allow_cpu_offload=allow_cpu_offload,
 )
 use_max_memory = os.environ.get("WAN_USE_MAX_MEMORY", "0") == "1"
-pipeline_torch_dtype_name = os.environ.get("WAN_PIPELINE_TORCH_DTYPE", "float32")
+pipeline_torch_dtype_name = os.environ.get("WAN_PIPELINE_TORCH_DTYPE", "bfloat16")
 pipeline_torch_dtype = {
     "float32": torch.float32,
     "bfloat16": torch.bfloat16,
@@ -123,6 +123,13 @@ pipe = WanImageToVideoPipeline.from_pretrained(
     device_map=pipeline_device_map,
     **pipeline_load_kwargs,
 )
+
+if (
+    pipe.image_encoder is not None
+    and os.environ.get("WAN_IMAGE_ENCODER_FORCE_FLOAT32", "1") == "1"
+):
+    pipe.image_encoder.float()
+
 pipe.__class__ = AdjustableExecutionWanImageToVideoPipeline
 pipe._execution_device_override = None
 print(f"Pipeline execution device: {pipe._execution_device}")
