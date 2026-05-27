@@ -40,6 +40,7 @@ input_image_path = resolve_existing_path(
 )
 
 # Define VRAM allocations to split the model across both RTX 5070s
+device_map = "balanced"
 max_memory = {0: "14GB", 1: "14GB"}
 
 # 2. Load the Transformer locally from the GGUF file
@@ -48,7 +49,7 @@ transformer = WanTransformer3DModel.from_single_file(
     str(local_gguf_path),
     quantization_config=GGUFQuantizationConfig(compute_dtype=torch.bfloat16),
     torch_dtype=torch.bfloat16,
-    device_map="auto",
+    device_map=device_map,
     max_memory=max_memory,
 )
 
@@ -60,7 +61,7 @@ pipe = WanImageToVideoPipeline.from_pretrained(
     str(local_model_path),
     transformer=transformer,
     torch_dtype=torch.bfloat16,
-    device_map="auto",
+    device_map=device_map,
     max_memory=max_memory,
 )
 
