@@ -1,4 +1,6 @@
 import os
+import signal
+import time
 from pathlib import Path
 
 os.environ.setdefault("PYTORCH_CUDA_ALLOC_CONF", "expandable_segments:True")
@@ -28,6 +30,14 @@ DEFAULT_GGUF_PATH = (
 )
 DEFAULT_MODEL_PATH = WAN_ROOT / "Wan2.1-I2V-14B-480P-Diffusers"
 DEFAULT_INPUT_IMAGE = WAN_ROOT / "examples" / "i2v_input.JPG"
+
+
+class InferenceTimeoutError(RuntimeError):
+    pass
+
+
+def _timeout_handler(signum, frame):
+    raise InferenceTimeoutError("Inference timed out before completion.")
 
 
 def resolve_existing_path(
@@ -73,6 +83,7 @@ input_image_path = resolve_existing_path(
 # Define VRAM allocations to split the model across both RTX 5070s
 transformer_device_map = "balanced"
 pipeline_device_map = os.environ.get("WAN_PIPELINE_DEVICE_MAP", "cpu")
+inference_timeout_seconds = int(os.environ.get("WAN_TIMEOUT_SECONDS", "180"))
 allow_cpu_offload = os.environ.get("WAN_ALLOW_CPU_OFFLOAD", "0") == "1"
 reserve_gib = int(os.environ.get("WAN_GPU_RESERVE_GIB", "1"))
 max_memory = build_max_memory(
@@ -93,6 +104,11 @@ else:
 print(f"Transformer device map: {transformer_device_map}")
 print(f"Pipeline device map: {pipeline_device_map}")
 print(f"Pipeline torch dtype: {pipeline_torch_dtype}")
+print(f"Inference timeout: {inference_timeout_seconds}s")
+
+signal.signal(signal.SIGALRM, _timeout_handler)
+signal.alarm(max(1, inference_timeout_seconds))
+start_time = time.monotonic()
 
 # 2. Load the Transformer locally from the GGUF file
 print(f"Loading quantized transformer from local file: {local_gguf_path}...")
@@ -144,11 +160,26 @@ if os.environ.get("WAN_ENABLE_MODEL_CPU_OFFLOAD", "0") == "1":
     pipe.enable_model_cpu_offload()
 
 # 4. Input Processing
-default_width = int(os.environ.get("WAN_WIDTH", "576"))
-default_height = int(os.environ.get("WAN_HEIGHT", "320"))
-default_num_frames = int(os.environ.get("WAN_NUM_FRAMES", "33"))
-default_num_inference_steps = int(os.environ.get("WAN_NUM_INFERENCE_STEPS", "16"))
-default_guidance_scale = float(os.environ.get("WAN_GUIDANCE_SCALE", "5.0"))
+quick_mode = os.environ.get("WAN_QUICK_MODE", "1") == "1"
+if quick_mode:
+    default_width = int(os.environ.get("WAN_WIDTH", "512"))
+    default_height = int(os.environ.get("WAN_HEIGHT", "288"))
+    default_num_frames = int(os.environ.get("WAN_NUM_FRAMES", "17"))
+    default_num_inference_steps = int(os.environ.get("WAN_NUM_INFERENCE_STEPS", "8"))
+    default_guidance_scale = float(os.environ.get("WAN_GUIDANCE_SCALE", "4.5"))
+else:
+    default_width = int(os.environ.get("WAN_WIDTH", "576"))
+    default_height = int(os.environ.get("WAN_HEIGHT", "320"))
+    default_num_frames = int(os.environ.get("WAN_NUM_FRAMES", "33"))
+    default_num_inference_steps = int(os.environ.get("WAN_NUM_INFERENCE_STEPS", "16"))
+    default_guidance_scale = float(os.environ.get("WAN_GUIDANCE_SCALE", "5.0"))
+
+print(
+    "Run settings: "
+    f"quick_mode={quick_mode}, size={default_width}x{default_height}, "
+    f"frames={default_num_frames}, steps={default_num_inference_steps}, "
+    f"guidance={default_guidance_scale}"
+)
 
 init_image = (
     load_image(str(input_image_path))
@@ -160,6 +191,7 @@ negative_prompt = "blurry, low quality, distorted"
 
 # 5. Execution Loop
 print("Running model inference across both RTX 5070 GPUs...")
+enable_cpu_staging_retry = os.environ.get("WAN_ENABLE_CPU_STAGING_RETRY", "0") == "1"
 with torch.inference_mode():
     generation_kwargs = dict(
         prompt=prompt,
@@ -179,7 +211,7 @@ with torch.inference_mode():
             "Expected all tensors to be on the same device" in error_text
             or "weight type (CPUBFloat16Type)" in error_text
         )
-        if not mixed_device_error:
+        if not mixed_device_error or not enable_cpu_staging_retry:
             raise
 
         print(
@@ -195,4 +227,7 @@ output_video_path = REPO_ROOT / "local_model_output.mp4"
 print(f"Encoding frames into {output_video_path}...")
 export_to_video(video_frames, str(output_video_path), fps=16)
 
+elapsed = time.monotonic() - start_time
+signal.alarm(0)
+print(f"Total elapsed time: {elapsed:.1f}s")
 print("Process finished successfully!")
