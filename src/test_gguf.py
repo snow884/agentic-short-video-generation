@@ -220,11 +220,15 @@ init_image = (
 )
 prompt = "Cinematic slow motion camera pan, hyperrealistic details, 4k resolution"
 negative_prompt = "blurry, low quality, distorted"
+prompt = os.environ.get("WAN_PROMPT", prompt)
+negative_prompt = os.environ.get("WAN_NEGATIVE_PROMPT", negative_prompt)
 
 # 5. Execution Loop
 print("Running model inference across both RTX 5070 GPUs...")
 enable_cpu_staging_retry = os.environ.get("WAN_ENABLE_CPU_STAGING_RETRY", "0") == "1"
 two_stage_mode = os.environ.get("WAN_TWO_STAGE_MODE", "1") == "1"
+smoke_only_mode = os.environ.get("WAN_SMOKE_ONLY", "0") == "1"
+max_sequence_length = int(os.environ.get("WAN_MAX_SEQUENCE_LENGTH", "128"))
 with torch.inference_mode():
     generation_kwargs = dict(
         prompt=prompt,
@@ -235,38 +239,58 @@ with torch.inference_mode():
         width=default_width,
         num_inference_steps=default_num_inference_steps,
         guidance_scale=default_guidance_scale,
+        max_sequence_length=max_sequence_length,
     )
 
     if two_stage_mode:
+        smoke_prompt = os.environ.get("WAN_SMOKE_PROMPT", prompt)
+        smoke_negative_prompt = os.environ.get(
+            "WAN_SMOKE_NEGATIVE_PROMPT", negative_prompt
+        )
         smoke_kwargs = dict(
-            prompt=prompt,
-            negative_prompt=negative_prompt,
+            prompt=smoke_prompt,
+            negative_prompt=smoke_negative_prompt,
             image=init_image,
-            num_frames=int(os.environ.get("WAN_SMOKE_NUM_FRAMES", "9")),
-            height=int(os.environ.get("WAN_SMOKE_HEIGHT", "256")),
-            width=int(os.environ.get("WAN_SMOKE_WIDTH", "448")),
+            num_frames=int(os.environ.get("WAN_SMOKE_NUM_FRAMES", "5")),
+            height=int(os.environ.get("WAN_SMOKE_HEIGHT", "192")),
+            width=int(os.environ.get("WAN_SMOKE_WIDTH", "320")),
             num_inference_steps=int(
-                os.environ.get("WAN_SMOKE_NUM_INFERENCE_STEPS", "4")
+                os.environ.get("WAN_SMOKE_NUM_INFERENCE_STEPS", "2")
             ),
-            guidance_scale=float(os.environ.get("WAN_SMOKE_GUIDANCE_SCALE", "4.0")),
+            guidance_scale=float(os.environ.get("WAN_SMOKE_GUIDANCE_SCALE", "3.5")),
+            max_sequence_length=int(
+                os.environ.get("WAN_SMOKE_MAX_SEQUENCE_LENGTH", "32")
+            ),
         )
         print("Running smoke stage before full generation...")
-        _ = run_generation(
+        smoke_frames = run_generation(
             pipe=pipe,
             generation_kwargs=smoke_kwargs,
             timeout_seconds=smoke_timeout_seconds,
             enable_cpu_staging_retry=enable_cpu_staging_retry,
             label="smoke",
         )
-        print("Smoke stage passed. Running full generation stage...")
 
-    video_frames = run_generation(
-        pipe=pipe,
-        generation_kwargs=generation_kwargs,
-        timeout_seconds=inference_timeout_seconds,
-        enable_cpu_staging_retry=enable_cpu_staging_retry,
-        label="full",
-    )
+        if smoke_only_mode:
+            print("Smoke-only mode enabled. Skipping full generation stage.")
+            video_frames = smoke_frames
+        else:
+            print("Smoke stage passed. Running full generation stage...")
+            video_frames = run_generation(
+                pipe=pipe,
+                generation_kwargs=generation_kwargs,
+                timeout_seconds=inference_timeout_seconds,
+                enable_cpu_staging_retry=enable_cpu_staging_retry,
+                label="full",
+            )
+    else:
+        video_frames = run_generation(
+            pipe=pipe,
+            generation_kwargs=generation_kwargs,
+            timeout_seconds=inference_timeout_seconds,
+            enable_cpu_staging_retry=enable_cpu_staging_retry,
+            label="full",
+        )
 
 # 6. Save the video file
 output_video_path = REPO_ROOT / "local_model_output.mp4"
