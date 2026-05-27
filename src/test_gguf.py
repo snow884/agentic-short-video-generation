@@ -125,7 +125,7 @@ pipe.vae.enable_tiling()
 pipe.vae.enable_slicing()
 pipe.enable_attention_slicing("max")
 
-if os.environ.get("WAN_ENABLE_MODEL_CPU_OFFLOAD", "1") == "1":
+if os.environ.get("WAN_ENABLE_MODEL_CPU_OFFLOAD", "0") == "1":
     # Keeps active compute on GPU while offloading inactive components to CPU.
     pipe.enable_model_cpu_offload()
 
