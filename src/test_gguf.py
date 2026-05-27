@@ -123,13 +123,18 @@ print(f"Pipeline execution device: {pipe._execution_device}")
 # Performance tweaks for dual-GPU VRAM overhead
 pipe.vae.enable_tiling()
 pipe.vae.enable_slicing()
+pipe.enable_attention_slicing("max")
+
+if os.environ.get("WAN_ENABLE_MODEL_CPU_OFFLOAD", "1") == "1":
+    # Keeps active compute on GPU while offloading inactive components to CPU.
+    pipe.enable_model_cpu_offload()
 
 # 4. Input Processing
-default_width = int(os.environ.get("WAN_WIDTH", "704"))
-default_height = int(os.environ.get("WAN_HEIGHT", "384"))
-default_num_frames = int(os.environ.get("WAN_NUM_FRAMES", "49"))
-default_num_inference_steps = int(os.environ.get("WAN_NUM_INFERENCE_STEPS", "24"))
-default_guidance_scale = float(os.environ.get("WAN_GUIDANCE_SCALE", "5.5"))
+default_width = int(os.environ.get("WAN_WIDTH", "576"))
+default_height = int(os.environ.get("WAN_HEIGHT", "320"))
+default_num_frames = int(os.environ.get("WAN_NUM_FRAMES", "33"))
+default_num_inference_steps = int(os.environ.get("WAN_NUM_INFERENCE_STEPS", "16"))
+default_guidance_scale = float(os.environ.get("WAN_GUIDANCE_SCALE", "5.0"))
 
 init_image = (
     load_image(str(input_image_path))
