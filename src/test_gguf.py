@@ -68,28 +68,40 @@ max_memory = build_max_memory(
     reserve_gib=reserve_gib,
     allow_cpu_offload=allow_cpu_offload,
 )
-print(f"Using max_memory={max_memory}")
+use_max_memory = os.environ.get("WAN_USE_MAX_MEMORY", "0") == "1"
+if use_max_memory:
+    print(f"Using max_memory={max_memory}")
+else:
+    print("Using default accelerate memory placement (WAN_USE_MAX_MEMORY=0)")
 
 # 2. Load the Transformer locally from the GGUF file
 print(f"Loading quantized transformer from local file: {local_gguf_path}...")
+transformer_load_kwargs = {}
+if use_max_memory:
+    transformer_load_kwargs["max_memory"] = max_memory
+
 transformer = WanTransformer3DModel.from_single_file(
     str(local_gguf_path),
     quantization_config=GGUFQuantizationConfig(compute_dtype=torch.bfloat16),
     torch_dtype=torch.bfloat16,
     device_map=device_map,
-    max_memory=max_memory,
+    **transformer_load_kwargs,
 )
 
 # 3. Assemble the Pipeline
 print("Assembling WanImageToVideoPipeline...")
 # The pipeline structure configuration is fetched from the base hub layout,
 # but we override the transformer with our locally loaded GGUF instance.
+pipeline_load_kwargs = {}
+if use_max_memory:
+    pipeline_load_kwargs["max_memory"] = max_memory
+
 pipe = WanImageToVideoPipeline.from_pretrained(
     str(local_model_path),
     transformer=transformer,
     torch_dtype=torch.bfloat16,
     device_map=device_map,
-    max_memory=max_memory,
+    **pipeline_load_kwargs,
 )
 print(f"Pipeline execution device: {pipe._execution_device}")
 
