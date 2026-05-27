@@ -46,9 +46,7 @@ pipe.vae.enable_tiling()
 pipe.vae.enable_slicing()
 
 # 4. Input Processing
-input_image_path = (
-    "src/services/Wan2.1/Wan2.1-I2V-14B-480P-Diffusers/examples/i2v_input.JPG"
-)
+input_image_path = "input_scene.jpg"
 if not os.path.exists(input_image_path):
     print("Creating placeholder image...")
     img = Image.new("RGB", (832, 480), color=(40, 40, 40))
