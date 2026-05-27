@@ -40,6 +40,37 @@ def _timeout_handler(signum, frame):
     raise InferenceTimeoutError("Inference timed out before completion.")
 
 
+def run_generation(
+    pipe,
+    generation_kwargs,
+    timeout_seconds,
+    enable_cpu_staging_retry,
+    label,
+):
+    print(f"Starting {label} run with timeout={timeout_seconds}s")
+    signal.alarm(max(1, timeout_seconds))
+    try:
+        return pipe(**generation_kwargs).frames[0]
+    except RuntimeError as error:
+        error_text = str(error)
+        mixed_device_error = (
+            "Expected all tensors to be on the same device" in error_text
+            or "weight type (CPUBFloat16Type)" in error_text
+        )
+        if not mixed_device_error or not enable_cpu_staging_retry:
+            raise
+
+        print(
+            "Detected mixed CPU/GPU dispatch at runtime; retrying with CPU staging "
+            "while keeping sharded modules on GPUs."
+        )
+        pipe._execution_device_override = torch.device("cpu")
+        torch.cuda.empty_cache()
+        return pipe(**generation_kwargs).frames[0]
+    finally:
+        signal.alarm(0)
+
+
 def resolve_existing_path(
     env_var_name: str, default_path: Path, description: str
 ) -> Path:
@@ -84,6 +115,7 @@ input_image_path = resolve_existing_path(
 transformer_device_map = "balanced"
 pipeline_device_map = os.environ.get("WAN_PIPELINE_DEVICE_MAP", "cpu")
 inference_timeout_seconds = int(os.environ.get("WAN_TIMEOUT_SECONDS", "180"))
+smoke_timeout_seconds = int(os.environ.get("WAN_SMOKE_TIMEOUT_SECONDS", "45"))
 allow_cpu_offload = os.environ.get("WAN_ALLOW_CPU_OFFLOAD", "0") == "1"
 reserve_gib = int(os.environ.get("WAN_GPU_RESERVE_GIB", "1"))
 max_memory = build_max_memory(
@@ -105,9 +137,9 @@ print(f"Transformer device map: {transformer_device_map}")
 print(f"Pipeline device map: {pipeline_device_map}")
 print(f"Pipeline torch dtype: {pipeline_torch_dtype}")
 print(f"Inference timeout: {inference_timeout_seconds}s")
+print(f"Smoke timeout: {smoke_timeout_seconds}s")
 
 signal.signal(signal.SIGALRM, _timeout_handler)
-signal.alarm(max(1, inference_timeout_seconds))
 start_time = time.monotonic()
 
 # 2. Load the Transformer locally from the GGUF file
@@ -192,6 +224,7 @@ negative_prompt = "blurry, low quality, distorted"
 # 5. Execution Loop
 print("Running model inference across both RTX 5070 GPUs...")
 enable_cpu_staging_retry = os.environ.get("WAN_ENABLE_CPU_STAGING_RETRY", "0") == "1"
+two_stage_mode = os.environ.get("WAN_TWO_STAGE_MODE", "1") == "1"
 with torch.inference_mode():
     generation_kwargs = dict(
         prompt=prompt,
@@ -203,24 +236,37 @@ with torch.inference_mode():
         num_inference_steps=default_num_inference_steps,
         guidance_scale=default_guidance_scale,
     )
-    try:
-        video_frames = pipe(**generation_kwargs).frames[0]
-    except RuntimeError as error:
-        error_text = str(error)
-        mixed_device_error = (
-            "Expected all tensors to be on the same device" in error_text
-            or "weight type (CPUBFloat16Type)" in error_text
-        )
-        if not mixed_device_error or not enable_cpu_staging_retry:
-            raise
 
-        print(
-            "Detected mixed CPU/GPU dispatch at runtime; retrying with CPU staging "
-            "while keeping sharded modules on GPUs."
+    if two_stage_mode:
+        smoke_kwargs = dict(
+            prompt=prompt,
+            negative_prompt=negative_prompt,
+            image=init_image,
+            num_frames=int(os.environ.get("WAN_SMOKE_NUM_FRAMES", "9")),
+            height=int(os.environ.get("WAN_SMOKE_HEIGHT", "256")),
+            width=int(os.environ.get("WAN_SMOKE_WIDTH", "448")),
+            num_inference_steps=int(
+                os.environ.get("WAN_SMOKE_NUM_INFERENCE_STEPS", "4")
+            ),
+            guidance_scale=float(os.environ.get("WAN_SMOKE_GUIDANCE_SCALE", "4.0")),
         )
-        pipe._execution_device_override = torch.device("cpu")
-        torch.cuda.empty_cache()
-        video_frames = pipe(**generation_kwargs).frames[0]
+        print("Running smoke stage before full generation...")
+        _ = run_generation(
+            pipe=pipe,
+            generation_kwargs=smoke_kwargs,
+            timeout_seconds=smoke_timeout_seconds,
+            enable_cpu_staging_retry=enable_cpu_staging_retry,
+            label="smoke",
+        )
+        print("Smoke stage passed. Running full generation stage...")
+
+    video_frames = run_generation(
+        pipe=pipe,
+        generation_kwargs=generation_kwargs,
+        timeout_seconds=inference_timeout_seconds,
+        enable_cpu_staging_retry=enable_cpu_staging_retry,
+        label="full",
+    )
 
 # 6. Save the video file
 output_video_path = REPO_ROOT / "local_model_output.mp4"
@@ -228,6 +274,5 @@ print(f"Encoding frames into {output_video_path}...")
 export_to_video(video_frames, str(output_video_path), fps=16)
 
 elapsed = time.monotonic() - start_time
-signal.alarm(0)
 print(f"Total elapsed time: {elapsed:.1f}s")
 print("Process finished successfully!")
