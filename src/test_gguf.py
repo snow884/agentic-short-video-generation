@@ -71,7 +71,8 @@ input_image_path = resolve_existing_path(
 )
 
 # Define VRAM allocations to split the model across both RTX 5070s
-device_map = "balanced"
+transformer_device_map = "balanced"
+pipeline_device_map = os.environ.get("WAN_PIPELINE_DEVICE_MAP", "cpu")
 allow_cpu_offload = os.environ.get("WAN_ALLOW_CPU_OFFLOAD", "0") == "1"
 reserve_gib = int(os.environ.get("WAN_GPU_RESERVE_GIB", "1"))
 max_memory = build_max_memory(
@@ -83,6 +84,8 @@ if use_max_memory:
     print(f"Using max_memory={max_memory}")
 else:
     print("Using default accelerate memory placement (WAN_USE_MAX_MEMORY=0)")
+print(f"Transformer device map: {transformer_device_map}")
+print(f"Pipeline device map: {pipeline_device_map}")
 
 # 2. Load the Transformer locally from the GGUF file
 print(f"Loading quantized transformer from local file: {local_gguf_path}...")
@@ -94,7 +97,7 @@ transformer = WanTransformer3DModel.from_single_file(
     str(local_gguf_path),
     quantization_config=GGUFQuantizationConfig(compute_dtype=torch.bfloat16),
     torch_dtype=torch.bfloat16,
-    device_map=device_map,
+    device_map=transformer_device_map,
     **transformer_load_kwargs,
 )
 
@@ -110,7 +113,7 @@ pipe = WanImageToVideoPipeline.from_pretrained(
     str(local_model_path),
     transformer=transformer,
     torch_dtype=torch.bfloat16,
-    device_map=device_map,
+    device_map=pipeline_device_map,
     **pipeline_load_kwargs,
 )
 pipe.__class__ = AdjustableExecutionWanImageToVideoPipeline
