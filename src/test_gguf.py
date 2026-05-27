@@ -11,6 +11,16 @@ from diffusers import (
 )
 from diffusers.utils import export_to_video, load_image
 
+
+class AdjustableExecutionWanImageToVideoPipeline(WanImageToVideoPipeline):
+    @property
+    def _execution_device(self):
+        override = getattr(self, "_execution_device_override", None)
+        if override is not None:
+            return override
+        return super()._execution_device
+
+
 REPO_ROOT = Path(__file__).resolve().parent.parent
 WAN_ROOT = REPO_ROOT / "src" / "services" / "Wan2.1"
 DEFAULT_GGUF_PATH = (
@@ -103,6 +113,8 @@ pipe = WanImageToVideoPipeline.from_pretrained(
     device_map=device_map,
     **pipeline_load_kwargs,
 )
+pipe.__class__ = AdjustableExecutionWanImageToVideoPipeline
+pipe._execution_device_override = None
 print(f"Pipeline execution device: {pipe._execution_device}")
 
 # Performance tweaks for dual-GPU VRAM overhead
@@ -117,7 +129,7 @@ negative_prompt = "blurry, low quality, distorted"
 # 5. Execution Loop
 print("Running model inference across both RTX 5070 GPUs...")
 with torch.inference_mode():
-    video_frames = pipe(
+    generation_kwargs = dict(
         prompt=prompt,
         negative_prompt=negative_prompt,
         image=init_image,
@@ -126,7 +138,25 @@ with torch.inference_mode():
         width=832,
         num_inference_steps=40,
         guidance_scale=6.0,
-    ).frames[0]
+    )
+    try:
+        video_frames = pipe(**generation_kwargs).frames[0]
+    except RuntimeError as error:
+        error_text = str(error)
+        mixed_device_error = (
+            "Expected all tensors to be on the same device" in error_text
+            or "weight type (CPUBFloat16Type)" in error_text
+        )
+        if not mixed_device_error:
+            raise
+
+        print(
+            "Detected mixed CPU/GPU dispatch at runtime; retrying with CPU staging "
+            "while keeping sharded modules on GPUs."
+        )
+        pipe._execution_device_override = torch.device("cpu")
+        torch.cuda.empty_cache()
+        video_frames = pipe(**generation_kwargs).frames[0]
 
 # 6. Save the video file
 output_video_path = REPO_ROOT / "local_model_output.mp4"
