@@ -22,10 +22,8 @@ prompt = "A cinematic shot of a white cat."
 # ==========================================
 # STEP 1: EXTRACT EMBEDDINGS ENTIRELY ON CPU
 # ==========================================
-print("Loading Text Encoder onto CPU to extract prompt embeddings...")
+print("Loading Text Encoder onto CPU...")
 tokenizer = AutoTokenizer.from_pretrained(local_model_path, subfolder="tokenizer")
-
-# Load in float16/bfloat16 directly to CPU (no bitsandbytes needed since RAM handles this easily)
 text_encoder = T5EncoderModel.from_pretrained(
     local_model_path,
     subfolder="text_encoder",
@@ -39,34 +37,26 @@ with torch.no_grad():
     text_inputs = tokenizer(
         prompt,
         padding="max_length",
-        max_length=512,  # Wan2.1 default context length
-        truncation=True,
-        return_tensors="pt",
-    )
-
-    # Generate positive embeddings
-    prompt_embeds = text_encoder(text_inputs.input_ids)[0]
-
-    # Generate negative/unconditional embeddings (Wan uses empty string negative prompts)
-    uncond_inputs = tokenizer(
-        "",
-        padding="max_length",
         max_length=512,
         truncation=True,
         return_tensors="pt",
     )
+    prompt_embeds = text_encoder(text_inputs.input_ids)[0]
+
+    uncond_inputs = tokenizer(
+        "", padding="max_length", max_length=512, truncation=True, return_tensors="pt"
+    )
     negative_prompt_embeds = text_encoder(uncond_inputs.input_ids)[0]
 
-# Completely purge the text encoder from RAM to keep system clean
 del text_encoder
 import gc
 
 gc.collect()
-print("Prompt successfully compiled! Text encoder cleared.")
 
 # ==========================================
-# STEP 2: LAUNCH GPU INFRASTRUCTURE
+# STEP 2: LAUNCH BALANCED GPU ARCHITECTURE
 # ==========================================
+# Force the heavy 14B Transformer onto GPU 0 exclusively
 print("Loading Quantized Transformer onto cuda:0...")
 transformer = WanTransformer3DModel.from_single_file(
     GGUF_FILE_PATH,
@@ -75,30 +65,36 @@ transformer = WanTransformer3DModel.from_single_file(
     local_files_only=True,
 ).to("cuda:0")
 
-print("Loading supporting components...")
+# Force the VAE onto GPU 1 exclusively
+print("Loading VAE onto cuda:1...")
 vae = AutoencoderKLWan.from_pretrained(
     local_model_path, subfolder="vae", torch_dtype=torch.bfloat16, local_files_only=True
-)
+).to("cuda:1")
 
-# 4. Initialize pipeline PASSING None TO THE TEXT ENCODER
+# Initialize pipeline without automatic offloading wrappers
 pipe = WanImageToVideoPipeline.from_pretrained(
     local_model_path,
     transformer=transformer,
-    text_encoder=None,  # Pass None since we already have the embeddings!
+    text_encoder=None,
     vae=vae,
     torch_dtype=torch.bfloat16,
 )
 
-# 5. Offload remaining components (VAE, Image Encoder) dynamically to GPU 1
-print("Registering offloading hooks for GPU 1...")
-pipe.enable_model_cpu_offload(gpu_id=1)
+# Force the CLIP vision image encoder component to stay on GPU 1
+if hasattr(pipe, "image_encoder") and pipe.image_encoder is not None:
+    print("Moving Image Encoder to cuda:1...")
+    pipe.image_encoder.to("cuda:1")
 
-# Strict patch/tile-based memory optimizations
+# FIX: Force internal pipeline components to target specific hardware domains
+# instead of relying on the global pipe.enable_model_cpu_offload() tool.
+pipe.transformer.to("cuda:0")
+
+# VAE & Attention foot-saving features
 pipe.vae.enable_tiling()
 pipe.vae.enable_slicing()
 pipe.enable_attention_slicing()
 
-# Generate video
+# Load source image
 image = load_image(
     "src/services/Wan2.1/Wan2.1-I2V-14B-480P-Diffusers/examples/i2v_input.JPG"
 )
@@ -106,11 +102,14 @@ image = load_image(
 print("Starting generation loop...")
 torch.cuda.empty_cache()
 
+# ==========================================
+# STEP 3: RUN INFERENCE WITH STRICT GRAPHICS CONTEXTS
+# ==========================================
 with torch.no_grad():
+    # Force PyTorch SDPA to tightly compress cross-attention layer matrices
     with torch.backends.cuda.sdp_kernel(
         enable_flash=True, enable_math=False, enable_mem_efficient=True
     ):
-        # We pass the pre-computed embeddings directly into the pipeline execution
         video = pipe(
             prompt_embeds=prompt_embeds,
             negative_prompt_embeds=negative_prompt_embeds,
