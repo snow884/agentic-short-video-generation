@@ -8,7 +8,9 @@ from diffusers import (
     WanTransformer3DModel,
 )
 from diffusers.utils import export_to_video, load_image
-from transformers import T5EncoderModel
+
+# FIX: Import BitsAndBytesConfig alongside the model loader
+from transformers import BitsAndBytesConfig, T5EncoderModel
 
 # 1. Device and allocator setup
 os.environ["PYTORCH_CUDA_ALLOC_CONF"] = "expandable_segments:True"
@@ -27,15 +29,19 @@ transformer = WanTransformer3DModel.from_single_file(
     local_files_only=True,
 ).to("cuda:0")
 
-# 3. FIX: Load the massive text encoder in 8-bit precision or auto-mapped
-# This shrinks the text encoder memory usage from ~11GB down to ~5.5GB!
-# Note: Requires `pip install bitsandbytes acceleration` if not installed
-print("Loading Text Encoder with bitsandbytes 8-bit optimization...")
+# 3. FIX: Properly define the 8-bit configuration
+print("Configuring bitsandbytes quantization parameters...")
+quantization_config = BitsAndBytesConfig(
+    load_in_8bit=True,
+    llm_int8_enable_fp32_cpu_offload=True,  # Allows spilling to CPU RAM if GPU 1 hits a tight spot
+)
+
+print("Loading Text Encoder with 8-bit optimization...")
 text_encoder = T5EncoderModel.from_pretrained(
     local_model_path,
     subfolder="text_encoder",
-    load_in_8bit=True,  # Compresses the encoder layers significantly
-    device_map="auto",  # Dynamically utilizes remaining space across both cards
+    quantization_config=quantization_config,  # Pass the config object here
+    device_map="auto",  # Balance across your hardware
     local_files_only=True,
 )
 
