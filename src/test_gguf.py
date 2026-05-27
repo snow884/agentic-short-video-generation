@@ -8,8 +8,6 @@ from diffusers import (
     WanTransformer3DModel,
 )
 from diffusers.utils import export_to_video, load_image
-
-# FIX: Import BitsAndBytesConfig alongside the model loader
 from transformers import BitsAndBytesConfig, T5EncoderModel
 
 # 1. Device and allocator setup
@@ -29,19 +27,22 @@ transformer = WanTransformer3DModel.from_single_file(
     local_files_only=True,
 ).to("cuda:0")
 
-# 3. FIX: Properly define the 8-bit configuration
+# 3. FIX: Configure 8-bit but FORCE it onto CPU during initialization
+# This prevents 'materialize_tensors' from bursting GPU 1's VRAM pool.
 print("Configuring bitsandbytes quantization parameters...")
 quantization_config = BitsAndBytesConfig(
-    load_in_8bit=True,
-    llm_int8_enable_fp32_cpu_offload=True,  # Allows spilling to CPU RAM if GPU 1 hits a tight spot
+    load_in_8bit=True, llm_int8_enable_fp32_cpu_offload=True
 )
 
-print("Loading Text Encoder with 8-bit optimization...")
+print("Loading Text Encoder directly onto CPU to protect VRAM...")
+# Construct an explicit, safe device map that leaves GPUs completely alone for now
+text_encoder_device_map = {"": "cpu"}
+
 text_encoder = T5EncoderModel.from_pretrained(
     local_model_path,
     subfolder="text_encoder",
-    quantization_config=quantization_config,  # Pass the config object here
-    device_map="auto",  # Balance across your hardware
+    quantization_config=quantization_config,
+    device_map=text_encoder_device_map,  # Hard-pinned to CPU at boot
     local_files_only=True,
 )
 
@@ -50,7 +51,7 @@ vae = AutoencoderKLWan.from_pretrained(
     local_model_path, subfolder="vae", torch_dtype=torch.bfloat16, local_files_only=True
 )
 
-# 4. Initialize pipeline
+# 4. Initialize pipeline (Components are safely distributed / on CPU)
 pipe = WanImageToVideoPipeline.from_pretrained(
     local_model_path,
     transformer=transformer,
@@ -59,8 +60,8 @@ pipe = WanImageToVideoPipeline.from_pretrained(
     torch_dtype=torch.bfloat16,
 )
 
-# 5. Offload remaining components (VAE, Image Encoder) dynamically to GPU 1
-print("Registering offloading hooks...")
+# 5. Let Diffusers manage the dynamic handoff to GPU 1 during execution
+print("Registering dynamic engine offloading hooks to GPU 1...")
 pipe.enable_model_cpu_offload(gpu_id=1)
 
 # Strict patch/tile-based memory optimizations
