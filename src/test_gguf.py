@@ -24,7 +24,7 @@ image_encoder = CLIPVisionModel.from_pretrained(
 )
 
 vae = AutoencoderKLWan.from_pretrained(
-    BASE_MODEL_ID, subfolder="vae", torch_dtype=torch.float32, local_files_only=True
+    local_model_path, subfolder="vae", torch_dtype=torch.float32, local_files_only=True
 )
 
 transformer = WanTransformer3DModel.from_single_file(
