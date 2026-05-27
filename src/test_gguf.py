@@ -80,12 +80,19 @@ max_memory = build_max_memory(
     allow_cpu_offload=allow_cpu_offload,
 )
 use_max_memory = os.environ.get("WAN_USE_MAX_MEMORY", "0") == "1"
+pipeline_torch_dtype_name = os.environ.get("WAN_PIPELINE_TORCH_DTYPE", "float32")
+pipeline_torch_dtype = {
+    "float32": torch.float32,
+    "bfloat16": torch.bfloat16,
+    "float16": torch.float16,
+}.get(pipeline_torch_dtype_name.lower(), torch.float32)
 if use_max_memory:
     print(f"Using max_memory={max_memory}")
 else:
     print("Using default accelerate memory placement (WAN_USE_MAX_MEMORY=0)")
 print(f"Transformer device map: {transformer_device_map}")
 print(f"Pipeline device map: {pipeline_device_map}")
+print(f"Pipeline torch dtype: {pipeline_torch_dtype}")
 
 # 2. Load the Transformer locally from the GGUF file
 print(f"Loading quantized transformer from local file: {local_gguf_path}...")
@@ -112,7 +119,7 @@ if use_max_memory:
 pipe = WanImageToVideoPipeline.from_pretrained(
     str(local_model_path),
     transformer=transformer,
-    torch_dtype=torch.bfloat16,
+    torch_dtype=pipeline_torch_dtype,
     device_map=pipeline_device_map,
     **pipeline_load_kwargs,
 )
