@@ -9,7 +9,7 @@ Ensure that you are providing enough information for people be be able to attend
 - location in town or around time
 - time, date and weekday (Saturday or Sunday) 
 
-Your job is to create a script for 3 minute (180 second) video using this data. The output will be a video script in a json format.
+Your job is to create a script for 3 minute ({ video_length } second) video using this data. The output will be a video script in a json format.
 every segment includes:
 - event_id - the Id of the event the segment associates with
 - timestamp - defines the point in time n seconds in the video where the segment should start
@@ -49,7 +49,7 @@ Steps:
 - Include a minimum of 5 events in the video
 - Ensure that the time it takes to read the test matches the time duration of the given segment.
 - Ensure that the video includes the location, time and date of the event
-- Ensure that the timestamps span the whole 3 minutes - that is 180 seconds
+- Ensure that the timestamps span the whole 3 minutes - that is { video_length } seconds
 
 2.) Verify that the time it takes to pronounce the text for every segment of the script takes exactly the time between the current and the previous timestamp.
 Use the tool check_text_spoken_length_matches_timestamps for this validation.

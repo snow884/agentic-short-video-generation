@@ -16,6 +16,8 @@ from tables import Events, Towns, Video, VideoSegments, VideoSegmentsList, Weeke
 
 load_dotenv()
 
+VIDEO_LENGTH = 100
+
 
 def object_as_dict(obj):
     return {c.key: getattr(obj, c.key) for c in inspect(obj).mapper.column_attrs}
@@ -148,31 +150,32 @@ def check_text_spoken_length_matches_timestamps(segments_list: list):
             )
             res_str = res_str + "\n"
 
-    if abs(segments_list[-1]["timestamp"] / 180 - 1) > 0.05:
+    if abs(segments_list[-1]["timestamp"] / VIDEO_LENGTH - 1) > 0.05:
         print(
             "Error: The last segment has a timestamp of"
             f" {segments_list[-1]['timestamp']} seconds which is significantly"
-            " different than the expected video length of 180 seconds. Consider"
-            " adjusting the timestamps or adding more segments to better utilize the"
-            " video length."
+            f" different than the expected video length of {VIDEO_LENGTH} seconds."
+            " Consider adjusting the timestamps or adding more segments to better"
+            " utilize the video length."
         )
         res_str = (
             res_str
-            + "The total video length is significantly different than 180 seconds."
+            + "The total video length is significantly different than"
+            f" {VIDEO_LENGTH} seconds."
         )
         res_str = res_str + "\n"
 
-    if (sum(durations) / 180 - 1) > 0.05:
+    if (sum(durations) / VIDEO_LENGTH - 1) > 0.05:
         print(
             f"Error: The total duration of all segments is {sum(durations)} seconds"
-            " which is significantly different than the expected video length of 180"
-            " seconds. Consider adjusting the timestamps or script text length for"
-            " better synchronization."
+            " which is significantly different than the expected video length of"
+            f" {VIDEO_LENGTH} seconds. Consider adjusting the timestamps or script text"
+            " length for better synchronization."
         )
         res_str = (
             res_str
-            + "The total duration of all segments is significantly different than 180"
-            " seconds."
+            + "The total duration of all segments is significantly different than"
+            f" {VIDEO_LENGTH} seconds."
         )
         res_str = res_str + "\n"
 
@@ -381,7 +384,7 @@ def main(video_id):
             ]
         ),
     }
-    system_prompt_params = {}
+    system_prompt_params = {"video_length": VIDEO_LENGTH}
 
     Video_Segments_List = run_agent_sync(
         user_prompt_params=user_prompt_params,
