@@ -1,6 +1,8 @@
 import os
 from pathlib import Path
 
+os.environ.setdefault("PYTORCH_CUDA_ALLOC_CONF", "expandable_segments:True")
+
 import torch
 from diffusers import (
     GGUFQuantizationConfig,
@@ -30,6 +32,22 @@ def resolve_existing_path(
     return candidate
 
 
+def build_max_memory(reserve_gib: int = 2) -> dict[int | str, str]:
+    if not torch.cuda.is_available() or torch.cuda.device_count() == 0:
+        return {"cpu": "64GiB"}
+
+    memory_budget: dict[int | str, str] = {}
+    for device_index in range(torch.cuda.device_count()):
+        total_gib = torch.cuda.get_device_properties(device_index).total_memory // (
+            1024**3
+        )
+        usable_gib = max(1, total_gib - reserve_gib)
+        memory_budget[device_index] = f"{usable_gib}GiB"
+
+    memory_budget["cpu"] = os.environ.get("WAN_CPU_MAX_MEMORY", "64GiB")
+    return memory_budget
+
+
 # 1. Configuration & Local Paths
 local_gguf_path = resolve_existing_path("WAN_GGUF_PATH", DEFAULT_GGUF_PATH, "GGUF file")
 local_model_path = resolve_existing_path(
@@ -41,7 +59,8 @@ input_image_path = resolve_existing_path(
 
 # Define VRAM allocations to split the model across both RTX 5070s
 device_map = "balanced"
-max_memory = {0: "14GB", 1: "14GB"}
+max_memory = build_max_memory()
+print(f"Using max_memory={max_memory}")
 
 # 2. Load the Transformer locally from the GGUF file
 print(f"Loading quantized transformer from local file: {local_gguf_path}...")
