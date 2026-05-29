@@ -116,6 +116,12 @@ def populate_db_with_events(event_list: EventList, town_id: int, weekend_id: int
 
     event_id_list = []
 
+    if len(event_list.events) == 0:
+        logger.info(
+            "No events to add for town_id %s and weekend_id %s", town_id, weekend_id
+        )
+        raise ValueError("No events to add to the database.")
+
     for new_event in event_list.events:
         logger.info("Adding the event %s", new_event.event_name)
         new_event_sql = Events(**new_event.__dict__)
