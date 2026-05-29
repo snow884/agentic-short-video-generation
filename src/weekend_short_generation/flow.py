@@ -4,6 +4,7 @@ from prefect.logging import get_run_logger
 from tasks.event_research_agent.event_research_agent import (
     main as event_research_agent_main,
 )
+from tasks.subtitle_file_generator.subtitle_gen import main as subtitle_gen_agent_main
 from tasks.video_description_generator.video_description_generator import (
     main as video_description_generator_agent_main,
 )
@@ -70,6 +71,8 @@ def main_flow(weekend_id, town_id_list):
         video_generator_agent_main(video_id)
 
         video_description_generator_agent_main(video_id)
+
+        subtitle_gen_agent_main(video_id)
 
 
 if __name__ == "__main__":

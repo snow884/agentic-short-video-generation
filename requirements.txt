@@ -29,3 +29,4 @@ pydub
 moviepy
 prefect
 lxml
+openai-whisper
