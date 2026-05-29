@@ -581,7 +581,6 @@ def generate(args):
             use_usp=(args.ulysses_size > 1 or args.ring_size > 1),
             t5_cpu=args.t5_cpu,
         )
-        wan_vace.vae.enable_tiling()
 
         src_video, src_mask, src_ref_images = wan_vace.prepare_source(
             [args.src_video],
