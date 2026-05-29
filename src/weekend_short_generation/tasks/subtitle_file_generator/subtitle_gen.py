@@ -27,7 +27,7 @@ def main(video_id=0):
     result = model.transcribe(audio_file_path)
 
     # Save as SRT
-    writer = get_writer("srt", ".")
+    writer = get_writer("srt", ".data/video/")
     writer(result, audio_file_path)
 
     video.subtitle_file_path = audio_file_path.replace(".mp3", ".srt").replace(
