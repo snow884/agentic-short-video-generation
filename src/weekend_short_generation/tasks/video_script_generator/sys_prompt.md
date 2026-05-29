@@ -16,26 +16,21 @@ every segment includes:
 - script_text - the text stat should be spoken while the segment is displayed. 
 - caption - Caption that should be displayed on the screen when this segment begins, include name of the event when introducing new event. Do NOT include caption for every segment.
 - scene_description - two paragraph description of the scene that should be played at this timestamp
+Ensure that the scene matches the weather, time of day, climate, ethnicity of attendees, fauna and flora expected at the event location at the event time.
+Do not include multiple scenes or multiple camera angles into scene description. Keep everything as a simple one scene
+Do not include any names such as city or street names in the scene description. Do not include names of people. 
+Do not include any complex interactions in scene description. 
 Pay special attention to scene_description. Ensure that you include the following information:
 *Subject: Person, animal, entity. 
 *Scene: Environment, background.
 *Motion: Specific movement (e.g., rapid, slow, walking).
 *Camera: Shot size, angle, movement (e.g., pan, zoom, dolly).
 *Style/Atmosphere: Lighting, mood (e.g., dreamy, moody, cinematic).
-Ensure that the scene matches the weather, time of day, climate, ethnicity of attendees, fauna and flora expected at the event location at the event time.
-
-Do not include multiple scenes or multiple camera angles into scene description. 
-
-Do not include any names such as cit or street names in the scene description.
-
-Do not include any complex interactions in scene description.
 
 At the beginning of the video include two opening segment - state the name of the town, state and weekend the video relates to and list the events the video is about. Use empty or 0 event_id for these segments.
-
 At the end of the video include a closing segment with brief summary and goodbye. Use empty or 0 event_id for this segment.
 
 The video will play in the form of youtube short. 
-
 Ensure that you include the most exciting and dynamic segments at the beginning to maximize audience retention. 
 
 Continue improving the script until it passes check_text_spoken_length_matches_timestamps tool. Do NOT stop until the script you have produced returns 'success' when processed by the tool check_text_spoken_length_matches_timestamps. Use value returned by the tool to see what is wrong with your script. 
