@@ -27,6 +27,9 @@ def populate_db_with_events(video_id, segments_list: VideoSegmentsList):
 
     session = next(get_db())
 
+    if len(segments_list.video_segments) == 0:
+        raise ValueError("No video segments to add to the database.")
+
     for segment in segments_list.video_segments:
         print("Adding the segment ", segment.script_text)
 

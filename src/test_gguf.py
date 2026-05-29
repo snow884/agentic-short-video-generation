@@ -25,7 +25,7 @@ def ensure_checkpoint_dir() -> Path:
     if candidate.exists() and (candidate / "config.json").exists():
         return candidate
 
-    if os.environ.get("WAN_AUTO_DOWNLOAD", "1") != "1":
+    if os.environ.get("WAN_AUTO_DOWNLOAD", "0") != "1":
         raise FileNotFoundError(
             f"Checkpoint directory not found: {candidate}. Set WAN_CKPT_DIR or enable"
             " WAN_AUTO_DOWNLOAD."
