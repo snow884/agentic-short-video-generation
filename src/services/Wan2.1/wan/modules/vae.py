@@ -53,8 +53,6 @@ class RMS_norm(nn.Module):
         self.gamma = nn.Parameter(torch.ones(shape))
         self.bias = nn.Parameter(torch.zeros(shape)) if bias else 0.0
 
-        self.enable_tiling()
-
     def forward(self, x):
         return (
             F.normalize(x, dim=(1 if self.channel_first else -1))
