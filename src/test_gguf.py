@@ -1,26 +1,7 @@
 import os
-import signal
-import time
 from pathlib import Path
 
 os.environ.setdefault("PYTORCH_CUDA_ALLOC_CONF", "expandable_segments:True")
-
-import torch
-from diffusers import (
-    GGUFQuantizationConfig,
-    WanImageToVideoPipeline,
-    WanTransformer3DModel,
-)
-from diffusers.utils import export_to_video, load_image
-
-
-class AdjustableExecutionWanImageToVideoPipeline(WanImageToVideoPipeline):
-    @property
-    def _execution_device(self):
-        override = getattr(self, "_execution_device_override", None)
-        if override is not None:
-            return override
-        return super()._execution_device
 
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
@@ -32,271 +13,67 @@ DEFAULT_MODEL_PATH = WAN_ROOT / "Wan2.1-I2V-14B-480P-Diffusers"
 DEFAULT_INPUT_IMAGE = WAN_ROOT / "examples" / "i2v_input.JPG"
 
 
-class InferenceTimeoutError(RuntimeError):
-    pass
+import os
 
+import torch
+from diffusers import WanVideoPipeline
+from diffusers.utils import export_to_video, load_image
+from transformers import T5EncoderModel, T5Tokenizer
 
-def _timeout_handler(signum, frame):
-    raise InferenceTimeoutError("Inference timed out before completion.")
+# 1. Setup paths and device
+# Note: Ensure you have downloaded the Wan2.1-I2V-14B-480P-gguf file
+# and the matching text encoder (usually T5-v1.1-XXL)
+model_dir = DEFAULT_MODEL_PATH
+device = "cuda" if torch.cuda.is_available() else "cpu"
 
-
-def run_generation(
-    pipe,
-    generation_kwargs,
-    timeout_seconds,
-    enable_cpu_staging_retry,
-    label,
-):
-    print(f"Starting {label} run with timeout={timeout_seconds}s")
-    signal.alarm(max(1, timeout_seconds))
-    try:
-        return pipe(**generation_kwargs).frames[0]
-    except RuntimeError as error:
-        error_text = str(error)
-        mixed_device_error = (
-            "Expected all tensors to be on the same device" in error_text
-            or "weight type (CPUBFloat16Type)" in error_text
-        )
-        if not mixed_device_error or not enable_cpu_staging_retry:
-            raise
-
-        print(
-            "Detected mixed CPU/GPU dispatch at runtime; retrying with CPU staging "
-            "while keeping sharded modules on GPUs."
-        )
-        pipe._execution_device_override = torch.device("cpu")
-        torch.cuda.empty_cache()
-        return pipe(**generation_kwargs).frames[0]
-    finally:
-        signal.alarm(0)
-
-
-def resolve_existing_path(
-    env_var_name: str, default_path: Path, description: str
-) -> Path:
-    candidate = Path(os.environ.get(env_var_name, default_path)).expanduser()
-    if not candidate.exists():
-        raise FileNotFoundError(
-            f"Could not find {description} at: {candidate}. "
-            f"Set {env_var_name} to override the default path."
-        )
-    return candidate
-
-
-def build_max_memory(
-    reserve_gib: int = 2, allow_cpu_offload: bool = False
-) -> dict[int | str, str]:
-    if not torch.cuda.is_available() or torch.cuda.device_count() == 0:
-        return {"cpu": "64GiB"}
-
-    memory_budget: dict[int | str, str] = {}
-    for device_index in range(torch.cuda.device_count()):
-        total_gib = torch.cuda.get_device_properties(device_index).total_memory // (
-            1024**3
-        )
-        usable_gib = max(1, total_gib - reserve_gib)
-        memory_budget[device_index] = f"{usable_gib}GiB"
-
-    if allow_cpu_offload:
-        memory_budget["cpu"] = os.environ.get("WAN_CPU_MAX_MEMORY", "64GiB")
-    return memory_budget
-
-
-# 1. Configuration & Local Paths
-local_gguf_path = resolve_existing_path("WAN_GGUF_PATH", DEFAULT_GGUF_PATH, "GGUF file")
-local_model_path = resolve_existing_path(
-    "WAN_DIFFUSERS_PATH", DEFAULT_MODEL_PATH, "Wan diffusers model directory"
-)
-input_image_path = resolve_existing_path(
-    "WAN_INPUT_IMAGE", DEFAULT_INPUT_IMAGE, "input image"
+print("Initializing text encoders...")
+tokenizer = T5Tokenizer.from_pretrained("google/t5-v1.1-xxl")
+text_encoder = T5EncoderModel.from_pretrained(
+    "google/t5-v1.1-xxl", torch_dtype=torch.bfloat16
 )
 
-# Define VRAM allocations to split the model across both RTX 5070s
-transformer_device_map = "balanced"
-pipeline_device_map = os.environ.get("WAN_PIPELINE_DEVICE_MAP", "cpu")
-inference_timeout_seconds = int(os.environ.get("WAN_TIMEOUT_SECONDS", "180"))
-smoke_timeout_seconds = int(os.environ.get("WAN_SMOKE_TIMEOUT_SECONDS", "45"))
-allow_cpu_offload = os.environ.get("WAN_ALLOW_CPU_OFFLOAD", "0") == "1"
-reserve_gib = int(os.environ.get("WAN_GPU_RESERVE_GIB", "1"))
-max_memory = build_max_memory(
-    reserve_gib=reserve_gib,
-    allow_cpu_offload=allow_cpu_offload,
-)
-use_max_memory = os.environ.get("WAN_USE_MAX_MEMORY", "0") == "1"
-pipeline_torch_dtype_name = os.environ.get("WAN_PIPELINE_TORCH_DTYPE", "bfloat16")
-pipeline_torch_dtype = {
-    "float32": torch.float32,
-    "bfloat16": torch.bfloat16,
-    "float16": torch.float16,
-}.get(pipeline_torch_dtype_name.lower(), torch.float32)
-if use_max_memory:
-    print(f"Using max_memory={max_memory}")
-else:
-    print("Using default accelerate memory placement (WAN_USE_MAX_MEMORY=0)")
-print(f"Transformer device map: {transformer_device_map}")
-print(f"Pipeline device map: {pipeline_device_map}")
-print(f"Pipeline torch dtype: {pipeline_torch_dtype}")
-print(f"Inference timeout: {inference_timeout_seconds}s")
-print(f"Smoke timeout: {smoke_timeout_seconds}s")
-
-signal.signal(signal.SIGALRM, _timeout_handler)
-start_time = time.monotonic()
-
-# 2. Load the Transformer locally from the GGUF file
-print(f"Loading quantized transformer from local file: {local_gguf_path}...")
-transformer_load_kwargs = {}
-if use_max_memory:
-    transformer_load_kwargs["max_memory"] = max_memory
-
-transformer = WanTransformer3DModel.from_single_file(
-    str(local_gguf_path),
-    quantization_config=GGUFQuantizationConfig(compute_dtype=torch.bfloat16),
+# 2. Load the Wan2.1 Pipeline
+# (Depending on the exact diffusers integration, you may need a custom GGUF loader class)
+print("Loading Wan2.1 I2V GGUF Model...")
+pipeline = WanVideoPipeline.from_pretrained(
+    model_dir,
+    text_encoder=text_encoder,
+    tokenizer=tokenizer,
     torch_dtype=torch.bfloat16,
-    device_map=transformer_device_map,
-    **transformer_load_kwargs,
 )
+pipeline.to(device)
 
-# 3. Assemble the Pipeline
-print("Assembling WanImageToVideoPipeline...")
-# The pipeline structure configuration is fetched from the base hub layout,
-# but we override the transformer with our locally loaded GGUF instance.
-pipeline_load_kwargs = {}
-if use_max_memory:
-    pipeline_load_kwargs["max_memory"] = max_memory
+# Enable memory optimizations if running on consumer hardware (highly recommended for 14B)
+pipeline.enable_model_cpu_offload()
+# pipeline.enable_vae_slicing()
 
-pipe = WanImageToVideoPipeline.from_pretrained(
-    str(local_model_path),
-    transformer=transformer,
-    torch_dtype=pipeline_torch_dtype,
-    device_map=pipeline_device_map,
-    **pipeline_load_kwargs,
+# 3. Prepare Input Image and Prompt
+# The image should ideally match the 480p target aspect ratio (e.g., 832x480 or 480x832)
+input_image_path = DEFAULT_INPUT_IMAGE
+image = load_image(input_image_path).convert("RGB")
+
+prompt = (
+    "A cinematic shot of a dragon breathing fire, smooth motion, high definition, 4k"
+    " resolution"
 )
+negative_prompt = "blurry, low quality, distorted, static, jittery"
 
-if (
-    pipe.image_encoder is not None
-    and os.environ.get("WAN_IMAGE_ENCODER_FORCE_FLOAT32", "1") == "1"
-):
-    pipe.image_encoder.float()
-
-pipe.__class__ = AdjustableExecutionWanImageToVideoPipeline
-pipe._execution_device_override = None
-print(f"Pipeline execution device: {pipe._execution_device}")
-
-# Performance tweaks for dual-GPU VRAM overhead
-pipe.vae.enable_tiling()
-pipe.vae.enable_slicing()
-pipe.enable_attention_slicing("max")
-
-if os.environ.get("WAN_ENABLE_MODEL_CPU_OFFLOAD", "0") == "1":
-    # Keeps active compute on GPU while offloading inactive components to CPU.
-    pipe.enable_model_cpu_offload()
-
-# 4. Input Processing
-quick_mode = os.environ.get("WAN_QUICK_MODE", "1") == "1"
-if quick_mode:
-    default_width = int(os.environ.get("WAN_WIDTH", "512"))
-    default_height = int(os.environ.get("WAN_HEIGHT", "288"))
-    default_num_frames = int(os.environ.get("WAN_NUM_FRAMES", "17"))
-    default_num_inference_steps = int(os.environ.get("WAN_NUM_INFERENCE_STEPS", "8"))
-    default_guidance_scale = float(os.environ.get("WAN_GUIDANCE_SCALE", "4.5"))
-else:
-    default_width = int(os.environ.get("WAN_WIDTH", "576"))
-    default_height = int(os.environ.get("WAN_HEIGHT", "320"))
-    default_num_frames = int(os.environ.get("WAN_NUM_FRAMES", "33"))
-    default_num_inference_steps = int(os.environ.get("WAN_NUM_INFERENCE_STEPS", "16"))
-    default_guidance_scale = float(os.environ.get("WAN_GUIDANCE_SCALE", "5.0"))
-
-print(
-    "Run settings: "
-    f"quick_mode={quick_mode}, size={default_width}x{default_height}, "
-    f"frames={default_num_frames}, steps={default_num_inference_steps}, "
-    f"guidance={default_guidance_scale}"
-)
-
-init_image = (
-    load_image(str(input_image_path))
-    .convert("RGB")
-    .resize((default_width, default_height))
-)
-prompt = "Cinematic slow motion camera pan, hyperrealistic details, 4k resolution"
-negative_prompt = "blurry, low quality, distorted"
-prompt = os.environ.get("WAN_PROMPT", prompt)
-negative_prompt = os.environ.get("WAN_NEGATIVE_PROMPT", negative_prompt)
-
-# 5. Execution Loop
-print("Running model inference across both RTX 5070 GPUs...")
-enable_cpu_staging_retry = os.environ.get("WAN_ENABLE_CPU_STAGING_RETRY", "0") == "1"
-two_stage_mode = os.environ.get("WAN_TWO_STAGE_MODE", "1") == "1"
-smoke_only_mode = os.environ.get("WAN_SMOKE_ONLY", "0") == "1"
-max_sequence_length = int(os.environ.get("WAN_MAX_SEQUENCE_LENGTH", "128"))
+print("Generating video frames...")
+# 4. Run Inference
 with torch.inference_mode():
-    generation_kwargs = dict(
+    video_frames = pipeline(
         prompt=prompt,
         negative_prompt=negative_prompt,
-        image=init_image,
-        num_frames=default_num_frames,
-        height=default_height,
-        width=default_width,
-        num_inference_steps=default_num_inference_steps,
-        guidance_scale=default_guidance_scale,
-        max_sequence_length=max_sequence_length,
-    )
+        image=image,
+        num_frames=81,  # Wan2.1 standard frame count for smooth video
+        height=480,  # Fixed for the 480P model
+        width=832,  # Adjustable based on aspect ratio
+        num_inference_steps=40,  # Standard steps for Wan2.1 flow matching
+        guidance_scale=6.0,  # Classifier-free guidance strength
+    ).frames[0]
 
-    if two_stage_mode:
-        smoke_prompt = os.environ.get("WAN_SMOKE_PROMPT", prompt)
-        smoke_negative_prompt = os.environ.get(
-            "WAN_SMOKE_NEGATIVE_PROMPT", negative_prompt
-        )
-        smoke_kwargs = dict(
-            prompt=smoke_prompt,
-            negative_prompt=smoke_negative_prompt,
-            image=init_image,
-            num_frames=int(os.environ.get("WAN_SMOKE_NUM_FRAMES", "5")),
-            height=int(os.environ.get("WAN_SMOKE_HEIGHT", "192")),
-            width=int(os.environ.get("WAN_SMOKE_WIDTH", "320")),
-            num_inference_steps=int(
-                os.environ.get("WAN_SMOKE_NUM_INFERENCE_STEPS", "2")
-            ),
-            guidance_scale=float(os.environ.get("WAN_SMOKE_GUIDANCE_SCALE", "3.5")),
-            max_sequence_length=int(
-                os.environ.get("WAN_SMOKE_MAX_SEQUENCE_LENGTH", "32")
-            ),
-        )
-        print("Running smoke stage before full generation...")
-        smoke_frames = run_generation(
-            pipe=pipe,
-            generation_kwargs=smoke_kwargs,
-            timeout_seconds=smoke_timeout_seconds,
-            enable_cpu_staging_retry=enable_cpu_staging_retry,
-            label="smoke",
-        )
-
-        if smoke_only_mode:
-            print("Smoke-only mode enabled. Skipping full generation stage.")
-            video_frames = smoke_frames
-        else:
-            print("Smoke stage passed. Running full generation stage...")
-            video_frames = run_generation(
-                pipe=pipe,
-                generation_kwargs=generation_kwargs,
-                timeout_seconds=inference_timeout_seconds,
-                enable_cpu_staging_retry=enable_cpu_staging_retry,
-                label="full",
-            )
-    else:
-        video_frames = run_generation(
-            pipe=pipe,
-            generation_kwargs=generation_kwargs,
-            timeout_seconds=inference_timeout_seconds,
-            enable_cpu_staging_retry=enable_cpu_staging_retry,
-            label="full",
-        )
-
-# 6. Save the video file
-output_video_path = REPO_ROOT / "local_model_output.mp4"
-print(f"Encoding frames into {output_video_path}...")
-export_to_video(video_frames, str(output_video_path), fps=16)
-
-elapsed = time.monotonic() - start_time
-print(f"Total elapsed time: {elapsed:.1f}s")
-print("Process finished successfully!")
+# 5. Export to MP4
+output_video_path = "wan21_generated_video.mp4"
+print(f"Saving video to {output_video_path}...")
+export_to_video(video_frames, output_video_path, fps=16)
+print("Done!")
