@@ -1,79 +1,137 @@
 import os
+import subprocess
+import sys
 from pathlib import Path
-
-os.environ.setdefault("PYTORCH_CUDA_ALLOC_CONF", "expandable_segments:True")
-
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 WAN_ROOT = REPO_ROOT / "src" / "services" / "Wan2.1"
-DEFAULT_GGUF_PATH = (
-    WAN_ROOT / "Wan2.1-I2V-14B-480P-gguf" / "wan2.1-i2v-14b-480p-Q4_K_S.gguf"
-)
-DEFAULT_MODEL_PATH = WAN_ROOT / "Wan2.1-I2V-14B-480P-Diffusers"
+DEFAULT_MODEL_REPO = "Wan-AI/Wan2.1-I2V-14B-480P"
+DEFAULT_CKPT_DIR = WAN_ROOT / "Wan2.1-I2V-14B-480P"
 DEFAULT_INPUT_IMAGE = WAN_ROOT / "examples" / "i2v_input.JPG"
+DEFAULT_OUTPUT_FILE = REPO_ROOT / "i2v_2gpu_smoke.mp4"
 
 
-import os
+def resolve_existing_path(env_var_name: str, default_path: Path) -> Path:
+    candidate = Path(os.environ.get(env_var_name, default_path)).expanduser()
+    if not candidate.exists():
+        raise FileNotFoundError(
+            f"Missing path: {candidate}. Set {env_var_name} to override it."
+        )
+    return candidate
 
-import torch
-from diffusers import WanVideoPipeline
-from diffusers.utils import export_to_video, load_image
-from transformers import T5EncoderModel, T5Tokenizer
 
-# 1. Setup paths and device
-# Note: Ensure you have downloaded the Wan2.1-I2V-14B-480P-gguf file
-# and the matching text encoder (usually T5-v1.1-XXL)
-model_dir = DEFAULT_MODEL_PATH
-device = "cuda" if torch.cuda.is_available() else "cpu"
+def ensure_checkpoint_dir() -> Path:
+    candidate = Path(os.environ.get("WAN_CKPT_DIR", DEFAULT_CKPT_DIR)).expanduser()
+    if candidate.exists() and (candidate / "config.json").exists():
+        return candidate
 
-print("Initializing text encoders...")
-tokenizer = T5Tokenizer.from_pretrained("google/t5-v1.1-xxl")
-text_encoder = T5EncoderModel.from_pretrained(
-    "google/t5-v1.1-xxl", torch_dtype=torch.bfloat16
-)
+    if os.environ.get("WAN_AUTO_DOWNLOAD", "1") != "1":
+        raise FileNotFoundError(
+            f"Checkpoint directory not found: {candidate}. Set WAN_CKPT_DIR or enable"
+            " WAN_AUTO_DOWNLOAD."
+        )
 
-# 2. Load the Wan2.1 Pipeline
-# (Depending on the exact diffusers integration, you may need a custom GGUF loader class)
-print("Loading Wan2.1 I2V GGUF Model...")
-pipeline = WanVideoPipeline.from_pretrained(
-    model_dir,
-    text_encoder=text_encoder,
-    tokenizer=tokenizer,
-    torch_dtype=torch.bfloat16,
-)
-pipeline.to(device)
+    from huggingface_hub import snapshot_download
 
-# Enable memory optimizations if running on consumer hardware (highly recommended for 14B)
-pipeline.enable_model_cpu_offload()
-# pipeline.enable_vae_slicing()
+    print(f"Downloading {DEFAULT_MODEL_REPO} to {candidate}...")
+    candidate.parent.mkdir(parents=True, exist_ok=True)
+    snapshot_download(
+        repo_id=DEFAULT_MODEL_REPO,
+        local_dir=str(candidate),
+        local_dir_use_symlinks=False,
+    )
+    return candidate
 
-# 3. Prepare Input Image and Prompt
-# The image should ideally match the 480p target aspect ratio (e.g., 832x480 or 480x832)
-input_image_path = DEFAULT_INPUT_IMAGE
-image = load_image(input_image_path).convert("RGB")
 
-prompt = (
-    "A cinematic shot of a dragon breathing fire, smooth motion, high definition, 4k"
-    " resolution"
-)
-negative_prompt = "blurry, low quality, distorted, static, jittery"
+def build_command(ckpt_dir: Path, output_file: Path) -> list[str]:
+    nproc = int(os.environ.get("WAN_NPROC_PER_NODE", "2"))
+    prompt = os.environ.get(
+        "WAN_PROMPT",
+        "A cinematic shot of a white cat wearing sunglasses on a surfboard, realistic"
+        " beach lighting, smooth camera motion.",
+    )
+    size = os.environ.get("WAN_SIZE", "832*480")
+    frame_num = os.environ.get("WAN_FRAME_NUM", "17")
+    sample_steps = os.environ.get("WAN_SAMPLE_STEPS", "8")
+    sample_shift = os.environ.get("WAN_SAMPLE_SHIFT", "3.0")
+    sample_guide_scale = os.environ.get("WAN_SAMPLE_GUIDE_SCALE", "5.0")
+    sample_solver = os.environ.get("WAN_SAMPLE_SOLVER", "unipc")
+    input_image = resolve_existing_path("WAN_INPUT_IMAGE", DEFAULT_INPUT_IMAGE)
 
-print("Generating video frames...")
-# 4. Run Inference
-with torch.inference_mode():
-    video_frames = pipeline(
-        prompt=prompt,
-        negative_prompt=negative_prompt,
-        image=image,
-        num_frames=81,  # Wan2.1 standard frame count for smooth video
-        height=480,  # Fixed for the 480P model
-        width=832,  # Adjustable based on aspect ratio
-        num_inference_steps=40,  # Standard steps for Wan2.1 flow matching
-        guidance_scale=6.0,  # Classifier-free guidance strength
-    ).frames[0]
+    command = [
+        sys.executable,
+        "-m",
+        "torch.distributed.run",
+        f"--nproc_per_node={nproc}",
+        "generate.py",
+        "--task",
+        "i2v-14B",
+        "--size",
+        size,
+        "--frame_num",
+        frame_num,
+        "--ckpt_dir",
+        str(ckpt_dir),
+        "--image",
+        str(input_image),
+        "--dit_fsdp",
+        "--t5_fsdp",
+        "--ulysses_size",
+        str(nproc),
+        "--t5_cpu",
+        "--prompt",
+        prompt,
+        "--sample_solver",
+        sample_solver,
+        "--sample_steps",
+        sample_steps,
+        "--sample_shift",
+        sample_shift,
+        "--sample_guide_scale",
+        sample_guide_scale,
+        "--offload_model",
+        "False",
+        "--save_file",
+        str(output_file),
+    ]
 
-# 5. Export to MP4
-output_video_path = "wan21_generated_video.mp4"
-print(f"Saving video to {output_video_path}...")
-export_to_video(video_frames, output_video_path, fps=16)
-print("Done!")
+    return command
+
+
+def main() -> int:
+    os.environ.setdefault("PYTORCH_CUDA_ALLOC_CONF", "expandable_segments:True")
+    os.environ.setdefault("TOKENIZERS_PARALLELISM", "false")
+
+    os.chdir(WAN_ROOT)
+
+    ckpt_dir = ensure_checkpoint_dir()
+    output_file = Path(
+        os.environ.get("WAN_OUTPUT_FILE", DEFAULT_OUTPUT_FILE)
+    ).expanduser()
+    input_image = resolve_existing_path("WAN_INPUT_IMAGE", DEFAULT_INPUT_IMAGE)
+
+    print(f"Repo root: {REPO_ROOT}")
+    print(f"Wan root: {WAN_ROOT}")
+    print(f"Checkpoint dir: {ckpt_dir}")
+    print(f"Input image: {input_image}")
+    print(f"Output file: {output_file}")
+    print(
+        f"Using {os.environ.get('WAN_NPROC_PER_NODE', '2')} GPUs via"
+        " torch.distributed.run"
+    )
+
+    command = build_command(ckpt_dir, output_file)
+    print("Launching native Wan I2V generation...")
+    completed = subprocess.run(command)
+    print(f"Native generation exit code: {completed.returncode}")
+
+    if output_file.exists():
+        print(f"Generated video: {output_file} ({output_file.stat().st_size} bytes)")
+    else:
+        print(f"Output video not found: {output_file}")
+
+    return completed.returncode
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
