@@ -1,3 +1,5 @@
+import os
+
 import whisper
 from prefect import task
 from prefect.logging import get_run_logger
@@ -21,6 +23,18 @@ def main(video_id=0):
 
     audio_file_path = video.audio_file_path
 
+    if not audio_file_path:
+        parent_dir = os.path.dirname(
+            os.path.dirname(
+                os.path.dirname(
+                    os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+                )
+            )
+        )
+        audio_file_path = os.path.join(
+            parent_dir, f"data/video/sad_talker_input/combined_audio{video.id}.wav"
+        )
+
     logger.info(
         f"Generating subtitles for video_id: {video_id} using audio file:"
         f" {audio_file_path}"
@@ -36,7 +50,7 @@ def main(video_id=0):
         f"Transcription completed for video_id: {video_id}. Saving subtitles to SRT"
         " file."
     )
-    writer = get_writer("srt", "./data/video/")
+    writer = get_writer("srt", "data/video/")
     writer(result, audio_file_path)
 
     logger.info(f"Subtitles saved for video_id: {video_id}. Updating database record.")

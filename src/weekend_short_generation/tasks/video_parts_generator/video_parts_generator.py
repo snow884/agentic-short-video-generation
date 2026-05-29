@@ -86,6 +86,8 @@ def main(video_id):
     )
 
     combined_audio.export(combined_audio_path, format="wav")
+    video.audio_file_path = combined_audio_path
+    session.commit()
 
     print(f"Parent directory: {parent_dir}")
 
@@ -111,6 +113,7 @@ def main(video_id):
 
     video_path = res.json()["save_dir"]
 
+    video.audio_file_path = combined_audio_path
     video.sad_talker_video_path = video_path
     session.commit()
 
