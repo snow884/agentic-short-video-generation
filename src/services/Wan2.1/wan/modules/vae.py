@@ -54,7 +54,7 @@ class RMS_norm(nn.Module):
         self.bias = nn.Parameter(torch.zeros(shape)) if bias else 0.0
 
         # added manually
-        self.enable_tiling()
+        super().enable_tiling()
 
     def forward(self, x):
         return (
