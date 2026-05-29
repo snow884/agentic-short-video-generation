@@ -21,15 +21,25 @@ def main(video_id=0):
 
     audio_file_path = video.audio_file_path
 
+    logger.info(
+        f"Generating subtitles for video_id: {video_id} using audio file:"
+        f" {audio_file_path}"
+    )
+
     model = whisper.load_model(
         "base"
     )  # Use 'small', 'medium', or 'large' for better accuracy
     result = model.transcribe(audio_file_path)
 
     # Save as SRT
-    writer = get_writer("srt", ".data/video/")
+    logger.info(
+        f"Transcription completed for video_id: {video_id}. Saving subtitles to SRT"
+        " file."
+    )
+    writer = get_writer("srt", "./data/video/")
     writer(result, audio_file_path)
 
+    logger.info(f"Subtitles saved for video_id: {video_id}. Updating database record.")
     video.subtitle_file_path = audio_file_path.replace(".mp3", ".srt").replace(
         ".wav", ".srt"
     )
