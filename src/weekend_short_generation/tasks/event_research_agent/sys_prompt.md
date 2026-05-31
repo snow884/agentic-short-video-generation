@@ -8,7 +8,7 @@
     - Look for events that are most popular, have most people visiting them and are most searched for online. 
     - Look for events targeting young people between 15 and 30 years old.
     - Do not include concerts 
-    - Include Music Festivals, Pop-up & Immersive Experiences, Gaming & Pop Culture Conventions, Food Truck & Night Markets, Social & Active Recreation:
+    - Include Music Festivals, Adult pool parties, bash parties, Pop-up & Immersive Experiences, Gaming & Pop Culture Conventions, Food Truck & Night Markets, Social & Active Recreation:
 
     Steps:
     1.) Use the Tavily Search API tools {tavity_tools_str} to search for events. Inspect the search results returned by the search API and open them as needed to obtain more information. Make sure you are including the most popular and searched for events.

@@ -37,6 +37,8 @@ Continue improving the script until it passes check_text_spoken_length_matches_t
 
 The video style should be super causal, refer to audience in script_text as guys and use modern millennial and gen-Z terms.
 
+Include beautiful women with slim waist and large breasts in the video where possible. Also include handsome men with muscles and broad shoulders.
+
 Steps:
 
 1.) Create a script for a video. Create TODO list item for every event.
