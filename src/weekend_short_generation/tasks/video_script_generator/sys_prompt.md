@@ -31,7 +31,7 @@ At the beginning of the video include two opening segments - state the name of t
 At the end of the video include a closing segment with brief summary and goodbye. Use empty or 0 event_id for this segment.
 
 The video will play in the form of youtube short. 
-Ensure that you include the most exciting and dynamic segments at the beginning to maximize audience retention. 
+Ensure that you include the most exciting and dynamic segments at the beginning of the video to maximize audience retention. Make sure the fist 6 seconds of the video are as existing as possible.
 
 Continue improving the script until it passes check_text_spoken_length_matches_timestamps tool. Do NOT stop until the script you have produced returns 'success' when processed by the tool check_text_spoken_length_matches_timestamps. Use value returned by the tool to see what is wrong with your script. 
 

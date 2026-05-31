@@ -97,8 +97,17 @@ def main(video_id):
         ):
             event = session.query(Events).filter(Events.id == segment.event_id).first()
 
-            date_obj = datetime.strptime(event.date, "%Y-%m-%d")
-            formatted_date_time = date_obj.strftime("%b %d")
+            try:
+                date_obj = datetime.strptime(event.date, "%Y-%m-%d")
+                formatted_date_time = date_obj.strftime("%b %d")
+            except Exception as e:
+                print(f"Error parsing date for event {event.event_name}: {e}")
+                if event.date:
+                    formatted_date_time = event.date
+                else:
+
+                    formatted_date_time = "Unknown Date"
+
             if event.time:
                 formatted_date_time += " at " + event.time
 
