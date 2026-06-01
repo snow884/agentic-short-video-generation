@@ -97,6 +97,7 @@ async def run_agent(
             ),
         ],
         debug=True,
+        cache=None,
     )
     result = await agent_chain.ainvoke(
         {
