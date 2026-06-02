@@ -1,19 +1,15 @@
-import os
 import re
 from datetime import datetime
 from pathlib import Path
 
+from langchain_community.tools.google_trends.tool import GoogleTrendsQueryRun
+from langchain_community.utilities.google_trends import GoogleTrendsAPIWrapper
 from prefect import task
 from prefect.logging import get_run_logger
 
 from research_agent import run_agent_sync
 from sql_utils import get_db
 from tables import EventList, Events, Towns, Weekends
-
-os.environ["SERPAPI_API_KEY"] = os.getenv("SERP_API_KEY")
-
-from langchain_community.tools.google_trends.tool import GoogleTrendsQueryRun
-from langchain_community.utilities.google_trends import GoogleTrendsAPIWrapper
 
 
 def check_events(events_list: list):
