@@ -109,6 +109,15 @@ def check_events(events_list: list):
             )
             res = res + "\n"
 
+        if len(event["keywords"].split(",")) <= 1:
+            res = (
+                res
+                + f"Event {event['event_name']} is missing keywords or you only"
+                " provided one keyword. Please provide keywords that are trending"
+                " for this event based on your research as a comma separated list."
+            )
+            res = res + "\n"
+
     if not res:
         res = "success"
 

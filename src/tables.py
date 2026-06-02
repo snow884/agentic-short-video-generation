@@ -99,6 +99,7 @@ class Events(Base):
     url = Column(String, default="")
     url_facebook = Column(String, default="")
     url_instagram = Column(String, default="")
+    keywords = Column(String, default="")
 
     # weekend: Mapped["Weekends"] = relationship(back_populates="events")
     # town: Mapped["Towns"] = relationship(back_populates="events")
