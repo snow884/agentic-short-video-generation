@@ -28,6 +28,8 @@
     - location_address - the exact address of the event location in the format "123 Main St, City, State ZIP". 
     - description - a long description of the event - include: Intended audience, activities, schedule, artists performing, products sold, ticket price, whether is indoor or outdoor and any other relevant information. 
     - url - the URL where the event information was found. 
+    - keywords - list of most popular keywords for this event
+    - tiktok_hashtags - list of popular Tiktok hashtags for this event
 
     5.) Return the answer in pure JSON format. Matching the exact output JSON output format including the json nesting. 
     - Do not add any text or reasoning before or after the JSON output. Only return the JSON structure containing the events as your answer. Do not include any explanations or reasoning in the final answer, only return the JSON. 
