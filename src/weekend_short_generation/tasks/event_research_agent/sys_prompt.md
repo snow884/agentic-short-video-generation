@@ -13,7 +13,7 @@
     Steps:
     1.) Analyze the Google Trends interest in events over time for the city provided by the user.
 
-    To find surging local events, select US for country, and filter the time range to a short window (e.g., "Past week"). Find "Related Queries" or "Trending Now" sections, and switch the metrics to view "Rising" or "Breakout" searches. This highlights rapidly spiking search terms that often correlate with emerging local news, pop-up events, or breaking incidents a specific area.For more specific and structured event searches, type a broad local category (like "festival", "party" or "concert") into the search. Adjust the location filter to specific US metro area to identify which events are gaining maximum traction among local residents.
+    Identify keywords that people search for when looking for events. Identify surging keywords.
     
     2.) Use the Tavily Search API tools {tavity_tools_str} to search for events. Make sure you look for events matching the topics from 1.). We are looking for highly searched events. Inspect the search results returned by the search API and open them as needed to obtain more information. Make sure you are including the most popular and searched for events.
     
