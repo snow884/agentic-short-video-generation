@@ -35,6 +35,31 @@ def check_events(events_list: list):
 
     res = ""
 
+    for event in events_list:
+        if set(event.keys()) != set(
+            [
+                "event_name",
+                "date",
+                "time",
+                "location_address",
+                "description",
+                "gps_longitude",
+                "gps_latitude",
+                "url",
+                "url_facebook",
+                "url_instagram",
+                "keywords",
+                "tiktok_hashtags",
+            ]
+        ):  # check that it's a dict and has the right keys
+            res = (
+                res
+                + f"Event {event.get('event_name', 'Unknown')} has missing or extra"
+                " fields. Please ensure all events have the correct fields"
+                f" {list(event.keys())}."
+            )
+            res = res + "\n"
+
     def validate_time(time_string, time_format):
         try:
             # Attempts to parse the string into a datetime object
