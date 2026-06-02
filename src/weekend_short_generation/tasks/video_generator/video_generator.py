@@ -97,6 +97,13 @@ def main(video_id):
         ):
             event = session.query(Events).filter(Events.id == segment.event_id).first()
 
+        if event is None:
+
+            print(
+                f"Warning: Event with ID {segment.event_id} not found for segment"
+                f" {segment.id}"
+            )
+        else:
             try:
                 date_obj = datetime.strptime(event.date, "%Y-%m-%d")
                 formatted_date_time = date_obj.strftime("%b %d")
