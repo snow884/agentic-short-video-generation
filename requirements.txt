@@ -30,3 +30,4 @@ moviepy
 prefect
 lxml
 openai-whisper
+google-search-results>=2.4.2

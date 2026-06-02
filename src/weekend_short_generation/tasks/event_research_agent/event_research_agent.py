@@ -157,7 +157,7 @@ def main(town_id=0, weekend_id=0):
 
     trends_wrapper = GoogleTrendsAPIWrapper()
     trends_tool = GoogleTrendsQueryRun(api_wrapper=trends_wrapper)
-    trends_tools_str = ", ".join([t.name for t in trends_tool.get_tools()])
+    trends_tools_str = "GoogleTrendsQueryRun"
 
     event_list = run_agent_sync(
         user_prompt_params={
