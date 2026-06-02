@@ -114,6 +114,15 @@ def check_events(events_list: list):
             )
             res = res + "\n"
 
+        if len(event["tiktok_hashtags"].split(",")) <= 1:
+            res = (
+                res
+                + f"Event {event['event_name']} is missing TikTok hashtags or you only"
+                " provided one hashtag. Please provide hashtags that are trending"
+                " for this event based on your research as a comma separated list."
+            )
+            res = res + "\n"
+
     if not res:
         res = "success"
 
