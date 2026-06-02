@@ -8,16 +8,18 @@
     - Look for events that are most popular, have most people visiting them and are most searched for online. 
     - Look for events targeting young people between 15 and 30 years old.
     - Do not include concerts 
-    - Include Music Festivals, Adult pool parties, bash parties, Pop-up & Immersive Experiences, Gaming & Pop Culture Conventions, Food Truck & Night Markets, Social & Active Recreation:
+    - Include Festivals, Adult pool parties, bash parties, Pop-up & Immersive Experiences, Gaming & Pop Culture Conventions, Anime & Cosplay events, Food Truck & Night Markets, Social & Active Recreation:
 
     Steps:
-    1.) Use the Tavily Search API tools {tavity_tools_str} to search for events. Inspect the search results returned by the search API and open them as needed to obtain more information. Make sure you are including the most popular and searched for events.
+    1.) Use the Google Trends API tools {trends_tools_str} to identify the event topics that are most popular or currently surging in popularity in the city provided by the user.
     
-    2.) Open the URLs of the search results using the internet browser tools {browser_tools_str} to find more events. If you encounter a popup close it and continue with your research. If you encounter a captcha, continue with your research. Do not stop or wait for the captcha to be solved, just continue with other research.
+    2.) Use the Tavily Search API tools {tavity_tools_str} to search for events. Inspect the search results returned by the search API and open them as needed to obtain more information. Make sure you are including the most popular and searched for events.
+    
+    3.) Open the URLs of the search results using the internet browser tools {browser_tools_str} to find more events. If you encounter a popup close it and continue with your research. If you encounter a captcha, continue with your research. Do not stop or wait for the captcha to be solved, just continue with other research.
     - If you encounter a popup close it and continue with your research.
     - If you encounter a captcha, continue with your research. Do not stop or wait for the captcha to be solved, just continue with other research.
 
-    3.) Collect the event information. The event information should include the following keys: 
+    4.) Collect the event information. The event information should include the following keys: 
     - event_name - the name of the event
     - date - the date of the event in the format YYYY-MM-DD
     - time - the time of the event in the format HH:MM . If the exact time is not available, use approximate time.
@@ -25,6 +27,6 @@
     - description - a long description of the event - include: Intended audience, activities, schedule, artists performing, products sold, ticket price, whether is indoor or outdoor and any other relevant information. 
     - url - the URL where the event information was found. 
 
-    4.) Return the answer in pure JSON format. Matching the exact output JSON output format including the json nesting. 
+    5.) Return the answer in pure JSON format. Matching the exact output JSON output format including the json nesting. 
     - Do not add any text or reasoning before or after the JSON output. Only return the JSON structure containing the events as your answer. Do not include any explanations or reasoning in the final answer, only return the JSON. 
     

@@ -1,3 +1,4 @@
+import os
 import re
 from datetime import datetime
 from pathlib import Path
@@ -8,6 +9,11 @@ from prefect.logging import get_run_logger
 from research_agent import run_agent_sync
 from sql_utils import get_db
 from tables import EventList, Events, Towns, Weekends
+
+os.environ["SERPAPI_API_KEY"] = os.getenv("SERPAPI_API_KEY", "your_serpapi_key_here")
+
+from langchain_community.tools.google_trends.tool import GoogleTrendsQueryRun
+from langchain_community.utilities.google_trends import GoogleTrendsAPIWrapper
 
 
 def check_events(events_list: list):
@@ -149,16 +155,20 @@ def main(town_id=0, weekend_id=0):
     w = session.query(Weekends).filter(Weekends.id == weekend_id).first()
     t = session.query(Towns).filter(Towns.id == town_id).first()
 
+    trends_wrapper = GoogleTrendsAPIWrapper()
+    trends_tool = GoogleTrendsQueryRun(api_wrapper=trends_wrapper)
+    trends_tools_str = ", ".join([t.name for t in trends_tool.get_tools()])
+
     event_list = run_agent_sync(
         user_prompt_params={
             "town_name": t.name,
             "town_state": t.state,
             "weekend_date": w.date,
         },
-        system_prompt_params={"num_events": 5},
+        system_prompt_params={"num_events": 5, "trends_tools_str": trends_tools_str},
         ReturnClass=EventList,
         prompt_dir=Path(__file__).parent.resolve(),
-        extra_tools=[check_events],
+        extra_tools=[check_events, trends_tool],
     )
     event_id_list = populate_db_with_events(
         event_list, town_id=town_id, weekend_id=weekend_id
