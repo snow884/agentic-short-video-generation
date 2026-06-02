@@ -67,6 +67,57 @@ def populate_towns():
 18,San Francisco,CA,0,0.0%
 19,Houston,TX,0,0.0%
 20,Philadelphia,PA,0,0.0%
+
+21, New York, NY,0,0.0%
+22, Los Angeles, CA,0,0.0%
+23, Chicago, IL,0,0.0%
+24, Houston, TX,0,0.0%
+25, Phoenix, AZ,0,0.0%
+26, Philadelphia, PA,0,0.0%
+27, San Antonio, TX,0,0.0%
+28, San Diego, CA,0,0.0%
+29, Dallas, TX,0,0.0%
+30, Austin, TX,0,0.0%
+31, Jacksonville, FL,0,0.0%
+32, San Jose, CA,0,0.0%
+33, Fort Worth, TX,0,0.0%
+34, Columbus, OH,0,0.0%
+35, Charlotte, NC,0,0.0%
+36, Indianapolis, IN,0,0.0%
+37, San Francisco, CA,0,0.0%
+38, Seattle, WA,0,0.0%
+39, Denver, CO,0,0.0%
+40, Washington, DC,0,0.0%
+41, Boston, MA,0,0.0%
+42, El Paso, TX,0,0.0%
+43, Nashville, TN,0,0.0%
+44, Oklahoma City, OK,0,0.0%
+45, Las Vegas, NV,0,0.0%
+46, Detroit, MI,0,0.0%
+47, Portland, OR,0,0.0%
+48, Memphis, TN,0,0.0%
+49, Louisville, KY,0,0.0%
+50, Milwaukee, WI,0,0.0%
+51, Baltimore, MD,0,0.0%
+52, Albuquerque, NM,0,0.0%
+53, Tucson, AZ,0,0.0%
+54, Fresno, CA,0,0.0%
+55, Sacramento, CA,0,0.0%
+56, Kansas City, MO,0,0.0%
+57, Mesa, AZ,0,0.0%
+58, Atlanta, GA,0,0.0%
+59, Omaha, NE,0,0.0%
+60, Colorado Springs, CO,0,0.0%
+61, Raleigh, NC,0,0.0%
+62, Virginia Beach, VA,0,0.0%
+63, Long Beach, CA,0,0.0%
+64, Miami, FL,0,0.0%
+65, Oakland, CA,0,0.0%
+66, Minneapolis, MN,0,0.0%
+67, Tulsa, OK,0,0.0%
+68, Bakersfield, CA,0,0.0%
+69, Wichita, KS,0,0.0%
+70, Arlington, TX,0,0.0%
 """
 
     raw_data_lines = raw_data.strip().split("\n")[1:]  # Skip header line
