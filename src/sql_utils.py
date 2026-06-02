@@ -67,17 +67,9 @@ def populate_towns():
 18,San Francisco,CA,0,0.0%
 19,Houston,TX,0,0.0%
 20,Philadelphia,PA,0,0.0%
-
-21, New York, NY,0,0.0%
-22, Los Angeles, CA,0,0.0%
 23, Chicago, IL,0,0.0%
 24, Houston, TX,0,0.0%
-25, Phoenix, AZ,0,0.0%
-26, Philadelphia, PA,0,0.0%
 27, San Antonio, TX,0,0.0%
-28, San Diego, CA,0,0.0%
-29, Dallas, TX,0,0.0%
-30, Austin, TX,0,0.0%
 31, Jacksonville, FL,0,0.0%
 32, San Jose, CA,0,0.0%
 33, Fort Worth, TX,0,0.0%
