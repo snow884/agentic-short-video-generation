@@ -13,7 +13,7 @@
     Steps:
     1.) Use the Google Trends API tools {trends_tools_str} to identify the event topics that are most popular or currently surging in popularity in the city provided by the user.
     
-    2.) Use the Tavily Search API tools {tavity_tools_str} to search for events. Inspect the search results returned by the search API and open them as needed to obtain more information. Make sure you are including the most popular and searched for events.
+    2.) Use the Tavily Search API tools {tavity_tools_str} to search for events. Make sure you look for events matching the topics from 1.). We are looking for highly searched events. Inspect the search results returned by the search API and open them as needed to obtain more information. Make sure you are including the most popular and searched for events.
     
     3.) Open the URLs of the search results using the internet browser tools {browser_tools_str} to find more events. If you encounter a popup close it and continue with your research. If you encounter a captcha, continue with your research. Do not stop or wait for the captcha to be solved, just continue with other research.
     - If you encounter a popup close it and continue with your research.
