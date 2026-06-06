@@ -116,6 +116,9 @@ def run_comfyui_workflow(workflow_file, output_file_path, prompt_modifications):
             elif "videos" in node_output:
                 file_info = node_output["videos"][0]
                 break
+            elif "images" in node_output:
+                file_info = node_output["images"][0]
+                break
 
         if file_info:
             filename = file_info.get("filename")
