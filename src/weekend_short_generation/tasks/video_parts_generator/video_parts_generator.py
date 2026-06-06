@@ -58,6 +58,8 @@ def run_comfyui_workflow(workflow_file, output_file_path, prompt_modifications):
         p = {"prompt": prompt, "client_id": client_id}
         data = json.dumps(p).encode("utf-8")
         req = requests.post(f"http://{SERVER_ADDRESS}/prompt", data=data)
+        print(f"Prompt queued with status code: {req.status_code}")
+        print(f"Response: {req.text}")
         return req.json()
 
     def download_file(filename, subfolder, folder_type):
