@@ -26,14 +26,16 @@ import websocket  # pip install websocket-client
 # Configuration
 SERVER_ADDRESS = "localhost:8188"
 CLIENT_ID = str(uuid.uuid4())
-WORKFLOW_FILE = "wan2_2_t2v_lightx2v_lora_distorch.json"
 OUTPUT_VIDEO_PATH = "generated_video.mp4"
 
 
-def run_comfyui_workflow(output_file_path, prompt_modifications):
+def run_comfyui_workflow(workflow_file, output_file_path, prompt_modifications):
 
     # 1. Load the exported API JSON
-    with open(WORKFLOW_FILE, "r", encoding="utf-8") as f:
+    current_dir = Path(__file__).resolve().parent
+    with open(
+        current_dir / "workflow_files" / workflow_file, "r", encoding="utf-8"
+    ) as f:
         prompt_workflow = json.load(f)
 
     for node in prompt_workflow.get("nodes", []):

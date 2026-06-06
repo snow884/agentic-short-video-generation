@@ -1,23 +1,26 @@
-import tasks.event_research_agent.event_research_agent as event_research_agent
+from pathlib import Path
 
-from tables import Base
-from sqlalchemy import create_engine
+from weekend_short_generation.tasks.video_parts_generator.video_parts_generator import (
+    run_comfyui_workflow,
+)
 
-from sql_utils import populate_towns, populate_weekends
+if __name__ == "__main__":
 
-from dotenv import load_dotenv
+    workflow_file = "wan2_2_t2v_lightx2v_lora_distorch.json"
 
-engine = create_engine('sqlite:///data/local.db', echo=False) # echo=True shows SQL logs
+    prompt_modifications = {
+        "prompt": (
+            "A bustling city street during a vibrant festival, with colorful"
+            " decorations, lively crowds, and a festive atmosphere. The scene is filled"
+            " with energy and excitement, capturing the essence of a joyful celebration"
+            " in an urban setting."
+        ),
+        "negative_prompt": (
+            "blurry, low quality, distorted, deformed, bad anatomy, disfigured, poorly"
+            " drawn face, mutation, mutated, extra limbs, ugly"
+        ),
+    }
 
-load_dotenv()
+    output_file_path = Path(__file__).parent.resolve() / "test_output_video.mp4"
 
-def create_tables():
-        
-    Base.metadata.create_all(engine) 
-
-create_tables()
-populate_weekends()
-populate_towns()
-
-event_research_agent.main(town_id=1, weekend_id=1)
-
+    run_comfyui_workflow(workflow_file, output_file_path, prompt_modifications)
