@@ -40,18 +40,18 @@ def run_comfyui_workflow(workflow_file, output_file_path, prompt_modifications):
     ) as f:
         prompt_workflow = json.load(f)
 
-    for node in prompt_workflow.get("nodes", []):
+    # for node in prompt_workflow.get("nodes", []):
 
-        if node.get("title") == "Positive Prompt":
-            # Assuming the prompt is in the "inputs" under "text"
-            if "inputs" in node and "text" in node["inputs"]:
-                original_prompt = node["inputs"]["text"]
-                modified_prompt = prompt_modifications.get(node["id"], original_prompt)
-                node["inputs"]["text"] = modified_prompt
-                print(
-                    f"Modified Node ID {node['id']} prompt from: '{original_prompt}'"
-                    f" to: '{modified_prompt}'"
-                )
+    #     if node.get("title") == "Positive Prompt":
+    #         # Assuming the prompt is in the "inputs" under "text"
+    #         if "inputs" in node and "text" in node["inputs"]:
+    #             original_prompt = node["inputs"]["text"]
+    #             modified_prompt = prompt_modifications.get(node["id"], original_prompt)
+    #             node["inputs"]["text"] = modified_prompt
+    #             print(
+    #                 f"Modified Node ID {node['id']} prompt from: '{original_prompt}'"
+    #                 f" to: '{modified_prompt}'"
+    #             )
 
     def queue_prompt(prompt, client_id):
         """Sends the workflow JSON payload to the ComfyUI queue."""
