@@ -1,0 +1,238 @@
+{
+  "3": {
+    "inputs": {
+      "text": "A medium shot of a tall man in a bustling city park, holding a large, steaming hotdog with mustard. Suddenly, a very short, devilish-looking, mischievous red fairytail goblin darts into the frame, leaps up slightly, and steals a massive, hilarious bite right out of the hotdog leaving a large bitmark. Cinematic lighting, photorealistic, 4k resolution, highly detailed expressions, natural camera movement, fantasy and fairytail atmosphere.",
+      "clip": [
+        "29",
+        1
+      ]
+    },
+    "class_type": "CLIPTextEncode",
+    "_meta": {
+      "title": "Positive Prompt"
+    }
+  },
+  "4": {
+    "inputs": {
+      "text": "Static, person not moving, static scene, blurred, deformed hands, extra fingers, low quality, CGI look, cartoon, anime, static background, bad anatomy, slow motion, serious tone, dark lighting, watermark, text, signature.",
+      "clip": [
+        "29",
+        1
+      ]
+    },
+    "class_type": "CLIPTextEncode",
+    "_meta": {
+      "title": "Negative Prompt"
+    }
+  },
+  "5": {
+    "inputs": {
+      "width": 768,
+      "height": 768,
+      "length": 81,
+      "batch_size": 1
+    },
+    "class_type": "EmptyHunyuanLatentVideo",
+    "_meta": {
+      "title": "Empty HunyuanVideo 1.0 Latent"
+    }
+  },
+  "9": {
+    "inputs": {
+      "samples": [
+        "36",
+        0
+      ],
+      "vae": [
+        "55",
+        0
+      ]
+    },
+    "class_type": "VAEDecode",
+    "_meta": {
+      "title": "VAE Decode"
+    }
+  },
+  "29": {
+    "inputs": {
+      "lora_name": "Wan2.2-T2V-A14B-4steps-lora-rank64-Seko-V1.1/Wan2.2-T2V-A14B-4steps-lora-rank64-Seko-V1.1/high_noise_model.safetensors",
+      "strength_model": 1,
+      "strength_clip": 1,
+      "model": [
+        "50",
+        0
+      ],
+      "clip": [
+        "51",
+        0
+      ]
+    },
+    "class_type": "LoraLoader",
+    "_meta": {
+      "title": "Load LoRA (Model and CLIP)"
+    }
+  },
+  "35": {
+    "inputs": {
+      "add_noise": "enable",
+      "noise_seed": 360042181575913,
+      "steps": 8,
+      "cfg": 1,
+      "sampler_name": "euler",
+      "scheduler": "simple",
+      "start_at_step": 0,
+      "end_at_step": 4,
+      "return_with_leftover_noise": "disable",
+      "model": [
+        "29",
+        0
+      ],
+      "positive": [
+        "3",
+        0
+      ],
+      "negative": [
+        "4",
+        0
+      ],
+      "latent_image": [
+        "5",
+        0
+      ]
+    },
+    "class_type": "KSamplerAdvanced",
+    "_meta": {
+      "title": "KSampler (Advanced)"
+    }
+  },
+  "36": {
+    "inputs": {
+      "add_noise": "enable",
+      "noise_seed": 951526363528820,
+      "steps": 8,
+      "cfg": 1,
+      "sampler_name": "euler",
+      "scheduler": "simple",
+      "start_at_step": 4,
+      "end_at_step": 8,
+      "return_with_leftover_noise": "disable",
+      "model": [
+        "44",
+        0
+      ],
+      "positive": [
+        "3",
+        0
+      ],
+      "negative": [
+        "4",
+        0
+      ],
+      "latent_image": [
+        "35",
+        0
+      ]
+    },
+    "class_type": "KSamplerAdvanced",
+    "_meta": {
+      "title": "KSampler (Advanced)"
+    }
+  },
+  "44": {
+    "inputs": {
+      "lora_name": "Wan2.2-T2V-A14B-4steps-lora-rank64-Seko-V1.1/Wan2.2-T2V-A14B-4steps-lora-rank64-Seko-V1.1/low_noise_model.safetensors",
+      "strength_model": 1,
+      "model": [
+        "52",
+        0
+      ]
+    },
+    "class_type": "LoraLoaderModelOnly",
+    "_meta": {
+      "title": "Load LoRA"
+    }
+  },
+  "50": {
+    "inputs": {
+      "unet_name": "split_files/diffusion_models/wan2.2_t2v_high_noise_14B_fp8_scaled.safetensors",
+      "weight_dtype": "default",
+      "compute_device": "cuda:0",
+      "virtual_vram_gb": 24,
+      "donor_device": "cuda:1",
+      "expert_mode_allocations": "",
+      "eject_models": true
+    },
+    "class_type": "UNETLoaderDisTorch2MultiGPU",
+    "_meta": {
+      "title": "UNETLoaderDisTorch2MultiGPU"
+    }
+  },
+  "51": {
+    "inputs": {
+      "clip_name": "split_files/text_encoders/umt5_xxl_fp8_e4m3fn_scaled.safetensors",
+      "type": "wan",
+      "device": "cuda:0"
+    },
+    "class_type": "CLIPLoaderMultiGPU",
+    "_meta": {
+      "title": "CLIPLoaderMultiGPU"
+    }
+  },
+  "52": {
+    "inputs": {
+      "unet_name": "split_files/diffusion_models/wan2.2_t2v_low_noise_14B_fp8_scaled.safetensors",
+      "weight_dtype": "default",
+      "compute_device": "cuda:0",
+      "virtual_vram_gb": 24,
+      "donor_device": "cuda:1",
+      "expert_mode_allocations": "",
+      "eject_models": true
+    },
+    "class_type": "UNETLoaderDisTorch2MultiGPU",
+    "_meta": {
+      "title": "UNETLoaderDisTorch2MultiGPU"
+    }
+  },
+  "55": {
+    "inputs": {
+      "vae_name": "wan_2.1_vae.safetensors/wan_2.1_vae.safetensors",
+      "compute_device": "cuda:0",
+      "virtual_vram_gb": 4,
+      "donor_device": "cpu",
+      "expert_mode_allocations": "",
+      "eject_models": true
+    },
+    "class_type": "VAELoaderDisTorch2MultiGPU",
+    "_meta": {
+      "title": "VAELoaderDisTorch2MultiGPU"
+    }
+  },
+  "61": {
+    "inputs": {
+      "filename_prefix": "video/ComfyUI",
+      "format": "mp4",
+      "codec": "h264",
+      "video": [
+        "62",
+        0
+      ]
+    },
+    "class_type": "SaveVideo",
+    "_meta": {
+      "title": "Save Video"
+    }
+  },
+  "62": {
+    "inputs": {
+      "fps": 16,
+      "images": [
+        "9",
+        0
+      ]
+    },
+    "class_type": "CreateVideo",
+    "_meta": {
+      "title": "Create Video"
+    }
+  }
+}
