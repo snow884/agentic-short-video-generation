@@ -1,0 +1,1547 @@
+{
+  "id": "f16653a0-d880-484c-9bc8-e8357b23dd99",
+  "revision": 0,
+  "last_node_id": 121,
+  "last_link_id": 239,
+  "nodes": [
+    {
+      "id": 58,
+      "type": "FloatGetIdentityReferenceVA",
+      "pos": [
+        1170,
+        1190
+      ],
+      "size": [
+        267.91953125,
+        46
+      ],
+      "flags": {},
+      "order": 16,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "r_s_lambda_latent",
+          "type": "TORCH_TENSOR",
+          "link": 197
+        },
+        {
+          "name": "float_synthesis",
+          "type": "FLOAT_SYNTHESIS_MODEL",
+          "link": 113
+        }
+      ],
+      "outputs": [
+        {
+          "name": "float_synthesis_out",
+          "type": "FLOAT_SYNTHESIS_MODEL",
+          "links": [
+            188
+          ]
+        },
+        {
+          "name": "r_s_latent (Wr→s)",
+          "type": "TORCH_TENSOR",
+          "links": [
+            215
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "FloatGetIdentityReferenceVA",
+        "aux_id": "set-soft/ComfyUI-FLOAT",
+        "ver": "6f4b3c5954ef4dbb69a1c40ea0e645103e4fe15c",
+        "widget_ue_connectable": {}
+      },
+      "widgets_values": [],
+      "color": "#2a363b",
+      "bgcolor": "#3f5159"
+    },
+    {
+      "id": 81,
+      "type": "FloatImageFaceAlign",
+      "pos": [
+        550,
+        950
+      ],
+      "size": [
+        270,
+        174
+      ],
+      "flags": {},
+      "order": 10,
+      "mode": 4,
+      "inputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "link": 174
+        },
+        {
+          "name": "size",
+          "shape": 7,
+          "type": "INT",
+          "widget": {
+            "name": "size"
+          },
+          "link": 183
+        }
+      ],
+      "outputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "links": [
+            175,
+            191
+          ]
+        },
+        {
+          "name": "bboxes",
+          "type": "BBOX",
+          "links": null
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "FloatImageFaceAlign",
+        "aux_id": "set-soft/ComfyUI-FLOAT",
+        "ver": "cd98751e337e7ad09488b7a1af6f8d298ccdd12f",
+        "widget_ue_connectable": {}
+      },
+      "widgets_values": [
+        1.6,
+        "blend_with_color",
+        "#000000",
+        512,
+        1
+      ],
+      "color": "#2a363b",
+      "bgcolor": "#3f5159"
+    },
+    {
+      "id": 53,
+      "type": "LoadFloatEncoderModel",
+      "pos": [
+        270,
+        1110
+      ],
+      "size": [
+        270,
+        166
+      ],
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "inferred_input_size",
+          "type": "INT",
+          "links": [
+            183
+          ]
+        },
+        {
+          "name": "dim_w",
+          "type": "INT",
+          "links": []
+        },
+        {
+          "name": "dim_m",
+          "type": "INT",
+          "links": []
+        },
+        {
+          "name": "float_encoder",
+          "type": "FLOAT_ENCODER_MODEL",
+          "links": [
+            192
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "LoadFloatEncoderModel",
+        "aux_id": "set-soft/ComfyUI-FLOAT",
+        "ver": "6f4b3c5954ef4dbb69a1c40ea0e645103e4fe15c",
+        "widget_ue_connectable": {
+          "encoder_file": true,
+          "target_device": true,
+          "cudnn_benchmark": true
+        }
+      },
+      "widgets_values": [
+        "encoder.safetensors",
+        "cuda",
+        false
+      ],
+      "color": "#2a363b",
+      "bgcolor": "#3f5159"
+    },
+    {
+      "id": 35,
+      "type": "LoadAudioProjectionLayer",
+      "pos": [
+        1160,
+        1350
+      ],
+      "size": [
+        300,
+        130
+      ],
+      "flags": {
+        "collapsed": false
+      },
+      "order": 1,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "projection_layer",
+          "type": "AUDIO_PROJECTION_LAYER",
+          "links": [
+            61
+          ]
+        },
+        {
+          "name": "inferred_input_dim",
+          "type": "INT",
+          "links": null
+        },
+        {
+          "name": "dim_a",
+          "type": "INT",
+          "links": []
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "LoadAudioProjectionLayer",
+        "aux_id": "set-soft/ComfyUI-FLOAT",
+        "ver": "002ed938d83c893aa7646ac933776dadfa84ac33",
+        "widget_ue_connectable": {
+          "projection_file": true,
+          "target_device": true
+        }
+      },
+      "widgets_values": [
+        "projection.safetensors",
+        "cuda"
+      ],
+      "color": "#2a363b",
+      "bgcolor": "#3f5159"
+    },
+    {
+      "id": 36,
+      "type": "FloatApplyAudioProjection",
+      "pos": [
+        1560,
+        1390
+      ],
+      "size": [
+        270.7291015625,
+        50
+      ],
+      "flags": {},
+      "order": 14,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "wav2vec_features",
+          "type": "TORCH_TENSOR",
+          "link": 164
+        },
+        {
+          "name": "projection_layer",
+          "type": "AUDIO_PROJECTION_LAYER",
+          "link": 61
+        }
+      ],
+      "outputs": [
+        {
+          "name": "wa_latent",
+          "type": "TORCH_TENSOR",
+          "links": [
+            216
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "FloatApplyAudioProjection",
+        "aux_id": "set-soft/ComfyUI-FLOAT",
+        "ver": "002ed938d83c893aa7646ac933776dadfa84ac33",
+        "widget_ue_connectable": {}
+      },
+      "widgets_values": [],
+      "color": "#2a363b",
+      "bgcolor": "#3f5159"
+    },
+    {
+      "id": 88,
+      "type": "ApplyFloatSynthesis",
+      "pos": [
+        2230,
+        1120
+      ],
+      "size": [
+        251.203125,
+        70
+      ],
+      "flags": {},
+      "order": 18,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "appearance_pipe",
+          "type": "FLOAT_APPEARANCE_PIPE",
+          "link": 198
+        },
+        {
+          "name": "float_synthesis",
+          "type": "FLOAT_SYNTHESIS_MODEL",
+          "link": 188
+        },
+        {
+          "name": "r_d_latents",
+          "type": "TORCH_TENSOR",
+          "link": 220
+        }
+      ],
+      "outputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "links": [
+            190
+          ]
+        },
+        {
+          "name": "float_synthesis_out",
+          "type": "FLOAT_SYNTHESIS_MODEL",
+          "links": null
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "ApplyFloatSynthesis",
+        "aux_id": "set-soft/ComfyUI-FLOAT",
+        "ver": "5787c6d5d82668b7c978f32f71e8731c5eaa0d8b",
+        "widget_ue_connectable": {}
+      },
+      "widgets_values": [],
+      "color": "#2a363b",
+      "bgcolor": "#3f5159"
+    },
+    {
+      "id": 80,
+      "type": "LoadWav2VecModel",
+      "pos": [
+        240,
+        1720
+      ],
+      "size": [
+        357.2447265625,
+        102
+      ],
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "sampling_rate",
+          "type": "INT",
+          "links": [
+            172
+          ]
+        },
+        {
+          "name": "wav2vec_pipe",
+          "type": "WAV2VEC_PIPE",
+          "links": [
+            173
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "LoadWav2VecModel",
+        "aux_id": "set-soft/ComfyUI-FLOAT",
+        "ver": "cd98751e337e7ad09488b7a1af6f8d298ccdd12f",
+        "widget_ue_connectable": {}
+      },
+      "widgets_values": [
+        "wav2vec2-base-960h",
+        "cuda"
+      ],
+      "color": "#2a363b",
+      "bgcolor": "#3f5159"
+    },
+    {
+      "id": 55,
+      "type": "LoadFloatSynthesisModel",
+      "pos": [
+        790,
+        1280
+      ],
+      "size": [
+        310,
+        214
+      ],
+      "flags": {},
+      "order": 3,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "advanced_float_options",
+          "shape": 7,
+          "type": "ADV_FLOAT_DICT",
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "name": "float_synthesis",
+          "type": "FLOAT_SYNTHESIS_MODEL",
+          "links": [
+            113
+          ]
+        },
+        {
+          "name": "inferred_size",
+          "type": "INT",
+          "links": null
+        },
+        {
+          "name": "inferred_style_dim",
+          "type": "INT",
+          "links": null
+        },
+        {
+          "name": "inferred_motion_dim",
+          "type": "INT",
+          "links": null
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "LoadFloatSynthesisModel",
+        "aux_id": "set-soft/ComfyUI-FLOAT",
+        "ver": "6f4b3c5954ef4dbb69a1c40ea0e645103e4fe15c",
+        "widget_ue_connectable": {
+          "synthesis_file": true,
+          "target_device": true,
+          "channel_multiplier": true,
+          "blur_kernel_str": true,
+          "cudnn_benchmark": true
+        }
+      },
+      "widgets_values": [
+        "decoder.safetensors",
+        "cuda",
+        1,
+        "[1, 3, 3, 1]",
+        false
+      ],
+      "color": "#2a363b",
+      "bgcolor": "#3f5159"
+    },
+    {
+      "id": 89,
+      "type": "ApplyFloatEncoder",
+      "pos": [
+        850,
+        1110
+      ],
+      "size": [
+        267.15234375,
+        86
+      ],
+      "flags": {},
+      "order": 13,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "ref_image",
+          "type": "IMAGE",
+          "link": 191
+        },
+        {
+          "name": "float_encoder",
+          "type": "FLOAT_ENCODER_MODEL",
+          "link": 192
+        }
+      ],
+      "outputs": [
+        {
+          "name": "appearance_pipe (Ws→r)",
+          "type": "FLOAT_APPEARANCE_PIPE",
+          "links": [
+            198
+          ]
+        },
+        {
+          "name": "r_s_lambda_latent",
+          "type": "TORCH_TENSOR",
+          "links": [
+            197
+          ]
+        },
+        {
+          "name": "float_encoder_out",
+          "type": "FLOAT_ENCODER_MODEL",
+          "links": null
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "ApplyFloatEncoder",
+        "aux_id": "set-soft/ComfyUI-FLOAT",
+        "ver": "5787c6d5d82668b7c978f32f71e8731c5eaa0d8b",
+        "widget_ue_connectable": {}
+      },
+      "widgets_values": [],
+      "color": "#2a363b",
+      "bgcolor": "#3f5159"
+    },
+    {
+      "id": 78,
+      "type": "LoadFMTModel",
+      "pos": [
+        1330,
+        1830
+      ],
+      "size": [
+        288.4283142089844,
+        310
+      ],
+      "flags": {},
+      "order": 8,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "dim_e",
+          "type": "INT",
+          "widget": {
+            "name": "dim_e"
+          },
+          "link": 166
+        },
+        {
+          "name": "fps",
+          "type": "FLOAT",
+          "widget": {
+            "name": "fps"
+          },
+          "link": 167
+        }
+      ],
+      "outputs": [
+        {
+          "name": "float_fmt_model",
+          "type": "FLOAT_FMT_MODEL",
+          "links": [
+            219
+          ]
+        },
+        {
+          "name": "fps",
+          "type": "FLOAT",
+          "links": [
+            171
+          ]
+        },
+        {
+          "name": "fmt_options_out",
+          "type": "ADV_FLOAT_DICT",
+          "links": []
+        },
+        {
+          "name": "conditioning_chunk_size",
+          "type": "INT",
+          "links": null
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "LoadFMTModel",
+        "aux_id": "set-soft/ComfyUI-FLOAT",
+        "ver": "946cba9c08d2ece9be39f6af8925b29ef9ddaddc",
+        "widget_ue_connectable": {
+          "fmt_file": true,
+          "target_device": true,
+          "cudnn_benchmark": true,
+          "dim_e": true,
+          "num_heads": true,
+          "attention_window": true,
+          "num_prev_frames": true,
+          "fps": true,
+          "wav2vec_sec": true
+        }
+      },
+      "widgets_values": [
+        "fmt.safetensors",
+        "cuda",
+        false,
+        7,
+        8,
+        2,
+        10,
+        25,
+        2
+      ],
+      "color": "#2a363b",
+      "bgcolor": "#3f5159"
+    },
+    {
+      "id": 34,
+      "type": "SET_AudioChannelConvResampler",
+      "pos": [
+        600,
+        1550
+      ],
+      "size": [
+        277.54453125,
+        154
+      ],
+      "flags": {},
+      "order": 9,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "audio",
+          "type": "AUDIO",
+          "link": 57
+        },
+        {
+          "name": "target_sample_rate",
+          "type": "INT",
+          "widget": {
+            "name": "target_sample_rate"
+          },
+          "link": 172
+        }
+      ],
+      "outputs": [
+        {
+          "name": "audio_out",
+          "type": "AUDIO",
+          "links": [
+            158
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "SET_AudioChannelConvResampler",
+        "cnr_id": "audio-batch",
+        "ver": "1.0.0",
+        "widget_ue_connectable": {
+          "channel_conversion": true,
+          "target_sample_rate": true
+        }
+      },
+      "widgets_values": [
+        "force_mono",
+        16000,
+        "standard_gain",
+        2048,
+        512
+      ],
+      "color": "#223",
+      "bgcolor": "#335"
+    },
+    {
+      "id": 67,
+      "type": "PrimitiveFloat",
+      "pos": [
+        610,
+        1950
+      ],
+      "size": [
+        270,
+        58
+      ],
+      "flags": {},
+      "order": 4,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "FLOAT",
+          "type": "FLOAT",
+          "links": [
+            160,
+            167
+          ]
+        }
+      ],
+      "title": "FPS",
+      "properties": {
+        "Node name for S&R": "PrimitiveFloat",
+        "cnr_id": "comfy-core",
+        "ver": "0.3.34",
+        "widget_ue_connectable": {
+          "value": true
+        }
+      },
+      "widgets_values": [
+        25
+      ],
+      "color": "#2a363b",
+      "bgcolor": "#3f5159"
+    },
+    {
+      "id": 117,
+      "type": "FloatExtractEmotionWithCustomModelDyn",
+      "pos": [
+        1385.8604736328125,
+        1622.521728515625
+      ],
+      "size": [
+        302.947265625,
+        122
+      ],
+      "flags": {},
+      "order": 15,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "audio",
+          "type": "AUDIO",
+          "link": 237
+        },
+        {
+          "name": "emotion_model_pipe",
+          "type": "EMOTION_MODEL_PIPE",
+          "link": 225
+        },
+        {
+          "name": "target_fps",
+          "type": "FLOAT",
+          "widget": {
+            "name": "target_fps"
+          },
+          "link": 238
+        }
+      ],
+      "outputs": [
+        {
+          "name": "we_latent_dynamic",
+          "type": "TORCH_TENSOR",
+          "links": [
+            235
+          ]
+        },
+        {
+          "name": "emotion_model_pipe_out",
+          "type": "EMOTION_MODEL_PIPE",
+          "links": null
+        },
+        {
+          "name": "emotion_sequence",
+          "type": "TORCH_TENSOR",
+          "links": []
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "FloatExtractEmotionWithCustomModelDyn",
+        "aux_id": "set-soft/ComfyUI-FLOAT",
+        "ver": "9323bfd61ad006017bbfcbd81ef71836385b0fad",
+        "widget_ue_connectable": {}
+      },
+      "widgets_values": [
+        25,
+        2
+      ],
+      "color": "#2a363b",
+      "bgcolor": "#3f5159"
+    },
+    {
+      "id": 44,
+      "type": "LoadEmotionRecognitionModel",
+      "pos": [
+        940,
+        1820
+      ],
+      "size": [
+        320,
+        102
+      ],
+      "flags": {
+        "collapsed": false
+      },
+      "order": 5,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "emotion_model_pipe",
+          "type": "EMOTION_MODEL_PIPE",
+          "links": [
+            225
+          ]
+        },
+        {
+          "name": "dim_e",
+          "type": "INT",
+          "links": [
+            166
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "LoadEmotionRecognitionModel",
+        "aux_id": "set-soft/ComfyUI-FLOAT",
+        "ver": "1734e37ec582b76a97f2a394fdef78dd654b2aea",
+        "widget_ue_connectable": {
+          "model_folder": true,
+          "target_device": true
+        }
+      },
+      "widgets_values": [
+        "wav2vec-english-speech-emotion-recognition",
+        "cuda"
+      ],
+      "color": "#2a363b",
+      "bgcolor": "#3f5159"
+    },
+    {
+      "id": 76,
+      "type": "FloatAudioPreprocessAndFeatureExtract",
+      "pos": [
+        970.5007934570312,
+        1565.1697998046875
+      ],
+      "size": [
+        274.845703125,
+        182
+      ],
+      "flags": {
+        "collapsed": false
+      },
+      "order": 11,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "audio",
+          "type": "AUDIO",
+          "link": 158
+        },
+        {
+          "name": "wav2vec_pipe",
+          "type": "WAV2VEC_PIPE",
+          "link": 173
+        },
+        {
+          "name": "target_fps",
+          "type": "FLOAT",
+          "widget": {
+            "name": "target_fps"
+          },
+          "link": 160
+        }
+      ],
+      "outputs": [
+        {
+          "name": "wav2vec_features",
+          "type": "TORCH_TENSOR",
+          "links": [
+            164
+          ]
+        },
+        {
+          "name": "audio_num_frames",
+          "type": "INT",
+          "links": [
+            221
+          ]
+        },
+        {
+          "name": "processed_audio_features",
+          "type": "TORCH_TENSOR",
+          "links": []
+        },
+        {
+          "name": "wav2vec_pipe_out",
+          "type": "WAV2VEC_PIPE",
+          "links": null
+        },
+        {
+          "name": "audio",
+          "type": "AUDIO",
+          "links": [
+            237
+          ]
+        },
+        {
+          "name": "fps",
+          "type": "FLOAT",
+          "links": [
+            238
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "FloatAudioPreprocessAndFeatureExtract",
+        "aux_id": "set-soft/ComfyUI-FLOAT",
+        "ver": "ba5de66d7ccb70613c7efdfafb29f3443a27d998",
+        "widget_ue_connectable": {
+          "target_fps": true,
+          "only_last_features": true
+        }
+      },
+      "widgets_values": [
+        25,
+        false
+      ],
+      "color": "#2a363b",
+      "bgcolor": "#3f5159"
+    },
+    {
+      "id": 17,
+      "type": "LoadAudio",
+      "pos": [
+        -80,
+        1450
+      ],
+      "size": [
+        274.080078125,
+        136
+      ],
+      "flags": {},
+      "order": 6,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "AUDIO",
+          "type": "AUDIO",
+          "links": [
+            57,
+            106
+          ]
+        }
+      ],
+      "title": "Input audio to drive the image",
+      "properties": {
+        "Node name for S&R": "LoadAudio",
+        "cnr_id": "comfy-core",
+        "ver": "0.3.34",
+        "widget_ue_connectable": {}
+      },
+      "widgets_values": [
+        "event_0_segment_70d0a86f5602e4e62ee1d61e6668e228a89a379e2cbe8e42094bf2513745bb2e.wav",
+        null,
+        null
+      ],
+      "color": "#233",
+      "bgcolor": "#355"
+    },
+    {
+      "id": 82,
+      "type": "PreviewImage",
+      "pos": [
+        860,
+        800
+      ],
+      "size": [
+        210,
+        258
+      ],
+      "flags": {},
+      "order": 12,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 175
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "PreviewImage",
+        "cnr_id": "comfy-core",
+        "ver": "0.3.40",
+        "widget_ue_connectable": {}
+      },
+      "widgets_values": [],
+      "color": "#233",
+      "bgcolor": "#355"
+    },
+    {
+      "id": 1,
+      "type": "LoadImage",
+      "pos": [
+        -30,
+        970
+      ],
+      "size": [
+        274.080078125,
+        314.00006103515625
+      ],
+      "flags": {},
+      "order": 7,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            174
+          ]
+        },
+        {
+          "name": "MASK",
+          "type": "MASK",
+          "links": null
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "LoadImage",
+        "cnr_id": "comfy-core",
+        "ver": "0.3.34",
+        "widget_ue_connectable": {}
+      },
+      "widgets_values": [
+        "nice_scaled.jpg",
+        "image"
+      ],
+      "color": "#233",
+      "bgcolor": "#355"
+    },
+    {
+      "id": 57,
+      "type": "VHS_VideoCombine",
+      "pos": [
+        2540,
+        1190
+      ],
+      "size": [
+        270,
+        598
+      ],
+      "flags": {},
+      "order": 19,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 190
+        },
+        {
+          "name": "audio",
+          "shape": 7,
+          "type": "AUDIO",
+          "link": 106
+        },
+        {
+          "name": "meta_batch",
+          "shape": 7,
+          "type": "VHS_BatchManager",
+          "link": null
+        },
+        {
+          "name": "vae",
+          "shape": 7,
+          "type": "VAE",
+          "link": null
+        },
+        {
+          "name": "frame_rate",
+          "type": "FLOAT",
+          "widget": {
+            "name": "frame_rate"
+          },
+          "link": 171
+        }
+      ],
+      "outputs": [
+        {
+          "name": "Filenames",
+          "type": "VHS_FILENAMES",
+          "links": null
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "VHS_VideoCombine",
+        "cnr_id": "comfyui-videohelpersuite",
+        "ver": "4c7858ddd5126f7293dc3c9f6e0fc4c263cde079",
+        "widget_ue_connectable": {
+          "frame_rate": true
+        }
+      },
+      "widgets_values": {
+        "frame_rate": 30,
+        "loop_count": 0,
+        "filename_prefix": "AnimateDiff",
+        "format": "video/nvenc_h264-mp4",
+        "pix_fmt": "yuv420p",
+        "bitrate": 10,
+        "megabit": true,
+        "save_metadata": true,
+        "pingpong": false,
+        "save_output": true,
+        "videopreview": {
+          "hidden": false,
+          "paused": false,
+          "params": {
+            "filename": "AnimateDiff_00004-audio.mp4",
+            "subfolder": "",
+            "type": "output",
+            "format": "video/nvenc_h264-mp4",
+            "frame_rate": 25,
+            "workflow": "AnimateDiff_00004.png",
+            "fullpath": "/home/adaivasnky/comfy/ComfyUI/output/AnimateDiff_00004-audio.mp4"
+          }
+        }
+      },
+      "color": "#222",
+      "bgcolor": "#000"
+    },
+    {
+      "id": 114,
+      "type": "FloatSampleMotionSequenceRD_VA",
+      "pos": [
+        1880,
+        1350
+      ],
+      "size": [
+        319.0738220214844,
+        450
+      ],
+      "flags": {},
+      "order": 17,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "r_s_latent",
+          "type": "TORCH_TENSOR",
+          "link": 215
+        },
+        {
+          "name": "wa_latent",
+          "type": "TORCH_TENSOR",
+          "link": 216
+        },
+        {
+          "name": "audio_num_frames",
+          "type": "INT",
+          "link": 221
+        },
+        {
+          "name": "we_latent",
+          "type": "TORCH_TENSOR",
+          "link": 235
+        },
+        {
+          "name": "float_fmt_model",
+          "type": "FLOAT_FMT_MODEL",
+          "link": 219
+        }
+      ],
+      "outputs": [
+        {
+          "name": "r_d_latents (Wr→D)",
+          "type": "TORCH_TENSOR",
+          "links": [
+            220
+          ]
+        },
+        {
+          "name": "float_fmt_model_out",
+          "type": "FLOAT_FMT_MODEL",
+          "links": null
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "FloatSampleMotionSequenceRD_VA",
+        "aux_id": "set-soft/ComfyUI-FLOAT",
+        "ver": "e5945270df082102f672c20bf4a46cee936cc571",
+        "widget_ue_connectable": {}
+      },
+      "widgets_values": [
+        1,
+        1,
+        3,
+        false,
+        10,
+        "euler",
+        0.00001,
+        0.00001,
+        0.1,
+        0.1,
+        0.1,
+        15,
+        15,
+        "fixed"
+      ],
+      "color": "#2a363b",
+      "bgcolor": "#3f5159"
+    }
+  ],
+  "links": [
+    [
+      57,
+      17,
+      0,
+      34,
+      0,
+      "AUDIO"
+    ],
+    [
+      61,
+      35,
+      0,
+      36,
+      1,
+      "AUDIO_PROJECTION_LAYER"
+    ],
+    [
+      106,
+      17,
+      0,
+      57,
+      1,
+      "AUDIO"
+    ],
+    [
+      113,
+      55,
+      0,
+      58,
+      1,
+      "FLOAT_SYNTHESIS_MODEL"
+    ],
+    [
+      158,
+      34,
+      0,
+      76,
+      0,
+      "AUDIO"
+    ],
+    [
+      160,
+      67,
+      0,
+      76,
+      2,
+      "FLOAT"
+    ],
+    [
+      164,
+      76,
+      0,
+      36,
+      0,
+      "TORCH_TENSOR"
+    ],
+    [
+      166,
+      44,
+      1,
+      78,
+      0,
+      "INT"
+    ],
+    [
+      167,
+      67,
+      0,
+      78,
+      1,
+      "FLOAT"
+    ],
+    [
+      171,
+      78,
+      1,
+      57,
+      4,
+      "FLOAT"
+    ],
+    [
+      172,
+      80,
+      0,
+      34,
+      1,
+      "INT"
+    ],
+    [
+      173,
+      80,
+      1,
+      76,
+      1,
+      "WAV2VEC_PIPE"
+    ],
+    [
+      174,
+      1,
+      0,
+      81,
+      0,
+      "IMAGE"
+    ],
+    [
+      175,
+      81,
+      0,
+      82,
+      0,
+      "IMAGE"
+    ],
+    [
+      183,
+      53,
+      0,
+      81,
+      1,
+      "INT"
+    ],
+    [
+      188,
+      58,
+      0,
+      88,
+      1,
+      "FLOAT_SYNTHESIS_MODEL"
+    ],
+    [
+      190,
+      88,
+      0,
+      57,
+      0,
+      "IMAGE"
+    ],
+    [
+      191,
+      81,
+      0,
+      89,
+      0,
+      "IMAGE"
+    ],
+    [
+      192,
+      53,
+      3,
+      89,
+      1,
+      "FLOAT_ENCODER_MODEL"
+    ],
+    [
+      197,
+      89,
+      1,
+      58,
+      0,
+      "TORCH_TENSOR"
+    ],
+    [
+      198,
+      89,
+      0,
+      88,
+      0,
+      "FLOAT_APPEARANCE_PIPE"
+    ],
+    [
+      215,
+      58,
+      1,
+      114,
+      0,
+      "TORCH_TENSOR"
+    ],
+    [
+      216,
+      36,
+      0,
+      114,
+      1,
+      "TORCH_TENSOR"
+    ],
+    [
+      219,
+      78,
+      0,
+      114,
+      4,
+      "FLOAT_FMT_MODEL"
+    ],
+    [
+      220,
+      114,
+      0,
+      88,
+      2,
+      "TORCH_TENSOR"
+    ],
+    [
+      221,
+      76,
+      1,
+      114,
+      2,
+      "INT"
+    ],
+    [
+      225,
+      44,
+      0,
+      117,
+      1,
+      "EMOTION_MODEL_PIPE"
+    ],
+    [
+      235,
+      117,
+      0,
+      114,
+      3,
+      "TORCH_TENSOR"
+    ],
+    [
+      237,
+      76,
+      4,
+      117,
+      0,
+      "AUDIO"
+    ],
+    [
+      238,
+      76,
+      5,
+      117,
+      2,
+      "FLOAT"
+    ]
+  ],
+  "groups": [],
+  "config": {},
+  "extra": {
+    "ds": {
+      "scale": 1.7449402268886776,
+      "offset": [
+        -1711.9964772874998,
+        -1282.8311536787892
+      ]
+    },
+    "reroutes": [
+      {
+        "id": 18,
+        "pos": [
+          230,
+          1590
+        ],
+        "linkIds": [
+          57,
+          106
+        ]
+      },
+      {
+        "id": 19,
+        "parentId": 18,
+        "pos": [
+          230,
+          2130
+        ],
+        "linkIds": [
+          106
+        ]
+      },
+      {
+        "id": 22,
+        "parentId": 24,
+        "pos": [
+          2360,
+          1900
+        ],
+        "linkIds": [
+          106
+        ]
+      },
+      {
+        "id": 24,
+        "parentId": 19,
+        "pos": [
+          1780,
+          2150
+        ],
+        "linkIds": [
+          106
+        ]
+      },
+      {
+        "id": 26,
+        "pos": [
+          1461.928955078125,
+          1496.509033203125
+        ],
+        "linkIds": [
+          164
+        ]
+      },
+      {
+        "id": 27,
+        "pos": [
+          2410,
+          1790
+        ],
+        "linkIds": [
+          171
+        ]
+      },
+      {
+        "id": 28,
+        "pos": [
+          1566.7891845703125,
+          1470.08837890625
+        ],
+        "linkIds": [
+          221
+        ]
+      },
+      {
+        "id": 29,
+        "parentId": 28,
+        "pos": [
+          1791.34033203125,
+          1467.599365234375
+        ],
+        "linkIds": [
+          221
+        ]
+      }
+    ],
+    "ue_links": [],
+    "links_added_by_ue": [],
+    "linkExtensions": [
+      {
+        "id": 57,
+        "parentId": 18
+      },
+      {
+        "id": 106,
+        "parentId": 22
+      },
+      {
+        "id": 164,
+        "parentId": 26
+      },
+      {
+        "id": 171,
+        "parentId": 27
+      },
+      {
+        "id": 221,
+        "parentId": 29
+      }
+    ],
+    "frontendVersion": "1.44.19",
+    "VHS_latentpreview": false,
+    "VHS_latentpreviewrate": 0,
+    "VHS_MetadataImage": true,
+    "VHS_KeepIntermediate": true
+  },
+  "version": 0.4
+}

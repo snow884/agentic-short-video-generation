@@ -1,0 +1,840 @@
+{
+  "id": "b5850607-44ed-4abf-85d7-1399865d4011",
+  "revision": 0,
+  "last_node_id": 62,
+  "last_link_id": 106,
+  "nodes": [
+    {
+      "id": 56,
+      "type": "MarkdownNote",
+      "pos": [
+        7540.54541015625,
+        -833.9743041992188
+      ],
+      "size": [
+        634.0631103515625,
+        720.5999755859375
+      ],
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [],
+      "title": "ComfyUI-MultiGPU Note - wan2_2 Double UNet DisTorch2",
+      "properties": {},
+      "widgets_values": [
+        "A DisTorch2 Wan 2.2 workflow where we ignore CPU offloading completely and load both UNets placing blocks on the CPU and CLIP DisTorch2. In this case we are using the DisTorch2 node to statically allocate approximately 70% of the UNet model (13.3G) to the cpu. With `eject_models` being `True`, all other models on the `compute` card (`cuda:0`) will be unloaded, regardless of size, ensuring a clean compute card prior to inference.\n\n## Custom Node\n- [ComfyUI-MultiGPU](https://github.com/pollockjj/ComfyUI-MultiGPU)\n```\n📂 ComfyUI/\n├── 📂 custom_nodes/\n│   ├── 📂 ComfyUI-MultiGPU/\n```\n## Model links\n\n**Diffusion model**\n- [wan2.2_t2v_high_noise_14B_fp8_scaled.safetensors](https://huggingface.co/Comfy-Org/Wan_2.2_ComfyUI_Repackaged/blob/main/split_files/diffusion_models/wan2.2_t2v_high_noise_14B_fp8_scaled.safetensors)\n- [wan2.2_t2v_low_noise_14B_fp8_scaled.safetensors](https://huggingface.co/Comfy-Org/Wan_2.2_ComfyUI_Repackaged/blob/main/split_files/diffusion_models/wan2.2_t2v_low_noise_14B_fp8_scaled.safetensors)\n\n**CLIP**\n- [umt5_xxl_fp8_e4m3fn_scaled.safetensors](https://huggingface.co/Comfy-Org/Wan_2.2_ComfyUI_Repackaged/resolve/main/split_files/text_encoders/umt5_xxl_fp8_e4m3fn_scaled.safetensors)\n\n**VAE**\n- [wan_2.1_vae.safetensors](https://huggingface.co/Comfy-Org/Wan_2.2_ComfyUI_Repackaged/blob/main/split_files/vae/wan_2.1_vae.safetensors)\n\nModel Storage Location\n\n```\n📂 ComfyUI/\n├── 📂 models/\n│   ├── 📂 clip/\n│   │   └── umt5_xxl_fp8_e4m3fn_scaled.safetensors\n│   ├── 📂 unet/\n│   │   ├── wan2.2_t2v_high_noise_14B_fp8_scaled.safetensors [🟩🟩🟩🟪🟪🟪🟪🟪🟪🟪]\n│   │   ├── wan2.2_t2v_low_noise_14B_fp8_scaled.safetensors [🟩🟩🟩🟪🟪🟪🟪🟪🟪🟪]\n│   ├── 📂 vae/\n│   │   └── qwen_image_vae.safetensors \n```\n## Device Mapping (Example: Two GPUs, 1 CPU)\n```\n🖥️ system \n├── 🟢 cuda:0\n│       └── wan2.2_t2v_high_noise_14B_fp8_scaled.safetensors [🟩🟩🟩]\n│       └── wan2.2_t2v_low_noise_14B_fp8_scaled.safetensors [🟩🟩🟩]\n├── 🟣 cuda:1\n│       └── wan2.2_t2v_high_noise_14B_fp8_scaled.safetensors [🟪🟪🟪🟪🟪🟪🟪]\n│       └── wan2.2_t2v_high_noise_14B_fp8_scaled.safetensors [🟪🟪🟪🟪🟪🟪🟪]\n│       └── umt5_xxl_fp8_e4m3fn_scaled.safetensors\n│       └── wan_2.1_vae.safetensors\n├── ⚙️ cpu\n```"
+      ],
+      "color": "#008181",
+      "bgcolor": "rgba(24,24,27,.9)"
+    },
+    {
+      "id": 36,
+      "type": "KSamplerAdvanced",
+      "pos": [
+        4163.52001953125,
+        -74.00148010253906
+      ],
+      "size": [
+        252.353515625,
+        546
+      ],
+      "flags": {},
+      "order": 12,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model",
+          "type": "MODEL",
+          "link": 91
+        },
+        {
+          "name": "positive",
+          "type": "CONDITIONING",
+          "link": 63
+        },
+        {
+          "name": "negative",
+          "type": "CONDITIONING",
+          "link": 64
+        },
+        {
+          "name": "latent_image",
+          "type": "LATENT",
+          "link": 61
+        }
+      ],
+      "outputs": [
+        {
+          "name": "LATENT",
+          "type": "LATENT",
+          "links": [
+            65
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "KSamplerAdvanced",
+        "cnr_id": "comfy-core",
+        "ver": "0.3.46"
+      },
+      "widgets_values": [
+        "enable",
+        456592238202344,
+        "randomize",
+        8,
+        1,
+        "euler",
+        "simple",
+        4,
+        8,
+        "disable"
+      ],
+      "color": "#223",
+      "bgcolor": "#335"
+    },
+    {
+      "id": 51,
+      "type": "CLIPLoaderMultiGPU",
+      "pos": [
+        3174.543701171875,
+        -437.6710045776562
+      ],
+      "size": [
+        410.7702941894531,
+        110.15969848632812
+      ],
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "CLIP",
+          "type": "CLIP",
+          "links": [
+            100
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "CLIPLoaderMultiGPU",
+        "cnr_id": "comfyui-multigpu",
+        "ver": "161174266c29e5860e5b565315fba99d2bc5f1e0"
+      },
+      "widgets_values": [
+        "split_files/text_encoders/umt5_xxl_fp8_e4m3fn_scaled.safetensors",
+        "wan",
+        "cuda:0"
+      ],
+      "color": "#008181",
+      "bgcolor": "rgba(24,24,27,.9)"
+    },
+    {
+      "id": 9,
+      "type": "VAEDecode",
+      "pos": [
+        4525.008987734467,
+        -684.7523188110209
+      ],
+      "size": [
+        140,
+        46
+      ],
+      "flags": {},
+      "order": 13,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "samples",
+          "type": "LATENT",
+          "link": 65
+        },
+        {
+          "name": "vae",
+          "type": "VAE",
+          "link": 102
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            106
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "VAEDecode",
+        "cnr_id": "comfy-core",
+        "ver": "0.3.43"
+      },
+      "widgets_values": [],
+      "color": "#323",
+      "bgcolor": "#535"
+    },
+    {
+      "id": 29,
+      "type": "LoraLoader",
+      "pos": [
+        3637.26611328125,
+        -691.7128295898438
+      ],
+      "size": [
+        482.47406005859375,
+        126
+      ],
+      "flags": {},
+      "order": 8,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model",
+          "type": "MODEL",
+          "link": 99
+        },
+        {
+          "name": "clip",
+          "type": "CLIP",
+          "link": 100
+        }
+      ],
+      "outputs": [
+        {
+          "name": "MODEL",
+          "type": "MODEL",
+          "links": [
+            88
+          ]
+        },
+        {
+          "name": "CLIP",
+          "type": "CLIP",
+          "links": [
+            89,
+            90
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "LoraLoader",
+        "cnr_id": "comfy-core",
+        "ver": "0.3.43"
+      },
+      "widgets_values": [
+        "Wan2.2-T2V-A14B-4steps-lora-rank64-Seko-V1.1/Wan2.2-T2V-A14B-4steps-lora-rank64-Seko-V1.1/high_noise_model.safetensors",
+        1,
+        1
+      ],
+      "color": "#232",
+      "bgcolor": "#353"
+    },
+    {
+      "id": 44,
+      "type": "LoraLoaderModelOnly",
+      "pos": [
+        3640.2942822002665,
+        -450.14387213605056
+      ],
+      "size": [
+        474.6925354003906,
+        91.07210540771484
+      ],
+      "flags": {},
+      "order": 7,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model",
+          "type": "MODEL",
+          "link": 101
+        }
+      ],
+      "outputs": [
+        {
+          "name": "MODEL",
+          "type": "MODEL",
+          "links": [
+            91
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "LoraLoaderModelOnly",
+        "cnr_id": "comfy-core",
+        "ver": "0.3.46"
+      },
+      "widgets_values": [
+        "Wan2.2-T2V-A14B-4steps-lora-rank64-Seko-V1.1/Wan2.2-T2V-A14B-4steps-lora-rank64-Seko-V1.1/low_noise_model.safetensors",
+        1
+      ],
+      "color": "#232",
+      "bgcolor": "#353"
+    },
+    {
+      "id": 55,
+      "type": "VAELoaderDisTorch2MultiGPU",
+      "pos": [
+        3213.78515625,
+        29.56181526184082
+      ],
+      "size": [
+        297.41796875,
+        178
+      ],
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "VAE",
+          "type": "VAE",
+          "links": [
+            102
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "VAELoaderDisTorch2MultiGPU",
+        "cnr_id": "comfyui-multigpu",
+        "ver": "161174266c29e5860e5b565315fba99d2bc5f1e0"
+      },
+      "widgets_values": [
+        "wan_2.1_vae.safetensors/wan_2.1_vae.safetensors",
+        "cuda:0",
+        4,
+        "cpu",
+        "",
+        true
+      ],
+      "color": "#008181",
+      "bgcolor": "rgba(24,24,27,.9)"
+    },
+    {
+      "id": 4,
+      "type": "CLIPTextEncode",
+      "pos": [
+        3650,
+        100
+      ],
+      "size": [
+        450,
+        150
+      ],
+      "flags": {
+        "collapsed": false
+      },
+      "order": 9,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "clip",
+          "type": "CLIP",
+          "link": 89
+        }
+      ],
+      "outputs": [
+        {
+          "name": "CONDITIONING",
+          "type": "CONDITIONING",
+          "links": [
+            59,
+            64
+          ]
+        }
+      ],
+      "title": "Negative Prompt",
+      "properties": {
+        "Node name for S&R": "CLIPTextEncode",
+        "cnr_id": "comfy-core",
+        "ver": "0.3.43"
+      },
+      "widgets_values": [
+        "Static, person not moving, static scene, blurred, deformed hands, extra fingers, low quality, CGI look, cartoon, anime, static background, bad anatomy, slow motion, serious tone, dark lighting, watermark, text, signature."
+      ],
+      "color": "#2a363b",
+      "bgcolor": "#3f5159"
+    },
+    {
+      "id": 52,
+      "type": "UNETLoaderDisTorch2MultiGPU",
+      "pos": [
+        3194.302490234375,
+        -254.25840759277344
+      ],
+      "size": [
+        401.1171569824219,
+        202
+      ],
+      "flags": {},
+      "order": 3,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "MODEL",
+          "type": "MODEL",
+          "links": [
+            101
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "UNETLoaderDisTorch2MultiGPU",
+        "cnr_id": "comfyui-multigpu",
+        "ver": "161174266c29e5860e5b565315fba99d2bc5f1e0"
+      },
+      "widgets_values": [
+        "split_files/diffusion_models/wan2.2_t2v_low_noise_14B_fp8_scaled.safetensors",
+        "default",
+        "cuda:0",
+        24,
+        "cuda:1",
+        "",
+        true
+      ],
+      "color": "#008181",
+      "bgcolor": "rgba(24,24,27,.9)"
+    },
+    {
+      "id": 50,
+      "type": "UNETLoaderDisTorch2MultiGPU",
+      "pos": [
+        3169.217041015625,
+        -698.2782592773438
+      ],
+      "size": [
+        440.8240051269531,
+        202
+      ],
+      "flags": {},
+      "order": 4,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "MODEL",
+          "type": "MODEL",
+          "links": [
+            99
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "UNETLoaderDisTorch2MultiGPU",
+        "cnr_id": "comfyui-multigpu",
+        "ver": "161174266c29e5860e5b565315fba99d2bc5f1e0"
+      },
+      "widgets_values": [
+        "split_files/diffusion_models/wan2.2_t2v_high_noise_14B_fp8_scaled.safetensors",
+        "default",
+        "cuda:0",
+        24,
+        "cuda:1",
+        "",
+        true
+      ],
+      "color": "#008181",
+      "bgcolor": "rgba(24,24,27,.9)"
+    },
+    {
+      "id": 53,
+      "type": "MarkdownNote",
+      "pos": [
+        2369.9034152247145,
+        -719.1498616065925
+      ],
+      "size": [
+        777.6646728515625,
+        937.3121337890625
+      ],
+      "flags": {},
+      "order": 5,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [],
+      "title": "ComfyUI-MultiGPU Note - wan2_2 Double UNet DisTorch2",
+      "properties": {},
+      "widgets_values": [
+        "A DisTorch2 Wan 2.2 workflow where we eschew our other `gpu`, offloading both UNets by placing blocks on the `cpu`. In this case we are using the DisTorch2 node to statically allocate approximately 70% of the UNet model (13.3G) to the `cpu`, along with a proportional amount of the LoRAs patched to the model. With `eject_models` being `True`, all other models on the `compute` card (`cuda:0`) will be unloaded, regardless of size, ensuring a clean compute card prior to inference.\n\n## Custom Node\n- [ComfyUI-MultiGPU](https://github.com/pollockjj/ComfyUI-MultiGPU)\n```\n📂 ComfyUI/\n├── 📂 custom_nodes/\n│   ├── 📂 ComfyUI-MultiGPU/\n```\n## Model links\n\n**Diffusion model**\n- [wan2.2_t2v_high_noise_14B_fp8_scaled.safetensors](https://huggingface.co/Comfy-Org/Wan_2.2_ComfyUI_Repackaged/blob/main/split_files/diffusion_models/wan2.2_t2v_high_noise_14B_fp8_scaled.safetensors)\n- [wan2.2_t2v_low_noise_14B_fp8_scaled.safetensors](https://huggingface.co/Comfy-Org/Wan_2.2_ComfyUI_Repackaged/blob/main/split_files/diffusion_models/wan2.2_t2v_low_noise_14B_fp8_scaled.safetensors)\n\n**CLIP**\n- [umt5_xxl_fp8_e4m3fn_scaled.safetensors](https://huggingface.co/Comfy-Org/Wan_2.2_ComfyUI_Repackaged/resolve/main/split_files/text_encoders/umt5_xxl_fp8_e4m3fn_scaled.safetensors)\n\n**VAE**\n- [wan_2.1_vae.safetensors](https://huggingface.co/Comfy-Org/Wan_2.2_ComfyUI_Repackaged/blob/main/split_files/vae/wan_2.1_vae.safetensors)\n\n**LoRA**\n- [high_noise_model.safetensors](https://huggingface.co/lightx2v/Wan2.2-Lightning/resolve/main/Wan2.2-T2V-A14B-4steps-lora-rank64-Seko-V1.1/high_noise_model.safetensors)\n- [low_noise_model.safetensors](https://huggingface.co/lightx2v/Wan2.2-Lightning/resolve/main/Wan2.2-T2V-A14B-4steps-lora-rank64-Seko-V1.1/low_noise_model.safetensors)\n\n## Model Storage Location\n\n```\n📂 ComfyUI/\n├── 📂 models/\n│   ├── 📂 clip/\n│   │   └── umt5_xxl_fp8_e4m3fn_scaled.safetensors\n│   ├── 📂 unet/\n│   │   ├── wan2.2_t2v_high_noise_14B_fp8_scaled.safetensors [🟩🟩🟩🟪🟪🟪🟪🟪🟪🟪]\n│   │   ├── wan2.2_t2v_low_noise_14B_fp8_scaled.safetensors [🟩🟩🟩🟪🟪🟪🟪🟪🟪🟪]\n│   ├───📂 loras/\n│   ├─────📂 Wan2.2-T2V-A14B-4steps-lora-rank64-Seko-V1.1/\n│   │        ├────── high_noise_model.safetensors [🟩🟩🟩🟪🟪🟪🟪🟪🟪🟪]\n│   │        └────── low_noise_model.safetensors [🟩🟩🟩🟪🟪🟪🟪🟪🟪🟪]\n│   ├── 📂 vae/\n│   │   └── qwen_image_vae.safetensors \n```\n## Device Mapping (Example: Two GPUs, 1 CPU)\n```\n🖥️ system \n├── 🟢 cuda:0\n│       └── wan2.2_t2v_high_noise_14B_fp8_scaled.safetensors [🟩🟩🟩]\n│       └── wan2.2_t2v_low_noise_14B_fp8_scaled.safetensors [🟩🟩🟩]\n│       └── high_noise_model.safetensors [🟩🟩🟩]\n│       └── low_noise_model.safetensors [🟩🟩🟩]\n│       └── umt5_xxl_fp8_e4m3fn_scaled.safetensors\n│       └── wan_2.1_vae.safetensors\n├── 🟣 cuda:1\n│       └── EMPTY\n├── ⚙️ cpu\n       └── wan2.2_t2v_high_noise_14B_fp8_scaled.safetensors [🟪🟪🟪🟪🟪🟪🟪]\n       └── wan2.2_t2v_low_noise_14B_fp8_scaled.safetensors [🟪🟪🟪🟪🟪🟪🟪]\n       └── high_noise_model.safetensors [🟪🟪🟪🟪🟪🟪🟪]\n       └── low_noise_model.safetensors [🟪🟪🟪🟪🟪🟪🟪]\n```"
+      ],
+      "color": "#008181",
+      "bgcolor": "rgba(24,24,27,.9)"
+    },
+    {
+      "id": 35,
+      "type": "KSamplerAdvanced",
+      "pos": [
+        4152.58056640625,
+        -684.031005859375
+      ],
+      "size": [
+        252.353515625,
+        546
+      ],
+      "flags": {},
+      "order": 11,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model",
+          "type": "MODEL",
+          "link": 88
+        },
+        {
+          "name": "positive",
+          "type": "CONDITIONING",
+          "link": 58
+        },
+        {
+          "name": "negative",
+          "type": "CONDITIONING",
+          "link": 59
+        },
+        {
+          "name": "latent_image",
+          "type": "LATENT",
+          "link": 60
+        }
+      ],
+      "outputs": [
+        {
+          "name": "LATENT",
+          "type": "LATENT",
+          "links": [
+            61
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "KSamplerAdvanced",
+        "cnr_id": "comfy-core",
+        "ver": "0.3.46"
+      },
+      "widgets_values": [
+        "enable",
+        299599833065967,
+        "randomize",
+        8,
+        1,
+        "euler",
+        "simple",
+        0,
+        4,
+        "disable"
+      ],
+      "color": "#223",
+      "bgcolor": "#335"
+    },
+    {
+      "id": 5,
+      "type": "EmptyHunyuanLatentVideo",
+      "pos": [
+        3650,
+        300
+      ],
+      "size": [
+        450,
+        150
+      ],
+      "flags": {},
+      "order": 6,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "LATENT",
+          "type": "LATENT",
+          "links": [
+            60
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "EmptyHunyuanLatentVideo",
+        "cnr_id": "comfy-core",
+        "ver": "0.3.43"
+      },
+      "widgets_values": [
+        768,
+        768,
+        81,
+        1
+      ],
+      "color": "#323",
+      "bgcolor": "#535"
+    },
+    {
+      "id": 62,
+      "type": "CreateVideo",
+      "pos": [
+        4891.250774184416,
+        -657.4589228551133
+      ],
+      "size": [
+        270,
+        78
+      ],
+      "flags": {},
+      "order": 14,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 106
+        },
+        {
+          "name": "audio",
+          "shape": 7,
+          "type": "AUDIO",
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "name": "VIDEO",
+          "type": "VIDEO",
+          "links": [
+            105
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "CreateVideo"
+      },
+      "widgets_values": [
+        16
+      ]
+    },
+    {
+      "id": 3,
+      "type": "CLIPTextEncode",
+      "pos": [
+        3650,
+        -300
+      ],
+      "size": [
+        450,
+        350
+      ],
+      "flags": {},
+      "order": 10,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "clip",
+          "type": "CLIP",
+          "link": 90
+        }
+      ],
+      "outputs": [
+        {
+          "name": "CONDITIONING",
+          "type": "CONDITIONING",
+          "links": [
+            58,
+            63
+          ]
+        }
+      ],
+      "title": "Positive Prompt",
+      "properties": {
+        "Node name for S&R": "CLIPTextEncode",
+        "cnr_id": "comfy-core",
+        "ver": "0.3.43"
+      },
+      "widgets_values": [
+        "A medium shot of a tall man in a bustling city park, holding a large, steaming hotdog with mustard. Suddenly, a very short, evil, mischievous green fairytail dwarf darts into the frame, leaps up slightly, and steals a massive, hilarious bite right out of the hotdog leaving a large bitmark. Cinematic lighting, photorealistic, 4k resolution, highly detailed expressions, natural camera movement, fantasy and fairytail atmosphere."
+      ],
+      "color": "#2a363b",
+      "bgcolor": "#3f5159"
+    },
+    {
+      "id": 61,
+      "type": "SaveVideo",
+      "pos": [
+        5335.116621335092,
+        -434.8169484057333
+      ],
+      "size": [
+        270,
+        368
+      ],
+      "flags": {},
+      "order": 15,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "video",
+          "type": "VIDEO",
+          "link": 105
+        }
+      ],
+      "outputs": [],
+      "properties": {},
+      "widgets_values": [
+        "video/ComfyUI",
+        "mp4",
+        "h264"
+      ]
+    }
+  ],
+  "links": [
+    [
+      58,
+      3,
+      0,
+      35,
+      1,
+      "CONDITIONING"
+    ],
+    [
+      59,
+      4,
+      0,
+      35,
+      2,
+      "CONDITIONING"
+    ],
+    [
+      60,
+      5,
+      0,
+      35,
+      3,
+      "LATENT"
+    ],
+    [
+      61,
+      35,
+      0,
+      36,
+      3,
+      "LATENT"
+    ],
+    [
+      63,
+      3,
+      0,
+      36,
+      1,
+      "CONDITIONING"
+    ],
+    [
+      64,
+      4,
+      0,
+      36,
+      2,
+      "CONDITIONING"
+    ],
+    [
+      65,
+      36,
+      0,
+      9,
+      0,
+      "LATENT"
+    ],
+    [
+      88,
+      29,
+      0,
+      35,
+      0,
+      "MODEL"
+    ],
+    [
+      89,
+      29,
+      1,
+      4,
+      0,
+      "CLIP"
+    ],
+    [
+      90,
+      29,
+      1,
+      3,
+      0,
+      "CLIP"
+    ],
+    [
+      91,
+      44,
+      0,
+      36,
+      0,
+      "MODEL"
+    ],
+    [
+      99,
+      50,
+      0,
+      29,
+      0,
+      "MODEL"
+    ],
+    [
+      100,
+      51,
+      0,
+      29,
+      1,
+      "CLIP"
+    ],
+    [
+      101,
+      52,
+      0,
+      44,
+      0,
+      "MODEL"
+    ],
+    [
+      102,
+      55,
+      0,
+      9,
+      1,
+      "VAE"
+    ],
+    [
+      105,
+      62,
+      0,
+      61,
+      0,
+      "VIDEO"
+    ],
+    [
+      106,
+      9,
+      0,
+      62,
+      0,
+      "IMAGE"
+    ]
+  ],
+  "groups": [],
+  "config": {},
+  "extra": {
+    "ds": {
+      "scale": 1.2948855314167695,
+      "offset": [
+        -4928.000574310331,
+        569.0800396562967
+      ]
+    },
+    "frontendVersion": "1.44.19",
+    "VHS_latentpreview": false,
+    "VHS_latentpreviewrate": 0,
+    "VHS_MetadataImage": true,
+    "VHS_KeepIntermediate": true
+  },
+  "version": 0.4
+}
