@@ -109,6 +109,7 @@ def run_comfyui_workflow(workflow_file, output_file_path, prompt_modifications):
         file_info = None
         for node_id, node_output in outputs.items():
             # Adjust 'gifs' or 'videos' depending on the specific custom node used
+            print(node_output)
             if "gifs" in node_output:
                 file_info = node_output["gifs"][0]
                 break
