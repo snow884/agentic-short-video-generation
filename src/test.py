@@ -6,7 +6,7 @@ from weekend_short_generation.tasks.video_parts_generator.video_parts_generator 
 
 if __name__ == "__main__":
 
-    workflow_file = "wan2_2_t2v_lightx2v_lora_distorch.json"
+    workflow_file = "wan2_2 t2v_lightx2v_lora_distorch.json"
 
     prompt_modifications = {
         "prompt": (
