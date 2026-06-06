@@ -40,18 +40,29 @@ def run_comfyui_workflow(workflow_file, output_file_path, prompt_modifications):
     ) as f:
         prompt_workflow = json.load(f)
 
-    # for node in prompt_workflow.get("nodes", []):
+    for node_id, node in prompt_workflow.items():
 
-    #     if node.get("title") == "Positive Prompt":
-    #         # Assuming the prompt is in the "inputs" under "text"
-    #         if "inputs" in node and "text" in node["inputs"]:
-    #             original_prompt = node["inputs"]["text"]
-    #             modified_prompt = prompt_modifications.get(node["id"], original_prompt)
-    #             node["inputs"]["text"] = modified_prompt
-    #             print(
-    #                 f"Modified Node ID {node['id']} prompt from: '{original_prompt}'"
-    #                 f" to: '{modified_prompt}'"
-    #             )
+        if node_id in prompt_modifications.keys():
+            print(f"Node ID {node_id} has a prompt modification. Applying it.")
+            node = prompt_modifications[node_id](
+                node
+            )  # Apply the modification function to the node
+        else:
+            print(
+                f"Node ID {node_id} has no prompt modification. Keeping original"
+                " prompt."
+            )
+
+        if node.get("title") == "Positive Prompt":
+            # Assuming the prompt is in the "inputs" under "text"
+            if "inputs" in node and "text" in node["inputs"]:
+                original_prompt = node["inputs"]["text"]
+                modified_prompt = prompt_modifications.get(node["id"], original_prompt)
+                node["inputs"]["text"] = modified_prompt
+                print(
+                    f"Modified Node ID {node['id']} prompt from: '{original_prompt}'"
+                    f" to: '{modified_prompt}'"
+                )
 
     def queue_prompt(prompt, client_id):
         """Sends the workflow JSON payload to the ComfyUI queue."""
