@@ -10,17 +10,18 @@ if __name__ == "__main__":
 
     def positive_prompt_modification(node):
         node["inputs"]["prompt"] = (
-            " A bustling city street during a vibrant festival, with colorful"
-            " decorations, lively crowds, and a festive atmosphere. The scene is filled"
-            " with energy and excitement, capturing the essence of a joyful celebration"
-            " in an urban setting."
+            "An ugly man dressed all in dirty brown clothes farts in an elevator,"
+            " causing a group of professionally dressed people to look at him in"
+            " disgust."
         )
         return node
 
     def negative_prompt_modification(node):
         node["inputs"]["prompt"] = (
-            "blurry, low quality, distorted, deformed, bad anatomy, disfigured, poorly"
-            " drawn face, mutation, mutated, extra limbs, ugly"
+            "Static, person not moving, static scene, blurred, deformed hands, extra"
+            " fingers, low quality, CGI look, cartoon, anime, static background, bad"
+            " anatomy, slow motion, serious tone, dark lighting, watermark, text,"
+            " signature."
         )
         return node
 
