@@ -2,8 +2,6 @@ import re
 from datetime import datetime
 from pathlib import Path
 
-from langchain_community.tools.google_trends.tool import GoogleTrendsQueryRun
-from langchain_community.utilities.google_trends import GoogleTrendsAPIWrapper
 from prefect import task
 from prefect.logging import get_run_logger
 
@@ -48,15 +46,15 @@ def check_events(events_list: list):
                 "url",
                 "url_facebook",
                 "url_instagram",
-                "keywords",
                 "tiktok_hashtags",
+                "instagram_hashtags",
+                "youtube_hashtags",
             ]
         ):  # check that it's a dict and has the right keys
             res = (
                 res
                 + f"Event {event.get('event_name', 'Unknown')} has missing or extra"
-                " fields. Please ensure all events have the correct fields"
-                f" {list(event.keys())}."
+                " fields. Please ensure all events have the correct fields."
             )
             res = res + "\n"
 
@@ -194,17 +192,13 @@ def main(town_id=0, weekend_id=0):
     w = session.query(Weekends).filter(Weekends.id == weekend_id).first()
     t = session.query(Towns).filter(Towns.id == town_id).first()
 
-    trends_wrapper = GoogleTrendsAPIWrapper()
-    trends_tool = GoogleTrendsQueryRun(api_wrapper=trends_wrapper)
-    trends_tools_str = "GoogleTrendsQueryRun"
-
     event_list = run_agent_sync(
         user_prompt_params={
             "town_name": t.name,
             "town_state": t.state,
             "weekend_date": w.date,
         },
-        system_prompt_params={"num_events": 5, "trends_tools_str": trends_tools_str},
+        system_prompt_params={"num_events": 5},
         ReturnClass=EventList,
         prompt_dir=Path(__file__).parent.resolve(),
         extra_tools=[check_events, trends_tool],

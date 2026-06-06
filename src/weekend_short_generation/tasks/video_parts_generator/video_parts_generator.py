@@ -17,6 +17,111 @@ from tables import Events, Video, VideoSegments
 VID_HEIGHT = int(1920 / 2)
 VID_WIDTH = int(1080 / 2)
 
+import json
+import uuid
+
+import requests
+import websocket  # pip install websocket-client
+
+# Configuration
+SERVER_ADDRESS = "localhost:8188"
+CLIENT_ID = str(uuid.uuid4())
+WORKFLOW_FILE = "wan2_2_t2v_lightx2v_lora_distorch.json"
+OUTPUT_VIDEO_PATH = "generated_video.mp4"
+
+
+def run_comfyui_workflow(output_file_path, prompt_modifications):
+
+    # 1. Load the exported API JSON
+    with open(WORKFLOW_FILE, "r", encoding="utf-8") as f:
+        prompt_workflow = json.load(f)
+
+    for node in prompt_workflow.get("nodes", []):
+        if node.get("title") == "Positive Prompt":
+            # Assuming the prompt is in the "inputs" under "text"
+            if "inputs" in node and "text" in node["inputs"]:
+                original_prompt = node["inputs"]["text"]
+                modified_prompt = prompt_modifications.get(node["id"], original_prompt)
+                node["inputs"]["text"] = modified_prompt
+                print(
+                    f"Modified Node ID {node['id']} prompt from: '{original_prompt}'"
+                    f" to: '{modified_prompt}'"
+                )
+
+    def queue_prompt(prompt, client_id):
+        """Sends the workflow JSON payload to the ComfyUI queue."""
+        p = {"prompt": prompt, "client_id": client_id}
+        data = json.dumps(p).encode("utf-8")
+        req = requests.post(f"http://{SERVER_ADDRESS}/prompt", data=data)
+        return req.json()
+
+    def download_file(filename, subfolder, folder_type):
+        """Downloads the file from the ComfyUI output directory."""
+        params = {"filename": filename, "subfolder": subfolder, "type": folder_type}
+        response = requests.get(f"http://{SERVER_ADDRESS}/view", params=params)
+        if response.status_code == 200:
+            with open(output_file_path, "wb") as f:
+                f.write(response.content)
+            print(f"✅ Video successfully saved to: {output_file_path}")
+        else:
+            print(f"❌ Failed to download file. Status: {response.status_code}")
+
+    def track_and_download():
+        """Connects via WebSockets, tracks execution, and triggers the download."""
+        # Establish WebSocket connection
+        ws = websocket.WebSocket()
+        ws.connect(f"ws://{SERVER_ADDRESS}/ws?clientId={CLIENT_ID}")
+
+        # Queue the workflow execution
+        print("🚀 Submitting workflow to ComfyUI...")
+        prompt_response = queue_prompt(prompt_workflow, CLIENT_ID)
+        prompt_id = prompt_response.get("prompt_id")
+        print(f"🎫 Prompt ID Queued: {prompt_id}")
+
+        # Listen to server events
+        while True:
+            out = ws.recv()
+            if isinstance(out, str):
+                message = json.loads(out)
+
+                # Track execution progress
+                if message["type"] == "executing":
+                    data = message["data"]
+                    if data["node"] is None and data["prompt_id"] == prompt_id:
+                        print("🏁 Execution complete! Fetching metadata...")
+                        break  # Total execution finished
+                    elif data["prompt_id"] == prompt_id:
+                        print(f"⏳ Currently processing Node ID: {data['node']}")
+
+        # Request historical outputs for this prompt to get the exact filename
+        history_req = requests.get(f"http://{SERVER_ADDRESS}/history/{prompt_id}")
+        history = history_req.json().get(prompt_id, {})
+        outputs = history.get("outputs", {})
+
+        # Extract file details from the node output metadata
+        file_info = None
+        for node_id, node_output in outputs.items():
+            # Adjust 'gifs' or 'videos' depending on the specific custom node used
+            if "gifs" in node_output:
+                file_info = node_output["gifs"][0]
+                break
+            elif "videos" in node_output:
+                file_info = node_output["videos"][0]
+                break
+
+        if file_info:
+            filename = file_info.get("filename")
+            subfolder = file_info.get("subfolder", "")
+            folder_type = file_info.get("type", "output")
+            print(f"📦 Found video file: {filename}. Starting download...")
+            download_file(filename, subfolder, folder_type)
+        else:
+            print("❌ Video file info could not be found in execution history.")
+
+        ws.close()
+
+    track_and_download()
+
 
 @task(task_run_name="video_parts_generator-{video_id}")
 def main(video_id):
