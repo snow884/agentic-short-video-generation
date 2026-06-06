@@ -24,7 +24,9 @@ import requests
 import websocket  # pip install websocket-client
 
 # Configuration
-SERVER_ADDRESS = "localhost:8188"
+SERVER_ADDRESS = (  # Update if your ComfyUI server is running on a different address or port
+    "localhost:8080"
+)
 CLIENT_ID = str(uuid.uuid4())
 OUTPUT_VIDEO_PATH = "generated_video.mp4"
 
@@ -39,6 +41,7 @@ def run_comfyui_workflow(workflow_file, output_file_path, prompt_modifications):
         prompt_workflow = json.load(f)
 
     for node in prompt_workflow.get("nodes", []):
+
         if node.get("title") == "Positive Prompt":
             # Assuming the prompt is in the "inputs" under "text"
             if "inputs" in node and "text" in node["inputs"]:
