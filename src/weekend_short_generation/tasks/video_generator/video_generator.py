@@ -193,7 +193,7 @@ def main(video_id):
     # 'color' is the RGB value of the green to remove
     # 'thr' (threshold) and 's' (stiffness) help fine-tune the edges
     masked_fg = fg_clip.with_effects(
-        [vfx.MaskColor(color=[94, 184, 99], threshold=30, stiffness=5)]
+        [vfx.MaskColor(color=[13, 184, 20], threshold=30, stiffness=5)]
     )
 
     masked_fg = masked_fg.with_position(("right", "bottom")).with_start(0)

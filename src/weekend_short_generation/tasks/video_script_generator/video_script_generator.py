@@ -184,33 +184,33 @@ def check_text_spoken_length_matches_timestamps(segments_list: list):
 
     for i, segment in enumerate(segments_list):
 
-        if segment["scene_description"] and len(segment["scene_description"]) > 400:
+        if segment["scene_description"] and len(segment["scene_description"]) > 120:
             print(
                 f"Error: Segment number {i} at timestamp {segment['timestamp']} has a"
-                " scene description that is too long, make sure it is at most 400"
+                " scene description that is too long, make sure it is at most 120"
                 " characters. Consider shortening the description so that it provides"
                 " enough context without being overwhelming."
             )
             res_str = (
                 res_str
                 + f"Error: Segment number {i} at timestamp {segment['timestamp']} has a"
-                " scene description that is too long, make sure it is at most 400"
+                " scene description that is too long, make sure it is at most 120"
                 " characters. Consider shortening the description so that it"
                 " provides enough context without being overwhelming."
             )
             res_str = res_str + "\n"
 
-        if segment["scene_description"] and len(segment["scene_description"]) < 100:
+        if segment["scene_description"] and len(segment["scene_description"]) < 80:
             print(
                 f"Error: Segment number {i} at timestamp {segment['timestamp']} has a"
-                " scene description that is too short, make sure it is at least 100"
+                " scene description that is too short, make sure it is at least 80"
                 " characters. Consider lengthening the description so that it provides"
                 " enough context."
             )
             res_str = (
                 res_str
                 + f"Error: Segment number {i} at timestamp {segment['timestamp']} has a"
-                " scene description that is too short, make sure it is at least 100"
+                " scene description that is too short, make sure it is at least 80"
                 " characters. Consider lengthening the description so that it"
                 " provides enough context."
             )

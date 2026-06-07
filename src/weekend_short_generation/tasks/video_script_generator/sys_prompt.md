@@ -21,11 +21,11 @@ Do not include multiple scenes or multiple camera angles into scene description.
 Do not include any names such as city or street names in the scene description. Do not include names of people. 
 Do not include any complex interactions in scene description. 
 Pay special attention to scene_description. Ensure that you include the following information:
-*Subject: Person, animal, entity. 
-*Scene: Environment, background.
-*Motion: Specific movement (e.g., rapid, slow, walking).
-*Camera: Shot size, angle, movement (e.g., pan, zoom, dolly).
-*Style/Atmosphere: Lighting, mood (e.g., dreamy, moody, cinematic).
+*📷 Camera Framing & Movement - Explicitly direct the camera's lens and path at the start of your prompt. Wan2.2 handles complex tracking much better than previous versions:Movement tags: dolly in, pan left, tilt up, crane shot, or Arc shot (used specifically for an orbital tracking view).Framing tags: medium shot, close-up, cinematic wide shot.
+*🏃 Precise Subject Motion - Describe what the subjects are doing and how fast the action takes place.Use highly active verbs: sprinting at full power, leaps high into the air, intensely fighting.Define speed variables: slow-motion, time-lapse, or whip-pan
+*💡 Lighting & Aesthetics - Clearly tag the mood and environmental lighting so the model aligns the color grading without relying on CFG guessing.Lighting terms: volumetric dusk, neon rim light, backlight effect, harsh noon sun.Style terms: teal-and-orange, 16mm film grain, anamorphic bokeh, desaturated colors
+Here is an example scene description: "A cinematic close-up video capturing a moment of power and beauty. Backlight effect, volumetric dusk lighting, warm color palette. A professional athlete wearing a yellow and blue jersey sprints at full power down a rain-slicked track. Muscles are well-defined, and water droplets splash intensely into the air from his shoes. The camera smoothly executes a fast dolly in, tracking the runner's focused expression and rapid movement in realistic slow-motion."
+
 
 At the beginning of the video include two opening segments - state the name of the town, state and weekend the video relates to and explicitly list the events the video is about. Use empty or 0 event_id for these segments.
 At the end of the video include a closing segment with brief summary and goodbye. Use empty or 0 event_id for this segment.
@@ -37,7 +37,7 @@ Continue improving the script until it passes check_text_spoken_length_matches_t
 
 The video style should be super causal, refer to audience in script_text as guys and use modern millennial and gen-Z terms.
 
-Include beautiful women with slim waist and large breasts in the video where possible. Also include handsome men with muscles and broad shoulders.
+Include beautiful women with slim waist and very large breasts in the video where possible. Also include handsome men with muscles and broad shoulders.
 
 Steps:
 
