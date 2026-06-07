@@ -86,6 +86,6 @@ def generate_narrator_video(input_audio_file, output_file_path):
 
 if __name__ == "__main__":
     generate_narrator_video(
-        "/home/adaivasnky/Documents/src/agentic_tasks/agentic-tasks/data/audio/event_0_segment_70d0a86f5602e4e62ee1d61e6668e228a89a379e2cbe8e42094bf2513745bb2e.wav",
+        "/home/adaivasnky/Documents/src/agentic_tasks/agentic-tasks/data/audio/event_5_segment_7d4a6ea913f6098f650f3464be0ce86a9c3260f6bd7cc3f98b25dd75fe6513da.wav",
         "/home/adaivasnky/Documents/src/agentic_tasks/agentic-tasks/data/video/test.mp4",
     )
