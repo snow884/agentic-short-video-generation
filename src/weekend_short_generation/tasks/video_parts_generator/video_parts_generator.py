@@ -31,7 +31,9 @@ CLIENT_ID = str(uuid.uuid4())
 OUTPUT_VIDEO_PATH = "generated_video.mp4"
 
 
-def run_comfyui_workflow(workflow_file, output_file_path, prompt_modifications):
+def run_comfyui_workflow(
+    workflow_file, output_file_path, prompt_modifications, output_node_id="3"
+):
 
     # 1. Load the exported API JSON
     current_dir = Path(__file__).resolve().parent
@@ -110,15 +112,19 @@ def run_comfyui_workflow(workflow_file, output_file_path, prompt_modifications):
         for node_id, node_output in outputs.items():
             # Adjust 'gifs' or 'videos' depending on the specific custom node used
             print(node_output)
-            if "gifs" in node_output:
-                file_info = node_output["gifs"][0]
-                break
-            elif "videos" in node_output:
-                file_info = node_output["videos"][0]
-                break
-            elif "images" in node_output:
-                file_info = node_output["images"][0]
-                break
+            if (
+                node_id == output_node_id
+            ):  # Check the specific node ID that generates the video
+
+                if "gifs" in node_output:
+                    file_info = node_output["gifs"][0]
+                    break
+                elif "videos" in node_output:
+                    file_info = node_output["videos"][0]
+                    break
+                elif "images" in node_output:
+                    file_info = node_output["images"][0]
+                    break
 
         if file_info:
             filename = file_info.get("filename")

@@ -33,7 +33,9 @@ def generate_video(prompt, output_file_path):
         "4": negative_prompt_modification,
     }
 
-    run_comfyui_workflow(workflow_file, output_file_path, prompt_modifications)
+    run_comfyui_workflow(
+        workflow_file, output_file_path, prompt_modifications, output_node_id="5"
+    )
 
 
 def generate_narrator_video(input_audio_file, output_file_path):
@@ -77,7 +79,9 @@ def generate_narrator_video(input_audio_file, output_file_path):
         "17": input_audio_modification,
     }
 
-    run_comfyui_workflow(workflow_file, output_file_path, prompt_modifications)
+    run_comfyui_workflow(
+        workflow_file, output_file_path, prompt_modifications, output_node_id="57"
+    )
 
 
 if __name__ == "__main__":
