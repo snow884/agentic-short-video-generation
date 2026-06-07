@@ -56,8 +56,8 @@
   "29": {
     "inputs": {
       "lora_name": "Wan2.2-T2V-A14B-4steps-lora-rank64-Seko-V1.1/Wan2.2-T2V-A14B-4steps-lora-rank64-Seko-V1.1/high_noise_model.safetensors",
-      "strength_model": 1,
-      "strength_clip": 1,
+      "strength_model": 0.4,
+      "strength_clip": 0.4,
       "model": [
         "50",
         0
@@ -141,7 +141,7 @@
   "44": {
     "inputs": {
       "lora_name": "Wan2.2-T2V-A14B-4steps-lora-rank64-Seko-V1.1/Wan2.2-T2V-A14B-4steps-lora-rank64-Seko-V1.1/low_noise_model.safetensors",
-      "strength_model": 1,
+      "strength_model": 0.4,
       "model": [
         "52",
         0
