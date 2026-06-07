@@ -201,7 +201,7 @@ def main(town_id=0, weekend_id=0):
         system_prompt_params={"num_events": 5},
         ReturnClass=EventList,
         prompt_dir=Path(__file__).parent.resolve(),
-        extra_tools=[check_events, trends_tool],
+        extra_tools=[check_events],
     )
     event_id_list = populate_db_with_events(
         event_list, town_id=town_id, weekend_id=weekend_id
