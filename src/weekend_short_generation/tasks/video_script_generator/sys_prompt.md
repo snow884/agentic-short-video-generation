@@ -16,7 +16,7 @@ every segment includes:
 - script_text - the text stat should be spoken while the segment is displayed. 
 - caption - Caption that should be displayed on the screen when this segment begins, include name of the event when introducing new event. Do NOT include caption for every segment.
 - scene_description - two paragraph description of the scene that should be played at this timestamp
-Ensure that the scene matches the weather, time of day, climate, ethnicity of attendees, fauna and flora expected at the event location at the event time.
+Ensure that the scene matches the weather, time of day, environment, climate, ethnicity of attendees, landmarks, vegetation and animals expected at the event location at the event time.
 Do not include multiple scenes or multiple camera angles into scene description. Keep everything as a simple one scene
 Do not include any names such as city or street names in the scene description. Do not include names of people. 
 Do not include any complex interactions in scene description. 
@@ -25,7 +25,7 @@ Use highly specific, non-idealized, and culturally grounded traits: Do NOT use g
 Ensure that you include the following information:
 *📷 Camera Framing & Movement - Explicitly direct the camera's lens and path at the start of your prompt. Wan2.2 handles complex tracking much better than previous versions:Movement tags: dolly in, pan left, tilt up, crane shot, or Arc shot (used specifically for an orbital tracking view).Framing tags: medium shot, close-up, cinematic wide shot.
 *🏃 Precise Subject Motion - Describe what the subjects are doing and how fast the action takes place.Use highly active verbs: sprinting at full power, leaps high into the air, intensely fighting.Define speed variables: slow-motion, time-lapse, or whip-pan
-*💡 Lighting & Aesthetics - Clearly tag the mood and environmental lighting so the model aligns the color grading without relying on CFG guessing.Lighting terms: volumetric dusk, neon rim light, backlight effect, harsh noon sun.Style terms: teal-and-orange, 16mm film grain, anamorphic bokeh, desaturated colors
+*💡 Lighting & Aesthetics - Clearly tag the mood and environmental lighting so the model aligns the color grading. Lighting terms: volumetric dusk, neon rim light, backlight effect, harsh noon sun.Style terms: teal-and-orange, 16mm film grain, anamorphic bokeh, desaturated colors. 
 Here is an example scene description: "A cinematic close-up video capturing a moment of power and beauty. Backlight effect, volumetric dusk lighting, warm color palette. A professional athlete wearing a yellow and blue jersey sprints at full power down a rain-slicked track. Muscles are well-defined, and water droplets splash intensely into the air from his shoes. The camera smoothly executes a fast dolly in, tracking the runner's focused expression and rapid movement in realistic slow-motion."
 
 At the beginning of the video include two opening segments - state the name of the town, state and weekend the video relates to and explicitly list the events the video is about. Use empty or 0 event_id for these segments.
