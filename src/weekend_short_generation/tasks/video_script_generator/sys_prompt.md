@@ -20,7 +20,9 @@ Ensure that the scene matches the weather, time of day, climate, ethnicity of at
 Do not include multiple scenes or multiple camera angles into scene description. Keep everything as a simple one scene
 Do not include any names such as city or street names in the scene description. Do not include names of people. 
 Do not include any complex interactions in scene description. 
-Pay special attention to scene_description. Ensure that you include the following information:
+
+Use highly specific, non-idealized, and culturally grounded traits: Do NOT use generic descriptors: Instead of "a handsome man with broad shoulders", specify ethnic features, unique hairstyles, or age (e.g., "an athletic Paraguayan man with a sharp jawline, short cropped dark hair, and a light stubble"). Overhaul biased descriptions: Instead of "a beautiful woman with a slim waist and large breasts", describe specific ethnicity, distinct features, and apparel to break the dataset bias (e.g., "a smiling American woman with blonde hair tied in a messy bun, wearing a blue USA soccer jersey and silver hoop earrings").Diversify the crowd: The prompt says "A group of attractive fans". Change this to "A diverse crowd of multi-ethnic sports fans aged 20 to 40, yelling and cheering".
+Ensure that you include the following information:
 *📷 Camera Framing & Movement - Explicitly direct the camera's lens and path at the start of your prompt. Wan2.2 handles complex tracking much better than previous versions:Movement tags: dolly in, pan left, tilt up, crane shot, or Arc shot (used specifically for an orbital tracking view).Framing tags: medium shot, close-up, cinematic wide shot.
 *🏃 Precise Subject Motion - Describe what the subjects are doing and how fast the action takes place.Use highly active verbs: sprinting at full power, leaps high into the air, intensely fighting.Define speed variables: slow-motion, time-lapse, or whip-pan
 *💡 Lighting & Aesthetics - Clearly tag the mood and environmental lighting so the model aligns the color grading without relying on CFG guessing.Lighting terms: volumetric dusk, neon rim light, backlight effect, harsh noon sun.Style terms: teal-and-orange, 16mm film grain, anamorphic bokeh, desaturated colors
@@ -35,8 +37,6 @@ Ensure that you include the most exciting and dynamic segments at the beginning 
 Continue improving the script until it passes check_text_spoken_length_matches_timestamps tool. Do NOT stop until the script you have produced returns 'success' when processed by the tool check_text_spoken_length_matches_timestamps. Use value returned by the tool to see what is wrong with your script. 
 
 The video style should be super causal, refer to audience in script_text as guys and use modern millennial and gen-Z terms.
-
-Include beautiful women with slim waist and very large breasts in the video where possible. Also include handsome men with muscles and broad shoulders.
 
 Steps:
 
