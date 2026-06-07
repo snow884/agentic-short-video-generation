@@ -31,6 +31,81 @@ CLIENT_ID = str(uuid.uuid4())
 OUTPUT_VIDEO_PATH = "generated_video.mp4"
 
 
+def generate_video(prompt, output_file_path):
+
+    workflow_file = "wan2_2_t2v_lightx2v_lora_distorch.json"
+
+    def positive_prompt_modification(node):
+        node["inputs"]["text"] = prompt
+        print(f"new prompt: {node['inputs']['text']}")
+        return node
+
+    def negative_prompt_modification(node):
+        node["inputs"]["text"] = (
+            "Static, person not moving, static scene, blurred, deformed hands, extra"
+            " fingers, low quality, CGI look, cartoon, anime, static background, bad"
+            " anatomy, slow motion, serious tone, dark lighting, watermark, text,"
+            " signature."
+        )
+        print(f"new prompt: {node['inputs']['text']}")
+        return node
+
+    prompt_modifications = {
+        "3": positive_prompt_modification,
+        "4": negative_prompt_modification,
+    }
+
+    run_comfyui_workflow(
+        workflow_file, output_file_path, prompt_modifications, output_node_id="61"
+    )
+
+
+def generate_narrator_video(input_audio_file, output_file_path):
+
+    workflow_file = "float_va_dynamic_emo.json"
+
+    def upload_audio_to_comfy(file_path):
+        url = f"http://{SERVER_ADDRESS}/upload/image"
+
+        base_filename = os.path.basename(file_path)
+
+        # ComfyUI natively processes audio/video uploads via the image endpoint
+        with open(file_path, "rb") as f:
+            files = {"image": (base_filename, f, "audio/wav")}
+            # Use overwrite=true if you want to replace an existing file with the same name
+            data = {"overwrite": "true"}
+
+            response = requests.post(url, files=files, data=data)
+
+        if response.status_code == 200:
+            result = response.json()
+            print("Upload successful:", result)
+            # Returns the filename saved inside ComfyUI's input directory
+            return result.get("name")
+        else:
+            raise Exception(f"Failed to upload media: {response.text}")
+
+    # 2. Upload the file and capture the safe server filename
+    server_filename = upload_audio_to_comfy(input_audio_file)
+
+    def input_audio_modification(node):
+
+        # 4. Point your specific audio node to the uploaded file name
+        # Note: Locate your exact node ID and target parameter (e.g., 'audio', 'vhs_audio', etc.)
+
+        node["inputs"]["audio"] = server_filename
+
+        return node
+
+    prompt_modifications = {
+        "17": input_audio_modification,
+    }
+
+    run_comfyui_workflow(
+        workflow_file, output_file_path, prompt_modifications, output_node_id="57"
+    )
+
+
 def run_comfyui_workflow(
     workflow_file, output_file_path, prompt_modifications, output_node_id="3"
 ):
@@ -175,28 +250,12 @@ def main(video_id):
 
         combined_audio = sound if combined_audio is None else combined_audio + sound
 
-        res = requests.post(
-            "http://localhost:8001/inference/",
-            headers={"Content-Type": "application/json"},
-            data=json.dumps(
-                {
-                    "task": "t2v-1.3B",
-                    "size": "480*832",
-                    "ckpt_dir": "./Wan2.1-T2V-1.3B",
-                    "offload_model": True,
-                    "t5_cpu": True,
-                    "sample_shift": 8,
-                    "sample_guide_scale": 6,
-                    "prompt": segment.scene_description,
-                    "save_file": os.path.join(
-                        parent_dir, f"data/video/t2v_{video.id}_output_{segment.id}.mp4"
-                    ),
-                }
+        generate_video(
+            segment.scene_description,
+            os.path.join(
+                parent_dir, f"data/video/t2v_{video.id}_output_{segment.id}.mp4"
             ),
         )
-        if res.status_code != 200:
-            raise Exception(f"Error: {res.status_code}, {res.text}")
-            return
 
         segment.video_file_path = os.path.join(
             parent_dir, f"data/video/t2v_{video.id}_output_{segment.id}.mp4"
@@ -228,12 +287,11 @@ def main(video_id):
             }
         ),
     )
-
-    if res.status_code != 200:
-        raise Exception(f"Error: {res.status_code}, {res.text}")
-        return
-
-    video_path = res.json()["save_dir"]
+    video_path = os.path.join(parent_dir, f"data/video/narrator_video_{video.id}.mp4")
+    generate_narrator_video(
+        os.path.join(parent_dir, combined_audio_path),
+        video_path,
+    )
 
     video.audio_file_path = combined_audio_path
     video.sad_talker_video_path = video_path

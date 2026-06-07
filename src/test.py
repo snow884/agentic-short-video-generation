@@ -34,7 +34,7 @@ def generate_video(prompt, output_file_path):
     }
 
     run_comfyui_workflow(
-        workflow_file, output_file_path, prompt_modifications, output_node_id="5"
+        workflow_file, output_file_path, prompt_modifications, output_node_id="61"
     )
 
 
