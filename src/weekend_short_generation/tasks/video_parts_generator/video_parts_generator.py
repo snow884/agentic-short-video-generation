@@ -272,21 +272,6 @@ def main(video_id):
 
     print(f"Parent directory: {parent_dir}")
 
-    res = requests.post(
-        "http://localhost:8000/inference/",
-        headers={"Content-Type": "application/json"},
-        data=json.dumps(
-            {
-                "source_image": os.path.join(parent_dir, "data/portraits/anchor2.png"),
-                "driven_audio": os.path.join(parent_dir, combined_audio_path),
-                "result_dir": os.path.join(parent_dir, "data/video/sad_talker_out"),
-                "checkpoint_dir": os.path.join(
-                    parent_dir, "src/services/SadTalker/checkpoints"
-                ),
-                "enhancer": "gfpgan",
-            }
-        ),
-    )
     video_path = os.path.join(parent_dir, f"data/video/narrator_video_{video.id}.mp4")
     generate_narrator_video(
         os.path.join(parent_dir, combined_audio_path),
