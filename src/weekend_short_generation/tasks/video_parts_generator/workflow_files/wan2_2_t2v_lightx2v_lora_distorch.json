@@ -27,8 +27,8 @@
   },
   "5": {
     "inputs": {
-      "width": 420,
-      "height": 832,
+      "width": 540,
+      "height": 960,
       "length": 81,
       "batch_size": 1
     },
