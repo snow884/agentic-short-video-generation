@@ -9,20 +9,22 @@ if __name__ == "__main__":
     workflow_file = "wan2_2_t2v_lightx2v_lora_distorch.json"
 
     def positive_prompt_modification(node):
-        node["inputs"]["prompt"] = (
+        node["inputs"]["text"] = (
             "An ugly man dressed all in dirty brown clothes farts in an elevator,"
             " causing a group of professionally dressed people to look at him in"
             " disgust."
         )
+        print(f"new prompt: {node['inputs']['text']}")
         return node
 
     def negative_prompt_modification(node):
-        node["inputs"]["prompt"] = (
+        node["inputs"]["text"] = (
             "Static, person not moving, static scene, blurred, deformed hands, extra"
             " fingers, low quality, CGI look, cartoon, anime, static background, bad"
             " anatomy, slow motion, serious tone, dark lighting, watermark, text,"
             " signature."
         )
+        print(f"new prompt: {node['inputs']['text']}")
         return node
 
     prompt_modifications = {
