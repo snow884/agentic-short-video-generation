@@ -1,3 +1,5 @@
+import os
+
 import requests
 
 from weekend_short_generation.tasks.video_parts_generator.video_parts_generator import (
@@ -41,9 +43,11 @@ def generate_narrator_video(input_audio_file, output_file_path):
     def upload_audio_to_comfy(file_path):
         url = f"{COMFYUI_SERVER}/upload/image"
 
+        base_filename = os.path.basename(file_path)
+
         # ComfyUI natively processes audio/video uploads via the image endpoint
         with open(file_path, "rb") as f:
-            files = {"image": (file_path, f, "audio/wav")}
+            files = {"image": (base_filename, f, "audio/wav")}
             # Use overwrite=true if you want to replace an existing file with the same name
             data = {"overwrite": "true"}
 
