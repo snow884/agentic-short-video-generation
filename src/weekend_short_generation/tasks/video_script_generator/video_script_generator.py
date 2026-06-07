@@ -184,17 +184,17 @@ def check_text_spoken_length_matches_timestamps(segments_list: list):
 
     for i, segment in enumerate(segments_list):
 
-        if segment["scene_description"] and len(segment["scene_description"]) > 120:
+        if segment["scene_description"] and len(segment["scene_description"]) > 300:
             print(
                 f"Error: Segment number {i} at timestamp {segment['timestamp']} has a"
-                " scene description that is too long, make sure it is at most 120"
+                " scene description that is too long, make sure it is at most 300"
                 " characters. Consider shortening the description so that it provides"
                 " enough context without being overwhelming."
             )
             res_str = (
                 res_str
                 + f"Error: Segment number {i} at timestamp {segment['timestamp']} has a"
-                " scene description that is too long, make sure it is at most 120"
+                " scene description that is too long, make sure it is at most 300"
                 " characters. Consider shortening the description so that it"
                 " provides enough context without being overwhelming."
             )
