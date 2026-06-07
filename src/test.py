@@ -38,28 +38,29 @@ def generate_narrator_video(input_audio_file, output_file_path):
 
     workflow_file = "float_va_dynamic_emo.json"
 
+    def upload_audio_to_comfy(file_path):
+        url = f"{COMFYUI_SERVER}/upload/image"
+
+        # ComfyUI natively processes audio/video uploads via the image endpoint
+        with open(file_path, "rb") as f:
+            files = {"image": (file_path, f, "audio/wav")}
+            # Use overwrite=true if you want to replace an existing file with the same name
+            data = {"overwrite": "true"}
+
+            response = requests.post(url, files=files, data=data)
+
+        if response.status_code == 200:
+            result = response.json()
+            print("Upload successful:", result)
+            # Returns the filename saved inside ComfyUI's input directory
+            return result.get("name")
+        else:
+            raise Exception(f"Failed to upload media: {response.text}")
+
+    # 2. Upload the file and capture the safe server filename
+    server_filename = upload_audio_to_comfy(input_audio_file)
+
     def input_audio_modification(node):
-        def upload_audio_to_comfy(file_path):
-            url = f"{COMFYUI_SERVER}/upload/image"
-
-            # ComfyUI natively processes audio/video uploads via the image endpoint
-            with open(file_path, "rb") as f:
-                files = {"image": (file_path, f, "audio/wav")}
-                # Use overwrite=true if you want to replace an existing file with the same name
-                data = {"overwrite": "true"}
-
-                response = requests.post(url, files=files, data=data)
-
-            if response.status_code == 200:
-                result = response.json()
-                print("Upload successful:", result)
-                # Returns the filename saved inside ComfyUI's input directory
-                return result.get("name")
-            else:
-                raise Exception(f"Failed to upload media: {response.text}")
-
-        # 2. Upload the file and capture the safe server filename
-        server_filename = upload_audio_to_comfy(input_audio_file)
 
         # 4. Point your specific audio node to the uploaded file name
         # Note: Locate your exact node ID and target parameter (e.g., 'audio', 'vhs_audio', etc.)
