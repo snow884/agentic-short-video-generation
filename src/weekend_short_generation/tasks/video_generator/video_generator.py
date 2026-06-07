@@ -90,6 +90,8 @@ def main(video_id):
             clip, target_size=(VID_WIDTH, VID_HEIGHT)
         )
 
+        event = None
+
         if (
             previous_event_id != segment.event_id
             and segment.event_id is not None
