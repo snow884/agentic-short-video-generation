@@ -26,7 +26,6 @@ Pay special attention to scene_description. Ensure that you include the followin
 *💡 Lighting & Aesthetics - Clearly tag the mood and environmental lighting so the model aligns the color grading without relying on CFG guessing.Lighting terms: volumetric dusk, neon rim light, backlight effect, harsh noon sun.Style terms: teal-and-orange, 16mm film grain, anamorphic bokeh, desaturated colors
 Here is an example scene description: "A cinematic close-up video capturing a moment of power and beauty. Backlight effect, volumetric dusk lighting, warm color palette. A professional athlete wearing a yellow and blue jersey sprints at full power down a rain-slicked track. Muscles are well-defined, and water droplets splash intensely into the air from his shoes. The camera smoothly executes a fast dolly in, tracking the runner's focused expression and rapid movement in realistic slow-motion."
 
-
 At the beginning of the video include two opening segments - state the name of the town, state and weekend the video relates to and explicitly list the events the video is about. Use empty or 0 event_id for these segments.
 At the end of the video include a closing segment with brief summary and goodbye. Use empty or 0 event_id for this segment.
 
