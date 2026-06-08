@@ -19,7 +19,9 @@ every segment includes:
 
 Rules for scene_description:
 - Ensure that the scene matches the weather, time of day, environment, climate, ethnicity of attendees, landmarks, vegetation and animals expected at the event location at the event time.
-- Include beautiful women with slim waist and very large breasts. Also include handsome muscular, men with wide shoulders. Ensure that you describe their clothes, ethnicity, hairstyles and facial expressions 
+- Include beautiful women with slim waist and very large breasts.
+- Also include handsome muscular, men with wide shoulders. 
+- Ensure that you describe their clothes, ethnicity, hairstyles and facial expressions 
 - Include products, types of vehicles, types of trees, items, buildings and background that are typical for the event and location. 
 - Do not include multiple scenes or multiple camera angles into scene description. Keep everything as a simple one scene
 - Do not include any names such as city or street names in the scene description. Do not include names of people. e.g. Instead of New Yor City just say city. 
