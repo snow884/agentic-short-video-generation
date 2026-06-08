@@ -15,30 +15,33 @@ every segment includes:
 - timestamp - defines the point in time n seconds in the video where the segment should start
 - script_text - the text stat should be spoken while the segment is displayed. 
 - caption - Caption that should be displayed on the screen when this segment begins, include name of the event when introducing new event. Do NOT include caption for every segment.
-- scene_description - two paragraph description of the scene that should be played at this timestamp
-Ensure that the scene matches the weather, time of day, environment, climate, ethnicity of attendees, landmarks, vegetation and animals expected at the event location at the event time.
-Do not include multiple scenes or multiple camera angles into scene description. Keep everything as a simple one scene
-Do not include any names such as city or street names in the scene description. Do not include names of people. 
-Do not include any complex interactions in scene description. 
+- scene_description - two 80-200 word description of the scene that should be played at this timestamp
 
-Use highly specific, non-idealized, and culturally grounded traits: Do NOT use generic descriptors: Instead of "a handsome man with broad shoulders", specify ethnic features, unique hairstyles, or age (e.g., "an athletic Paraguayan man with a sharp jawline, short cropped dark hair, and a light stubble"). Overhaul biased descriptions: Instead of "a beautiful woman with a slim waist and large breasts", describe specific ethnicity, distinct features, and apparel to break the dataset bias (e.g., "a smiling American woman with blonde hair tied in a messy bun, wearing a blue USA soccer jersey and silver hoop earrings").Diversify the crowd: The prompt says "A group of attractive fans". Change this to "A diverse crowd of multi-ethnic sports fans aged 20 to 40, yelling and cheering".
+Rules for scene_description:
+- Ensure that the scene matches the weather, time of day, environment, climate, ethnicity of attendees, landmarks, vegetation and animals expected at the event location at the event time.
+- Include beautiful women with slim waist and very large breasts. Also include handsome muscular, men with wide shoulders. Ensure that you describe their clothes, ethnicity, hairstyles and facial expressions 
+- Include products, types of vehicles, types of trees, items, buildings and background that are typical for the event and location. 
+- Do not include multiple scenes or multiple camera angles into scene description. Keep everything as a simple one scene
+- Do not include any names such as city or street names in the scene description. Do not include names of people. e.g. Instead of New Yor City just say city. 
+- Do not include any complex interactions in scene description. 
+- Use highly specific, non-idealized, and culturally grounded traits: Do NOT use generic descriptors: Instead of "a handsome man with broad shoulders", specify ethnic features, unique hairstyles, or age (e.g., "an athletic Paraguayan man with a sharp jawline, short cropped dark hair, and a light stubble"). Overhaul biased descriptions: Instead of "a beautiful woman with a slim waist and large breasts", describe specific ethnicity, distinct features, and apparel to break the dataset bias (e.g., "a smiling American woman with blonde hair tied in a messy bun, wearing a blue USA soccer jersey and silver hoop earrings").Diversify the crowd: The prompt says "A group of attractive fans". Change this to "A diverse crowd of multi-ethnic sports fans aged 20 to 40, yelling and cheering".
 Ensure that you include the following information:
-*📷 Camera Framing & Movement - Explicitly direct the camera's lens and path at the start of your prompt. Wan2.2 handles complex tracking much better than previous versions:Movement tags: dolly in, pan left, tilt up, crane shot, or Arc shot (used specifically for an orbital tracking view).Framing tags: medium shot, close-up, cinematic wide shot.
-*🏃 Precise Subject Motion - Describe what the subjects are doing and how fast the action takes place.Use highly active verbs: sprinting at full power, leaps high into the air, intensely fighting.Define speed variables: slow-motion, time-lapse, or whip-pan
-*💡 Lighting & Aesthetics - Clearly tag the mood and environmental lighting so the model aligns the color grading. Lighting terms: volumetric dusk, neon rim light, backlight effect, harsh noon sun.Style terms: teal-and-orange, 16mm film grain, anamorphic bokeh, desaturated colors. 
-Here is an example scene description: "A cinematic close-up video capturing a moment of power and beauty. Backlight effect, volumetric dusk lighting, warm color palette. A professional athlete wearing a yellow and blue jersey sprints at full power down a rain-slicked track. Muscles are well-defined, and water droplets splash intensely into the air from his shoes. The camera smoothly executes a fast dolly in, tracking the runner's focused expression and rapid movement in realistic slow-motion."
+- include 📷 Camera Framing & Movement - Explicitly direct the camera's lens and path at the start of your prompt. Wan2.2 handles complex tracking much better than previous versions:Movement tags: dolly in, pan left, tilt up, crane shot, or Arc shot (used specifically for an orbital tracking view).Framing tags: medium shot, close-up, cinematic wide shot.
+- include 🏃 Precise Subject Motion - Describe what the subjects are doing and how fast the action takes place.Use highly active verbs: sprinting at full power, leaps high into the air, intensely fighting.Define speed variables: slow-motion, time-lapse, or whip-pan
+- include 💡 Lighting & Aesthetics - Clearly tag the mood and environmental lighting so the model aligns the color grading. Lighting terms: volumetric dusk, neon rim light, backlight effect, harsh noon sun.Style terms: teal-and-orange, 16mm film grain, anamorphic bokeh, desaturated colors. 
+- Here is an example scene description: "Medium close-up shot, daylight, side lighting, warm colors. A skilled chef in a white chef's coat and black pants swiftly chops various vegetables on a wooden cutting board. The sunlight streams in through a large window, casting a soft glow on the chef's focused expression and the vibrant array of vegetables. The background features a cluttered kitchen with pots hanging from racks and ingredients neatly arranged on shelves. Steam rises from a simmering pot on the stove as the chef's movements create a rhythmic dance of knife and board."
+- Here is another example scene description: "Daytime, sunlight, side lighting, medium shot, balanced composition. A fencer in a white fencing uniform with a blue mask is engaged in a fast-paced duel against another fencer in a similar uniform but with a red mask. Both are moving swiftly across a well-lit indoor training mat, their swords clashing with precision and speed. The sunlight streaming through large windows creates sharp shadows on the floor, emphasizing the dynamic movements. The spectators in the background watch intently, capturing the intense focus and determination on both fencers' faces."
 
-At the beginning of the video include two opening segments - state the name of the town, state and weekend the video relates to and explicitly list the events the video is about. Use empty or 0 event_id for these segments.
-At the end of the video include a closing segment with brief summary and goodbye. Use empty or 0 event_id for this segment.
+Rules for video structure:
+- At the beginning of the video include two opening segments - state the name of the town, state and weekend the video relates to and explicitly list the events the video is about. Use empty or 0 event_id for these segments.
+- At the end of the video include a closing segment with brief summary and goodbye. Use empty or 0 event_id for this segment.
+- Ensure that you include the most exciting and dynamic segments at the beginning of the video to maximize audience retention. Make sure the fist 6 seconds of the video are as existing as possible.
 
-The video will play in the form of youtube short. 
-Ensure that you include the most exciting and dynamic segments at the beginning of the video to maximize audience retention. Make sure the fist 6 seconds of the video are as existing as possible.
+Rules for style:
+- The video will play in the form of youtube short. 
+- The video style should be super causal, refer to audience in script_text as guys and use modern millennial and gen-Z terms.
 
 Continue improving the script until it passes check_text_spoken_length_matches_timestamps tool. Do NOT stop until the script you have produced returns 'success' when processed by the tool check_text_spoken_length_matches_timestamps. Use value returned by the tool to see what is wrong with your script. 
-
-The video style should be super causal, refer to audience in script_text as guys and use modern millennial and gen-Z terms.
-
-Include beautiful women with slim waist and very large breasts. Also include handsome muscular, men with wide shoulders.
 
 Steps:
 
