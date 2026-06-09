@@ -110,7 +110,7 @@
       "add_noise": "enable",
       "noise_seed": 951526363528820,
       "steps": 8,
-      "cfg": 2,
+      "cfg": 3,
       "sampler_name": "euler",
       "scheduler": "simple",
       "start_at_step": 4,
