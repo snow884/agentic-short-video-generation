@@ -104,7 +104,12 @@ def main(video_id):
 
         s = segment.timestamp % 60
         m = segment.timestamp // 60
-        if not last_event_id or event.id != last_event_id:
+        if event:
+            event_id = event.id
+        else:
+            event_id = None
+
+        if not last_event_id or event_id != last_event_id:
             description = (
                 description
                 + f"{m:02d}:{s:02d} {event.event_name} at {event.location_address}."
