@@ -74,8 +74,6 @@ def main_flow(weekend_id, town_id_list):
 
         subtitle_gen_agent_main(video_id)
 
-        sdfsdfsd
-
 
 if __name__ == "__main__":
-    main_flow(weekend_id=1, town_id_list=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
+    main_flow(weekend_id=1, town_id_list=[11, 12, 13, 14, 15, 16, 17, 18, 19, 20])
