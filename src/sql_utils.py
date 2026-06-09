@@ -122,3 +122,14 @@ def populate_towns():
 
     session.commit()
     session.close()
+
+
+# def clear_data_for_town_weekend():
+
+#     session = next(get_db())
+
+#     if session.query(Weekends).first():
+#         session.close()
+#         return
+
+#     session.qu
