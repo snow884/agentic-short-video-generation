@@ -19,14 +19,14 @@ every segment includes:
 
 Rules for scene_description:
 - Ensure that the scene matches the weather, time of day, environment, climate, ethnicity of attendees, landmarks, vegetation and animals expected at the event location at the event time.
-- Include beautiful women with slim waist and very large breasts.
-- Also include handsome muscular, men with wide shoulders. 
+- Include beautiful women with slim waist, tattoos  and very large breasts
+- Also include handsome muscular, with tattoos, men with wide shoulders. 
 - Ensure that you describe their clothes, ethnicity, hairstyles and facial expressions 
 - Include products, types of vehicles, types of trees, items, buildings and background that are typical for the event and location. 
 - Do not include multiple scenes or multiple camera angles into scene description. Keep everything as a simple one scene
 - Do not include any names such as city or street names in the scene description. Do not include names of people. e.g. Instead of New Yor City just say city. 
 - Do not include any complex interactions in scene description. 
-- Use highly specific, non-idealized, and culturally grounded traits: Do NOT use generic descriptors: Instead of "a handsome man with broad shoulders", specify ethnic features, unique hairstyles, or age (e.g., "an athletic Paraguayan man with a sharp jawline, short cropped dark hair, and a light stubble"). Overhaul biased descriptions: Instead of "a beautiful woman with a slim waist and large breasts", describe specific ethnicity, distinct features, and apparel to break the dataset bias (e.g., "a smiling American woman with blonde hair tied in a messy bun, wearing a blue USA soccer jersey and silver hoop earrings").Diversify the crowd: The prompt says "A group of attractive fans". Change this to "A diverse crowd of multi-ethnic sports fans aged 20 to 40, yelling and cheering".
+- Use highly specific, non-idealized, and culturally grounded traits: Do NOT use generic descriptors: Instead of "a handsome man with broad shoulders", specify ethnic features, unique hairstyles, or age (e.g., "an athletic Paraguayan man with a sharp jawline, short cropped dark hair, and a light stubble"). Overhaul biased descriptions: Instead of "a beautiful woman with a slim waist and large breasts", describe specific ethnicity, distinct features, and apparel to break the dataset bias (e.g., "a smiling American woman with blonde hair tied in a messy bun, wearing a blue USA soccer jersey and silver hoop earrings").Diversify the crowd: The prompt says "A group of attractive fans". Change this to "A diverse crowd of multi-ethnic sports fans aged 20 to 40, yelling and cheering". Ensure the specific descriptions include large breasts for women and broad shoulders for men.
 Ensure that you include the following information:
 - include 📷 Camera Framing & Movement - Explicitly direct the camera's lens and path at the start of your prompt. Wan2.2 handles complex tracking much better than previous versions:Movement tags: dolly in, pan left, tilt up, crane shot, or Arc shot (used specifically for an orbital tracking view).Framing tags: medium shot, close-up, cinematic wide shot.
 - include 🏃 Precise Subject Motion - Describe what the subjects are doing and how fast the action takes place.Use highly active verbs: sprinting at full power, leaps high into the air, intensely fighting.Define speed variables: slow-motion, time-lapse, or whip-pan
