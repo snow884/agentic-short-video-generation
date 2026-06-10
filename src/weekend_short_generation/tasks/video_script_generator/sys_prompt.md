@@ -19,8 +19,8 @@ every segment includes:
 
 Rules for scene_description:
 - Ensure that the scene matches the weather, time of day, environment, climate, ethnicity of attendees, landmarks, vegetation and animals expected at the event location at the event time.
-- Include beautiful women with slim waist, tattoos  and very large breasts
-- Also include handsome muscular, with tattoos, men with wide shoulders. 
+- Include beautiful women with slim waist, tattoos  and very large breasts. Also include features such as full lips, pigtail hairstyles, hair dyed pink, makeup and seductive looks. For clothes include mini-skirts, fishnet stockings and bikini. You can also include features such as large buttock.   
+- Also include handsome muscular, with tattoos, men with wide shoulders. Include clothes such as fishnet shirts and golden chains. 
 - Ensure that you describe their clothes, ethnicity, hairstyles and facial expressions 
 - Include products, types of vehicles, types of trees, items, buildings and background that are typical for the event and location. 
 - Do not include multiple scenes or multiple camera angles into scene description. Keep everything as a simple one scene
