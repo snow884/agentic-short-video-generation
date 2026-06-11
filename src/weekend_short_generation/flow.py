@@ -74,4 +74,4 @@ def main_flow(weekend_id, town_id_list):
 
 
 if __name__ == "__main__":
-    main_flow(weekend_id=1, town_id_list=[18, 19, 20, 21, 22, 23, 24, 25, 26, 27])
+    main_flow(weekend_id=1, town_id_list=[19, 20, 21, 22, 23, 24, 25, 26, 27])
