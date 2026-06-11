@@ -99,6 +99,8 @@ def main(video_id):
         ):
             event = session.query(Events).filter(Events.id == segment.event_id).first()
 
+        date_obj = None
+
         if event is None:
 
             print(
@@ -119,17 +121,24 @@ def main(video_id):
 
             if event.time:
                 formatted_date_time += " at " + event.time
-
-            weekday = date_obj.strftime("%a")
-
+            if date_obj:
+                weekday = date_obj.strftime("%a")
+            else:
+                weekday = ""
             text = event.event_name
             title = (
                 TextClip(
                     text=text.capitalize()
-                    + "\n\n"
-                    + weekday.capitalize()
-                    + ", "
-                    + formatted_date_time.capitalize(),
+                    + (
+                        "\n\n"
+                        + (
+                            weekday.capitalize()
+                            + ", "
+                            + formatted_date_time.capitalize()
+                        )
+                        if date_obj
+                        else ""
+                    ),
                     # font_size=25,
                     color="yellow",
                     method="caption",  # Required for 'align' to work
