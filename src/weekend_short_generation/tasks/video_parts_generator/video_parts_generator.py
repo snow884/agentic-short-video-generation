@@ -41,12 +41,13 @@ def generate_video(prompt, output_file_path):
         return node
 
     def negative_prompt_modification(node):
-        node["inputs"]["text"] = (
-            "Static, person walking backwards, person not moving, static scene,"
-            " blurred, deformed hands, extra fingers, low quality, CGI look, cartoon,"
-            " anime, static background, bad anatomy, slow motion, serious tone, dark"
-            " lighting, watermark, text, signature."
-        )
+        # node["inputs"]["text"] = (
+        #     "Static, person walking backwards, person not moving, static scene,"
+        #     " blurred, deformed hands, extra fingers, low quality, CGI look, cartoon,"
+        #     " anime, static background, bad anatomy, slow motion, serious tone, dark"
+        #     " lighting, watermark, text, signature."
+        # )
+        node["inputs"]["text"] = ""
         print(f"new prompt: {node['inputs']['text']}")
         return node
 
