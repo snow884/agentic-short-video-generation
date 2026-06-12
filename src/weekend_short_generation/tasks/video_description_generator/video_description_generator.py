@@ -109,12 +109,13 @@ def main(video_id):
         else:
             event_id = None
 
-        if not last_event_id or event_id != last_event_id:
-            description = (
-                description
-                + f"{m:02d}:{s:02d} {event.event_name} at {event.location_address}."
-                f" {event.url if event.url else ''} {event.url_facebook if event.url_facebook else ''} {event.url_instagram if event.url_instagram else ''}. \n"
-            )
+        if event:
+            if not last_event_id or event_id != last_event_id:
+                description = (
+                    description
+                    + f"{m:02d}:{s:02d} {event.event_name} at {event.location_address}."
+                    f" {event.url if event.url else ''} {event.url_facebook if event.url_facebook else ''} {event.url_instagram if event.url_instagram else ''}. \n"
+                )
 
         last_event_id = segment.event_id
 
