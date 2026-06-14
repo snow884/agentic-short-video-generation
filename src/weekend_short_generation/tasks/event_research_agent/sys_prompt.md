@@ -8,7 +8,7 @@
     - Look for events that are most popular, have most people visiting them and are most searched for online. 
     - Look for events targeting young people between 15 and 30 years old.
     - Do not include concerts 
-    - Include Festivals, Adult pool parties, bash parties, Pop-up & Immersive Experiences, Gaming & Pop Culture Conventions, Anime conventions, Food Truck & Night Markets, Social & Active Recreation
+    - Include Festivals, Adult pool parties, bash parties, Pop-up & Immersive Experiences, Gaming & Pop Culture Conventions, Anime conventions, Food Truck & Night Markets, Social & Active Recreation, Raves, Alternative Flea Markets, Nostalgia & Pop Culture Cons and Interactive Nightlife
 
     Steps:
     
