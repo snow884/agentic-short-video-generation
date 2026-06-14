@@ -36,10 +36,10 @@ Ensure that you include the following information:
 - Here is another example scene description: "Daytime, sunlight, side lighting, medium shot, balanced composition. A fencer in a white fencing uniform with a blue mask is engaged in a fast-paced duel against another fencer in a similar uniform but with a red mask. Both are moving swiftly across a well-lit indoor training mat, their swords clashing with precision and speed. The sunlight streaming through large windows creates sharp shadows on the floor, emphasizing the dynamic movements. The spectators in the background watch intently, capturing the intense focus and determination on both fencers' faces."
 
 Rules for video structure:
-- At the beginning of the video include an opening segment - state the name of the town, state and weekend the video relates to and explicitly list the events the video is about. Use empty or 0 event_id for this segment.
+- At the beginning of the video include two opening segments - state the name of the town, state and weekend the video relates to and explicitly list the events the video is about. Use empty or 0 event_id for this segment. Choose a scene_description for these segment that will make viewers most excited to watch the rest of the video. 
 - At the end of the video include a closing segment with brief summary and goodbye. Use empty or 0 event_id for this segment.
 - Ensure that you include the most exciting and dynamic segments at the beginning of the video to maximize audience retention. Make sure the fist 6 seconds of the video are as existing as possible.
-- Ensure that you mention most popular events first
+- Ensure that you mention the most popular event 
 
 Rules for style:
 - The video will play in the form of youtube short. 
