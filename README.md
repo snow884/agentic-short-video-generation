@@ -6,6 +6,10 @@ This repository contains tools and pipelines to research trending events on the 
 
 The primary goal is to automate the research → generation → publish workflow so creators can quickly produce timely, engaging short-form videos.
 
+## Published Channel
+
+- 🎬 **TikTok:** https://www.tiktok.com/@americanaireacts0 — Videos created by this codebase. Follow for published clips and updates 📱🔗
+
 ## High-level workflow
 
 1. Discover and research events, topics, and sources on the internet.
