@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Privacy Policy — Agentic Tasks</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #f5f5f5;
+        }
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+        }
+        header h1 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+        header a {
+            color: white;
+            text-decoration: none;
+        }
+        header a:hover {
+            text-decoration: underline;
+        }
+        main {
+            max-width: 900px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        h2 {
+            color: #667eea;
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+            border-bottom: 1px solid #667eea;
+            padding-bottom: 0.5rem;
+        }
+        h2:first-of-type {
+            margin-top: 0;
+        }
+        p {
+            margin-bottom: 1rem;
+        }
+        ul {
+            margin-left: 2rem;
+            margin-bottom: 1rem;
+        }
+        li {
+            margin-bottom: 0.5rem;
+        }
+        a {
+            color: #667eea;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        .meta {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 2rem;
+        }
+        footer {
+            background: #f5f5f5;
+            padding: 2rem;
+            text-align: center;
+            margin-top: 2rem;
+            border-top: 1px solid #ddd;
+        }
+        footer a {
+            margin: 0 1rem;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1><a href="/">🎬 Agentic Tasks</a></h1>
+        <p>Privacy Policy</p>
+    </header>
+
+    <main>
+        <p class="meta">Last updated: 2026-06-14</p>
+
+        <p>This Privacy Policy describes how the Agentic Tasks project ("we", "us", or "the project") handles information collected or processed as part of running the code and using the associated tooling and services. This policy describes only the project itself — separate third-party services (APIs, cloud providers, or model hosts) have their own policies which you should review.</p>
+
+        <h2>1. Data We May Access or Create</h2>
+        <ul>
+            <li><strong>Local configuration and credentials:</strong> the repository may use a local <code>.env</code> file or environment variables to store API keys and tokens needed to access third-party services. The project itself does not transmit these files anywhere by default.</li>
+            <li><strong>Generated assets:</strong> images, audio, and video files created by the pipeline are stored locally under <code>data/</code> unless you configure an external storage provider.</li>
+            <li><strong>Logs and metadata:</strong> runtime logs, task metadata, and temporary files may be written to disk for debugging and orchestration.</li>
+        </ul>
+
+        <h2>2. What We Do With Data</h2>
+        <ul>
+            <li><strong>Research and generation:</strong> the pipeline processes content (text, images, audio) to create derivative video clips.</li>
+            <li><strong>Optional uploads:</strong> the project can publish videos to a configured TikTok account (you must provide credentials/token for publishing). Publishing is an explicit action and not performed automatically without configuration.</li>
+        </ul>
+
+        <h2>3. Third-Party Services</h2>
+        <p>When you configure API providers (e.g. search APIs, model hosts, Ollama, ComfyUI), those providers may collect, store, or process data according to their policies. You should read and understand their privacy terms before using them with this project.</p>
+
+        <h2>4. Secrets and Credentials</h2>
+        <p>Do not commit secrets to git. Use environment variables or a secrets manager. This project recommends storing credentials locally in a <code>.env</code> file that is ignored by git.</p>
+
+        <h2>5. Data Retention and Deletion</h2>
+        <p>Generated files and logs are stored locally. To remove them, delete the relevant files/folders (for example, <code>data/</code>). If you have pushed any sensitive files to a remote git repository, rotate the exposed credentials immediately and purge the repository history.</p>
+
+        <h2>6. Contact</h2>
+        <p>If you have privacy questions or concerns about this project, open an issue in the repository or contact the repository owner.</p>
+    </main>
+
+    <footer>
+        <p>&copy; 2026 Agentic Tasks. All rights reserved.</p>
+        <p>
+            <a href="/">Home</a> |
+            <a href="./terms.html">Terms</a> |
+            <a href="https://github.com">GitHub</a>
+        </p>
+    </footer>
+</body>
+</html>
