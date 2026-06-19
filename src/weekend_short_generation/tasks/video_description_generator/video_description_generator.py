@@ -44,7 +44,11 @@ def populate_db_vid_desc(video_id: int, video_in: VideoSchema):
     session.close()
 
 
-@task(task_run_name="video_description_generator-{video_id}")
+@task(
+    task_run_name="video_description_generator-{video_id}",
+    retries=3,
+    retry_delay_seconds=10,
+)
 def main(video_id):
     session = next(get_db())
 
