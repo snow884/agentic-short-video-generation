@@ -26,7 +26,7 @@ def main(video_id):
 
     uploader = TikTokUploader(
         cookies=parent_dir + "/www.tiktok.com_cookies.txt",
-        headless=True,
+        # headless=True,
         browser="chrome",
     )
     uploader.upload_video(video_file_path, description=video.description)
