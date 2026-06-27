@@ -27,9 +27,12 @@ def main(video_id):
     uploader = TikTokUploader(
         cookies=parent_dir + "/www.tiktok.com_cookies.txt",
         # headless=True,
+        headless=False,
         # browser="chrome",
     )
-    uploader.upload_video(video_file_path, description=video.description)
+    uploader.upload_video(
+        video_file_path, description=video.description, headless=False
+    )
 
     print("Video upload triggered successfully!")
 
