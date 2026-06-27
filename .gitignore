@@ -19,3 +19,5 @@ src/__pycache__/
 */__pycache__/
 *.cpython-312.pyc
 *.db
+
+*_cookies.txt
