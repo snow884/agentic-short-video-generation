@@ -30,9 +30,7 @@ def main(video_id):
         headless=False,
         # browser="chrome",
     )
-    uploader.upload_video(
-        video_file_path, description=video.description, headless=False
-    )
+    uploader.upload_video(video_file_path, description=video.description)
 
     print("Video upload triggered successfully!")
 
