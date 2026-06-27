@@ -1,3 +1,5 @@
+import os
+
 from prefect import task
 from tiktok_uploader.upload import TikTokUploader
 
@@ -17,8 +19,15 @@ def main(video_id):
 
     video_file_path = video.video_file_path
 
+    # get current python file path
+    current_file_path = __file__
+    # get parent directory of current file
+    parent_dir = os.path.dirname(current_file_path)
+
     uploader = TikTokUploader(
-        cookies="www.tiktok.com_cookies.txt", headless=True, browser="chromium"
+        cookies=parent_dir + "/www.tiktok.com_cookies.txt",
+        headless=True,
+        browser="chromium",
     )
     uploader.upload_video(video_file_path, description=video.description)
 
