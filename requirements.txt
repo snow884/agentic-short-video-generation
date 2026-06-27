@@ -32,3 +32,4 @@ lxml
 openai-whisper
 google-search-results>=2.4.2
 websocket-client
+tiktok-uploader
