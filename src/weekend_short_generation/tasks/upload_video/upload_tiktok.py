@@ -30,9 +30,11 @@ def main(video_id):
     logger = get_run_logger()
     session = next(get_db())
 
+    parent_dir = Path(__file__).parent.parent.parent.parent.parent
+
     success = run_agent_sync(
         user_prompt_params={
-            "video_path": video.video_file_path,
+            "video_path": parent_dir / video.video_file_path,
             "description": video.description,
         },
         system_prompt_params={},
