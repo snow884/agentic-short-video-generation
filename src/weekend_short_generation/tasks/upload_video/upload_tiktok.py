@@ -32,7 +32,7 @@ def main(video_id):
 
     success = run_agent_sync(
         user_prompt_params={
-            "video_path": video.file_path,
+            "video_path": video.video_file_path,
             "description": video.description,
         },
         system_prompt_params={},
