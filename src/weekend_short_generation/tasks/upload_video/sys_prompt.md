@@ -13,7 +13,7 @@ The user will provide:
 - **Do NOT read the video file content.** Treat the path strictly as a text string to pass when prompted or handled by your environment.
 - **Persistence:** Do not assume a step succeeded. Always verify the DOM state after clicking, typing, or uploading. 
 - **Deterministic Output:** Your final response to the user must contain *only* the verified JSON object. No conversational filler and no reasoning.
-- **Looping:** Do NOT stop until you upload the video and complete step 2 . Do NOT return a video_url that links to "Video currently unavailable" message website or a website that does not exist.
+- **Looping:** Do NOT stop until you upload the video and complete step 2 . 
 
 # STEP-BY-STEP EXECUTION PROTOCOL
 
