@@ -14,14 +14,17 @@ from langchain_tavily import TavilySearch
 nest_asyncio.apply()
 
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Type
 
 from deepagents.backends.filesystem import FilesystemBackend
 from langchain.agents.middleware import ToolRetryMiddleware
 from langchain.agents.structured_output import ProviderStrategy
+from langchain_community.agent_toolkits import PlayWrightBrowserToolkit
+from langchain_community.tools.playwright.base import BaseBrowserTool
 from langchain_community.tools.playwright.click import ClickTool
 from langchain_core.callbacks import CallbackManagerForToolRun
 from prefect.logging import get_run_logger
+from pydantic import BaseModel, Field
 
 
 async def run_agent(
@@ -122,6 +125,74 @@ async def run_agent(
             sync_browser=toolkit.sync_browser, async_browser=toolkit.async_browser
         )
     )
+
+    # 1. Define the input validation schema for the LLM
+    class UploadFileInput(BaseModel):
+        selector: str = Field(
+            description=(
+                "The CSS selector for the file input element. Usually"
+                " 'input[type=file]'."
+            )
+        )
+        file_path: str = Field(
+            description="The absolute local system path to the video/file to upload."
+        )
+
+    # 2. Build the Custom Playwright upload tool inherited from LangChain's base
+    class PlaywrightUploadFileTool(BaseBrowserTool):
+        name: str = "upload_file"
+        description: str = (
+            "Use this tool to upload a video or file directly to an HTML input tag. Do"
+            " NOT click the button first; use this tool directly with the target file"
+            " path."
+        )
+        args_schema: Type[BaseModel] = UploadFileInput
+
+        def _run(
+            self,
+            selector: str,
+            file_path: str,
+            run_manager: Optional[CallbackManagerForToolRun] = None,
+        ) -> str:
+            # Access active browser context (supports sync and async modes)
+            if self.sync_browser:
+                page = self.sync_browser.pages[0]
+                try:
+                    page.wait_for_selector(selector, state="attached", timeout=5000)
+                    page.set_input_files(selector, file_path)  # Direct injection
+                    return (
+                        f"Successfully attached file {file_path} to selector"
+                        f" '{selector}'"
+                    )
+                except Exception as e:
+                    return f"Sync file upload failed: {str(e)}"
+            else:
+                return "This tool instance requires a synchronous browser context."
+
+        # If your agent setup is using AsyncPlaywright, use this method instead:
+        async def _arun(
+            self,
+            selector: str,
+            file_path: str,
+            run_manager: Optional[CallbackManagerForToolRun] = None,
+        ) -> str:
+            if self.async_browser:
+                page = self.async_browser.pages[0]
+                try:
+                    await page.wait_for_selector(
+                        selector, state="attached", timeout=5000
+                    )
+                    await page.set_input_files(selector, file_path)  # Direct injection
+                    return (
+                        f"Successfully attached file {file_path} to selector"
+                        f" '{selector}'"
+                    )
+                except Exception as e:
+                    return f"Async file upload failed: {str(e)}"
+            else:
+                return "This tool instance requires an asynchronous browser context."
+
+    browser_tools.append(PlaywrightUploadFileTool(async_browser=toolkit.async_browser))
 
     model = ChatOllama(
         model=os.environ["RESEARCH_AGENT_MODEL"],
