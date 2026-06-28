@@ -29,6 +29,7 @@ The user will provide:
 4. Populate the video description and location
 5. Click the "Post" button using `click_element`
 6. Wait for the video to upload
+Do not stop until you complete 1-6 !
 
 ## Step 3: Verification Loop
 1. After posting, use `navigate_browser` to view the profile page of **americanaireacts0**.
