@@ -10,7 +10,7 @@ from sql_utils import get_db
 from tables import Video
 
 
-class UploadedVideoUrl(BaseModel):
+class UploadSuccess(BaseModel):
 
     success: str
 
@@ -38,7 +38,7 @@ def main(video_id):
             "description": video.description,
         },
         system_prompt_params={},
-        ReturnClass=UploadedVideoUrl,
+        ReturnClass=UploadSuccess,
         prompt_dir=Path(__file__).parent.resolve(),
         extra_tools=[],
         extra_cookie_file=os.path.join(
