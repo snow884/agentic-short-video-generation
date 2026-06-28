@@ -25,10 +25,9 @@ The user will provide:
 ## Step 2: Metadata Configuration
 1. Wait for the interface to transition to the metadata editor screen. Use `extract_text` to verify the video is processing/uploaded.
 2. Locate the description text field. Use your available text/element interaction capabilities to input the `target_description`.
-4. Populate the video description and location
-5. Click the "Post" button
-6. Wait for the video to upload
-Do not stop until you complete 1-6 !
+3. Populate the video description and location
+4. Click the "Post" button
+5. Wait for the video to finish posting 
 
 
 # REQUIRED OUTPUT FORMAT
