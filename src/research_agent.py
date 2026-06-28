@@ -182,9 +182,9 @@ async def run_agent(
         ) -> str:
             if self.async_browser:
                 # page = self.async_browser.pages[0]
-                context = async_browser.new_context()
+                context = await async_browser.new_context()
 
-                page = context.pages[0]
+                page = await context.pages[0]
 
                 try:
                     await page.wait_for_selector(
