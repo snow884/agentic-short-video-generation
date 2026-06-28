@@ -29,5 +29,7 @@ Populate the video description and location
 Click the "Post" button
 Wait for the video to finish posting 
 
+Do not stop until step 2 is complete and you press the Post button.
+
 # REQUIRED OUTPUT FORMAT
 When validation is completely successful, terminate your execution by returning *only* a raw JSON object matching the schema containing the key video_url. Do not include introductory text, markdown backticks, or trailing explanations.
