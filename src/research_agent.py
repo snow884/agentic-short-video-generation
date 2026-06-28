@@ -83,6 +83,41 @@ async def run_agent(
 
     browser_tools = toolkit.get_tools()
 
+    class ForceClickTool(ClickTool):
+        name: str = "force_click_element"
+        description: str = (
+            "Use this to force-click an element via JavaScript when standard clicks"
+            " fail."
+        )
+
+        def _run(
+            self, selector: str, run_manager: Optional[CallbackManagerForToolRun] = None
+        ) -> str:
+            # Resolves via the underlying sync/async Playwright page instance
+            page = (
+                self.sync_browser.pages[0]
+                if self.sync_browser
+                else self.async_browser.pages[0]
+            )
+
+            try:
+                # Force click bypasses standard visibility/interactivity checks
+                page.click(selector, force=True)
+                return f"Successfully force-clicked element: {selector}"
+            except Exception:
+                # Ultimate fallback: Evaluate direct browser JavaScript execution
+                try:
+                    page.evaluate(f"document.querySelector('{selector}').click()")
+                    return f"Successfully dispatched JS click to element: {selector}"
+                except Exception as e:
+                    return f"Failed to click element: {str(e)}"
+
+    browser_tools.append(
+        ForceClickTool(
+            sync_browser=toolkit.sync_browser, async_browser=toolkit.async_browser
+        )
+    )
+
     model = ChatOllama(
         model=os.environ["RESEARCH_AGENT_MODEL"],
         reasoning=True,
