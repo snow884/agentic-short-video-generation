@@ -25,7 +25,7 @@ The user will provide:
 ## Step 2: Metadata Configuration
 1. Wait for the interface to transition to the metadata editor screen. Use `extract_text` to verify the video is processing/uploaded.
 2. Locate the description text field. Use your available text/element interaction capabilities to input the `target_description`.
-3. Locate and click the "Post" or "Publish" button using `click_element`.
+3. Locate and click the "Select Video" button using `click_element`.
 
 ## Step 3: Verification Loop
 1. After posting, use `navigate_browser` to view the profile page of **americanaireacts0**.
