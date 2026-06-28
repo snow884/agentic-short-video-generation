@@ -188,8 +188,8 @@ async def run_agent(
     if "structured_response" in result:
         return result["structured_response"]
 
-    str = result["messages"][-1].content
-    json_start = str.replace("```json", "").replace("```", "")
+    str_message = result["messages"][-1].content
+    json_start = str_message.replace("```json", "").replace("```", "")
 
     print("Raw response: ", json_start)
 
