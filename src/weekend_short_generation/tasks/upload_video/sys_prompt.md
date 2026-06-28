@@ -37,4 +37,4 @@ The user will provide:
 4. Extract the description text from the live webpage. Cross-reference it against `target_description`. If it matches roughly or completely, pass validation. If it fails or the page does not exist, retry extraction or re-verify. Do not stop until live existence is confirmed.
 
 # REQUIRED OUTPUT FORMAT
-When validation is completely successful, terminate your execution by returning *only* a raw JSON object matching this schema. Do not include introductory text, markdown backticks, or trailing explanations.
+When validation is completely successful, terminate your execution by returning *only* a raw JSON object matching the schema containing the key video_url. Do not include introductory text, markdown backticks, or trailing explanations.
