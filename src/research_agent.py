@@ -181,7 +181,11 @@ async def run_agent(
             run_manager: Optional[CallbackManagerForToolRun] = None,
         ) -> str:
             if self.async_browser:
-                page = self.async_browser.pages[0]
+                # page = self.async_browser.pages[0]
+                context = async_browser.new_context()
+
+                page = context.pages[0]
+
                 try:
                     await page.wait_for_selector(
                         selector, state="attached", timeout=5000
