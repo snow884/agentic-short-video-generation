@@ -51,7 +51,7 @@ async def run_agent(
         )
     ]
 
-    async_browser = create_async_playwright_browser(args=[])
+    async_browser = create_async_playwright_browser(args=[], headless=False)
 
     toolkit = PlayWrightBrowserToolkit.from_browser(async_browser=async_browser)
 
