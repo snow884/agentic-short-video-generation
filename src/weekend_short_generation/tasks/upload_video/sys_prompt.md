@@ -21,7 +21,7 @@ The user will provide:
 ## Step 1: Upload Interface Interaction
 Go to the TikTok Studio upload page: `https://www.tiktok.com/tiktokstudio/upload?from=webapp&tab=video`.
 Find the primary "Select Video" button or the target area container.
-Trigger the video upload process by clicking the "Select Video" button. (Your underlying environment framework will catch the file dialog and pass the `video_file_path` automatically upon this click event).
+Trigger the video upload by submitting the files directly to the input element.
 
 ## Step 2: Metadata Configuration
 Wait for the interface to transition to the metadata editor screen. Use `extract_text` to verify the video is processing/uploaded. 
