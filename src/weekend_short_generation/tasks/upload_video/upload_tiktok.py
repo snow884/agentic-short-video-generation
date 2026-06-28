@@ -1,39 +1,44 @@
 import os
+from pathlib import Path
 
 from prefect import task
-from tiktok_uploader.upload import TikTokUploader
+from prefect.logging import get_run_logger
+from pydantic import BaseModel
 
+from research_agent import run_agent_sync
 from sql_utils import get_db
 from tables import Video
 
 
+class SuccessResponse(BaseModel):
+
+    success: bool
+
+
 @task(
-    task_run_name="upload_tiktok-{video_id}",
+    task_run_name="upload_video-{video_id}",
     retries=3,
     retry_delay_seconds=10,
 )
 def main(video_id):
+
+    logger = get_run_logger()
     session = next(get_db())
 
     video = session.query(Video).filter(Video.id == video_id).first()
 
-    video_file_path = video.video_file_path
+    logger = get_run_logger()
+    session = next(get_db())
 
-    # get current python file path
-    current_file_path = __file__
-    # get parent directory of current file
-    parent_dir = os.path.dirname(current_file_path)
-
-    uploader = TikTokUploader(
-        cookies=parent_dir + "/www.tiktok.com_cookies.txt",
-        # headless=True,
-        headless=False,
-        # browser="chrome",
+    success = run_agent_sync(
+        user_prompt_params={"video_path": video.path, "description": video.description},
+        system_prompt_params={},
+        ReturnClass=SuccessResponse,
+        prompt_dir=Path(__file__).parent.resolve(),
+        extra_tools=[],
+        extra_cookie_file=os.path.join(
+            os.path.dirname(os.path.abspath(__file__)), "www.tiktok.com_cookies.txt"
+        ),
     )
-    uploader.upload_video(video_file_path, description=video.description)
 
-    print("Video upload triggered successfully!")
-
-
-if __name__ == "__main__":
-    main(video_id=1)
+    return success
