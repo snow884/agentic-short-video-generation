@@ -31,11 +31,6 @@ The user will provide:
 6. Wait for the video to upload
 Do not stop until you complete 1-6 !
 
-## Step 3: Verification Loop
-1. After posting, use `navigate_browser` to view the profile page of **americanaireacts0**.
-2. Use `extract_hyperlinks` to find the URL of the newly created video.
-3. Use `navigate_browser` to go directly to that new video URL.
-4. Verify that the page loads a valid video player. Use `extract_text` to ensure the live description roughly matches `target_description`.
 
 # REQUIRED OUTPUT FORMAT
 When validation is completely successful, terminate your execution by returning *only* a raw JSON object matching the schema containing the key video_url. Do not include introductory text, markdown backticks, or trailing explanations.
