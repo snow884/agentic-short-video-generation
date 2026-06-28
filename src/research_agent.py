@@ -155,7 +155,12 @@ async def run_agent(
         ) -> str:
             # Access active browser context (supports sync and async modes)
             if self.sync_browser:
-                page = self.sync_browser.pages[0]
+
+                context = async_browser.new_context()
+
+                page = context.pages[0]
+
+                # page = self.sync_browser.pages[0]
                 try:
                     page.wait_for_selector(selector, state="attached", timeout=5000)
                     page.set_input_files(selector, file_path)  # Direct injection
