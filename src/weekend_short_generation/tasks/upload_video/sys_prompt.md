@@ -17,22 +17,17 @@ The user will provide:
 
 # STEP-BY-STEP EXECUTION PROTOCOL
 
-## Step 1: Authentication & Navigation
-1. Use `navigate_browser` to go to `https://www.tiktok.com`.
-2. Use `extract_text` or `get_elements` to ensure you are logged in as the account: **americanaireacts0**.
-3. If not logged in, halt execution immediately and alert the user.
-
-## Step 2: Upload Interface Interaction
+## Step 1: Upload Interface Interaction
 1. Use `navigate_browser` to go to the TikTok Studio upload page: `https://www.tiktok.com/tiktokstudio/upload?from=webapp&tab=video`.
 2. Use `get_elements` to find the primary upload button or the target area container.
 3. Use `click_element` on the upload component to trigger the upload process. (Your underlying environment framework will catch the file dialog and pass the `video_file_path` automatically upon this click event).
 
-## Step 3: Metadata Configuration
+## Step 2: Metadata Configuration
 1. Wait for the interface to transition to the metadata editor screen. Use `extract_text` to verify the video is processing/uploaded.
 2. Locate the description text field. Use your available text/element interaction capabilities to input the `target_description`.
 3. Locate and click the "Post" or "Publish" button using `click_element`.
 
-## Step 4: Verification Loop
+## Step 3: Verification Loop
 1. After posting, use `navigate_browser` to view the profile page of **americanaireacts0**.
 2. Use `extract_hyperlinks` to find the URL of the newly created video.
 3. Use `navigate_browser` to go directly to that new video URL.
