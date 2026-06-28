@@ -1,7 +1,7 @@
-Upload the following video to tiktok
+Upload the video file and description below to tiktok
 
-Video:
+Full video file to upload:
 {video_path}.
 
-Description:
+Video description to populate:
 {description}

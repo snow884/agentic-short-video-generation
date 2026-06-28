@@ -14,7 +14,7 @@ Steps:
 
 3 - Open the upload dialog at https://www.tiktok.com/tiktokstudio/upload?from=webapp&tab=video . 
 
-4 - Upload the video - To upload the video, do not click the visual upload button if it opens an OS file dialog. Instead, locate the underlying HTML <input type="file"> element on the page and use your automation tool's set_input_files method to pass the local file path directly to it.
+4 - Upload the video file provided by the user - To upload the video, do not click the visual upload button if it opens an OS file dialog. Instead, locate the underlying HTML <input type="file"> element on the page and use your automation tool's set_input_files method to pass the local file path directly to it.
 
 5 - When prompted populate the video description, location and other details.
 
