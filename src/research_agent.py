@@ -102,11 +102,10 @@ async def run_agent(
             self, selector: str, run_manager: Optional[CallbackManagerForToolRun] = None
         ) -> str:
             # Resolves via the underlying sync/async Playwright page instance
-            page = (
-                self.sync_browser.pages[0]
-                if self.sync_browser
-                else self.async_browser.pages[0]
-            )
+
+            context = async_browser.new_context()
+
+            page = context.pages[0]
 
             try:
                 # Force click bypasses standard visibility/interactivity checks
