@@ -75,8 +75,11 @@ async def run_agent(
             cookie_list.append(cookie_dict)
 
         # 3. Add to the Playwright browser context
-        browser_context = async_browser.contexts[0]  # or a newly created context
-        await browser_context.add_cookies(cookie_list)
+        # browser_context = async_browser.contexts[0]  # or a newly created context
+
+        context = await async_browser.new_context()
+
+        await context.add_cookies(cookie_list)
 
     browser_tools = toolkit.get_tools()
 
