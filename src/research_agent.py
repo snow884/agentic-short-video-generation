@@ -14,12 +14,13 @@ from langchain_tavily import TavilySearch
 nest_asyncio.apply()
 
 from pathlib import Path
+from typing import Optional
 
 from deepagents.backends.filesystem import FilesystemBackend
 from langchain.agents.middleware import ToolRetryMiddleware
 from langchain.agents.structured_output import ProviderStrategy
-from langchain.callbacks.manager import CallbackManagerForToolRun
-from langchain.tools.playwright.click_tool import ClickTool
+from langchain_community.tools.playwright.click import ClickTool
+from langchain_core.callbacks import CallbackManagerForToolRun
 from prefect.logging import get_run_logger
 
 
