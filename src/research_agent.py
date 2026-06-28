@@ -1,4 +1,5 @@
 import asyncio
+import http.cookiejar
 import json
 import os
 
@@ -27,6 +28,7 @@ async def run_agent(
     ReturnClass=None,
     prompt_dir=None,
     extra_tools=[],
+    extra_cookie_file=None,
 ):
 
     logger = get_run_logger()
@@ -46,9 +48,33 @@ async def run_agent(
         )
     ]
 
-    async_browser = create_async_playwright_browser(headless=True, args=[])
+    async_browser = create_async_playwright_browser(args=[])
 
     toolkit = PlayWrightBrowserToolkit.from_browser(async_browser=async_browser)
+
+    # 2. Parse the cookies.txt file
+    if extra_cookie_file:
+        cookie_jar = http.cookiejar.MozillaCookieJar()
+        cookie_jar.load(extra_cookie_file, ignore_discard=True, ignore_expires=True)
+
+        cookie_list = []
+        for cookie in cookie_jar:
+            cookie_dict = {
+                "name": cookie.name,
+                "value": cookie.value,
+                "domain": cookie.domain,
+                "path": cookie.path,
+                "secure": cookie.secure,
+                "httpOnly": cookie.has_nonstandard_attr("HttpOnly"),
+            }
+            if cookie.expires:
+                cookie_dict["expires"] = cookie.expires
+            cookie_list.append(cookie_dict)
+
+        # 3. Add to the Playwright browser context
+        browser_context = async_browser.contexts[0]  # or a newly created context
+        await browser_context.add_cookies(cookie_list)
+
     browser_tools = toolkit.get_tools()
 
     model = ChatOllama(
