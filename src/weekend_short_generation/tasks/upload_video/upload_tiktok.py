@@ -10,9 +10,9 @@ from sql_utils import get_db
 from tables import Video
 
 
-class SuccessResponse(BaseModel):
+class UploadedVideoUrl(BaseModel):
 
-    success: bool
+    video_url: str
 
 
 @task(
@@ -36,7 +36,7 @@ def main(video_id):
             "description": video.description,
         },
         system_prompt_params={},
-        ReturnClass=SuccessResponse,
+        ReturnClass=UploadedVideoUrl,
         prompt_dir=Path(__file__).parent.resolve(),
         extra_tools=[],
         extra_cookie_file=os.path.join(
