@@ -18,6 +18,8 @@ from pathlib import Path
 from deepagents.backends.filesystem import FilesystemBackend
 from langchain.agents.middleware import ToolRetryMiddleware
 from langchain.agents.structured_output import ProviderStrategy
+from langchain.callbacks.manager import CallbackManagerForToolRun
+from langchain.tools.playwright.click_tool import ClickTool
 from prefect.logging import get_run_logger
 
 
