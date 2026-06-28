@@ -38,10 +38,4 @@ The user will provide:
 4. Verify that the page loads a valid video player. Use `extract_text` to ensure the live description roughly matches `target_description`.
 
 # REQUIRED OUTPUT FORMAT
-When validation is successful, return *only* a raw JSON object matching this schema. Do not include introductory text, markdown backticks, or trailing explanations.
-
-{
-  "url": "https://www.tiktok.com/@americanaireacts0/video/...",
-  "title": "[Extracted or intended title]",
-  "description": "[Verified live video description]"
-}
+When validation is completely successful, terminate your execution by returning *only* a raw JSON object matching the schema containing the key video_url. Do not include introductory text, markdown backticks, or trailing explanations.
