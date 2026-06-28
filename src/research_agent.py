@@ -13,6 +13,9 @@ from langchain_tavily import TavilySearch
 
 nest_asyncio.apply()
 
+from pathlib import Path
+
+from deepagents.middleware.filesystem import FilesystemBackend
 from langchain.agents.middleware import ToolRetryMiddleware
 from langchain.agents.structured_output import ProviderStrategy
 from prefect.logging import get_run_logger
@@ -108,6 +111,8 @@ async def run_agent(
         )
     )
 
+    parent_dir = Path(__file__).parent.parent.resolve()
+
     agent_chain = create_deep_agent(
         model=model,
         tools=browser_tools + tavity_tools + extra_tools,
@@ -124,6 +129,7 @@ async def run_agent(
         ],
         debug=True,
         cache=None,
+        backend=FilesystemBackend(root_dir=parent_dir),
     )
     result = await agent_chain.ainvoke(
         {

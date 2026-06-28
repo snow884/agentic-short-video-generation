@@ -31,7 +31,10 @@ def main(video_id):
     session = next(get_db())
 
     success = run_agent_sync(
-        user_prompt_params={"video_path": video.path, "description": video.description},
+        user_prompt_params={
+            "video_path": video.file_path,
+            "description": video.description,
+        },
         system_prompt_params={},
         ReturnClass=SuccessResponse,
         prompt_dir=Path(__file__).parent.resolve(),
