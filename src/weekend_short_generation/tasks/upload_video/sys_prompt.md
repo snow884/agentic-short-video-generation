@@ -38,7 +38,3 @@ The user will provide:
 
 # REQUIRED OUTPUT FORMAT
 When validation is completely successful, terminate your execution by returning *only* a raw JSON object matching this schema. Do not include introductory text, markdown backticks, or trailing explanations.
-
-\{
-  "video_url": "https://www.tiktok.com/@americanaireacts0/video/...",
-\}
