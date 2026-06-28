@@ -19,7 +19,7 @@ The user will provide:
 # STEP-BY-STEP EXECUTION PROTOCOL
 
 ## Step 1: Upload Interface Interaction
-Go to the TikTok Studio upload page: `https://www.tiktok.com/tiktokstudio/upload?from=webapp&tab=video`.
+Go to the TikTok Studio upload page: `https://www.tiktok.com/tiktokstudio/upload?from=webapp&tab=video`. You should already be logged in as user americanaireacts0 .
 Find the primary "Select Video" button or the target area container.
 Trigger the video upload by submitting the files directly to the input element.
 
