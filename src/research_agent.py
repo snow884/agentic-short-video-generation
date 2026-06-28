@@ -169,6 +169,7 @@ def run_agent_sync(
     ReturnClass=None,
     prompt_dir=None,
     extra_tools=[],
+    extra_cookie_file=None,
 ):
 
     return asyncio.run(
@@ -178,6 +179,7 @@ def run_agent_sync(
             ReturnClass=ReturnClass,
             prompt_dir=prompt_dir,
             extra_tools=extra_tools,
+            extra_cookie_file=extra_cookie_file,
         )
     )
 
