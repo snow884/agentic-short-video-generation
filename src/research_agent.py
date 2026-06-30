@@ -57,20 +57,23 @@ async def run_agent(
         )
     ]
 
-    custom_user_agent = (
+    custom_ua = (
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like"
         " Gecko) Chrome/131.0.0.0 Safari/537.36"
     )
+    width, height = 1920, 1080
 
     async_browser = create_async_playwright_browser(
-        args=["--disable-gpu", "--no-sandbox"],
         headless=False,
-        browser_kwargs={
-            "user_agent": custom_user_agent,
-            "viewport": {"width": 1280, "height": 720},
-            "java_script_enabled": True,
-            "andbypass_csp": True,
-        },
+        args=[
+            "--disable-gpu",
+            "--no-sandbox",
+            f"--user-agent={custom_ua}",
+            f"--window-size={width},{height}",
+            "--start-maximized",
+            "--disable-web-security",  # Bypasses CSP/Same-Origin Policy
+            "--disable-javascript",
+        ],
     )
 
     toolkit = PlayWrightBrowserToolkit.from_browser(async_browser=async_browser)
