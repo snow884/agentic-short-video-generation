@@ -42,7 +42,7 @@ def main(video_id):
         prompt_dir=Path(__file__).parent.resolve(),
         extra_tools=[],
         extra_cookie_file=os.path.join(
-            os.path.dirname(os.path.abspath(__file__)), "www.tiktok.com_cookies.txt"
+            os.path.dirname(os.path.abspath(__file__)), "www.reddit.com_cookies.txt"
         ),
     )
 
