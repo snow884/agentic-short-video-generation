@@ -12,7 +12,7 @@ from tables import Video
 
 class UploadSuccess(BaseModel):
 
-    success: str
+    video_url: str
 
 
 @task(
