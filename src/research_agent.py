@@ -57,11 +57,25 @@ async def run_agent(
         )
     ]
 
+    custom_user_agent = (
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like"
+        " Gecko) Chrome/131.0.0.0 Safari/537.36"
+    )
+
     async_browser = create_async_playwright_browser(
-        args=["--disable-gpu", "--no-sandbox"], headless=False
+        args=["--disable-gpu", "--no-sandbox"],
+        headless=False,
+        browser_kwargs={
+            "user_agent": custom_user_agent,
+            "viewport": {"width": 1280, "height": 720},
+            "java_script_enabled": True,
+            "andbypass_csp": True,
+        },
     )
 
     toolkit = PlayWrightBrowserToolkit.from_browser(async_browser=async_browser)
+
+    context = None
 
     # 2. Parse the cookies.txt file
     if extra_cookie_file:
@@ -88,6 +102,13 @@ async def run_agent(
         context = await async_browser.new_context()
 
         await context.add_cookies(cookie_list)
+
+    if not context:
+        context = await async_browser.new_context()
+
+    context.add_init_script(
+        "Object.defineProperty(navigator, 'webdriver', {get: () => undefined})"
+    )
 
     browser_tools = toolkit.get_tools()
 
