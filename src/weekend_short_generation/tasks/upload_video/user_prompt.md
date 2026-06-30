@@ -1,7 +1,7 @@
 Upload the video file and description below to reddit community AiTravelTips:
 
-Full video file to upload:
+video_file_path:
 {video_path}.
 
-Video description to populate:
+target_description:
 {description}
