@@ -1,7 +1,7 @@
 from dotenv import load_dotenv
 from prefect import flow, task
 from prefect.logging import get_run_logger
-from tasks.upload_video.upload_tiktok import main as upload_tiktok_agent_main
+from tasks.upload_video.upload_video import main as upload_tiktok_agent_main
 
 from sql_utils import get_db
 from tables import Towns, Video, Weekends
