@@ -186,7 +186,8 @@ def populate_db_with_events(event_list: EventList, town_id: int, weekend_id: int
 @tool
 def get_regional_trending_queries(keyword: str, geo_code: str) -> str:
     """
-    Fetches rising and breakout related queries for a specific keyword in a targeted location.
+    Fetches ONLY rising and breakout related queries for a specific keyword
+    in a targeted location over the last 7 days.
     Args:
         keyword (str): The search term to query (e.g., 'real estate').
         geo_code (str): The Google Trends geo code (e.g., 'US-TX' for Texas, 'US-NY-501' for NYC).
