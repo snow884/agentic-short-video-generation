@@ -1,9 +1,13 @@
+import json
+import os
 import re
 from datetime import datetime
 from pathlib import Path
 
+from langchain_core.tools import tool
 from prefect import task
 from prefect.logging import get_run_logger
+from serpapi import GoogleSearch
 
 from research_agent import run_agent_sync
 from sql_utils import get_db
@@ -179,6 +183,42 @@ def populate_db_with_events(event_list: EventList, town_id: int, weekend_id: int
     return event_id_list
 
 
+@tool
+def get_regional_trending_queries(keyword: str, geo_code: str) -> str:
+    """
+    Fetches rising and breakout related queries for a specific keyword in a targeted location.
+    Args:
+        keyword (str): The search term to query (e.g., 'real estate').
+        geo_code (str): The Google Trends geo code (e.g., 'US-TX' for Texas, 'US-NY-501' for NYC).
+    Returns:
+        str: A JSON formatted string containing rising and top related queries.
+    """
+    params = {
+        "engine": "google_trends",
+        "q": keyword,
+        "geo": geo_code,
+        "data_type": "RELATED_QUERIES",  # Isolates related query metrics
+        "api_key": os.environ.get("SERPAPI_API_KEY"),
+    }
+
+    try:
+        search = GoogleSearch(params)
+        results = search.get_dict()
+
+        # Extract related queries if they exist in the payload
+        related_queries = results.get("related_queries", {})
+        if not related_queries:
+            return (
+                f"No regional query trend data found for '{keyword}' in geo"
+                f" '{geo_code}'."
+            )
+
+        return json.dumps(related_queries, indent=2)
+
+    except Exception as e:
+        return f"An error occurred: {str(e)}"
+
+
 @task(
     task_run_name="event_research_agent-{town_id}-{weekend_id}",
     retries=3,
@@ -201,7 +241,7 @@ def main(town_id=0, weekend_id=0):
         system_prompt_params={"num_events": 5},
         ReturnClass=EventList,
         prompt_dir=Path(__file__).parent.resolve(),
-        extra_tools=[check_events],
+        extra_tools=[check_events, get_regional_trending_queries],
     )
     event_id_list = populate_db_with_events(
         event_list, town_id=town_id, weekend_id=weekend_id
