@@ -64,10 +64,10 @@ def main(video_id):
             video.youtube_url = res.get("url")
             session.commit()
 
-        if res.get("platform") == "facebook":
-            logger.info(f"Facebook URL: {res.get('url')}")
-            video.facebook_url = res.get("url")
-            session.commit()
+        # if res.get("platform") == "facebook":
+        #     logger.info(f"Facebook URL: {res.get('url')}")
+        #     video.facebook_url = res.get("url")
+        #     session.commit()
 
         if res.get("platform") == "tiktok":
             logger.info(f"TikTok URL: {res.get('url')}")
