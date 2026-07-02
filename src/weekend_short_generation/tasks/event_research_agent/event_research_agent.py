@@ -197,7 +197,8 @@ def get_regional_trending_queries(keyword: str, geo_code: str) -> str:
         "engine": "google_trends",
         "q": keyword,
         "geo": geo_code,
-        "data_type": "RELATED_QUERIES",  # Isolates related query metrics
+        "date": "now 7-d",  # Restricts the data timeline to the last week
+        "data_type": "RELATED_QUERIES",  # Targets query structures
         "api_key": os.environ.get("SERPAPI_API_KEY"),
     }
 
