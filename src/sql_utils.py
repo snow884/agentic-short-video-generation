@@ -30,11 +30,7 @@ def populate_weekends():
         return
 
     # Example: Populate weekends with some dummy data
-<<<<<<< HEAD
-    weekends = [Weekends(date="2026-06-27")]
-=======
     weekends = [Weekends(date="2026-07-01")]
->>>>>>> 4ea53f3222948be866536f31728451beaf8df73d
 
     for weekend in weekends:
         session.add(weekend)
