@@ -42,8 +42,8 @@ def main(video_id):
     status = client.get_status(request_id)
 
     while status.get("status") not in ["completed", "failed"]:
-        logger.info(f"Upload status: {status}")
-        time.sleep(10)  # Wait for 10 seconds before checking again
         status = client.get_status(request_id)
+        logger.info(f"Upload status: {status}")
+        time.sleep(10)
 
     print(f"Upload status: {    status.get('status')}")
