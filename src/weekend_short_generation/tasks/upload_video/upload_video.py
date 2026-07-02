@@ -1,6 +1,6 @@
 import os
+import time
 from pathlib import Path
-from time import time
 
 from prefect import task
 from prefect.logging import get_run_logger
