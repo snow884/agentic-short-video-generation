@@ -46,4 +46,32 @@ def main(video_id):
         logger.info(f"Upload status: {status}")
         time.sleep(10)
 
+    results = status.get("results")
+
+    for res in results:
+        logger.info(
+            f"Platform: {res.get('platform')}, Status: {res.get('status')}, URL:"
+            f" {res.get('url')}"
+        )
+
+        if res.get("platform") == "instagram":
+            logger.info(f"Instagram URL: {res.get('url')}")
+            video.instagram_url = res.get("url")
+            session.commit()
+
+        if res.get("platform") == "youtube":
+            logger.info(f"Youtube URL: {res.get('url')}")
+            video.youtube_url = res.get("url")
+            session.commit()
+
+        if res.get("platform") == "facebook":
+            logger.info(f"Facebook URL: {res.get('url')}")
+            video.facebook_url = res.get("url")
+            session.commit()
+
+        if res.get("platform") == "tiktok":
+            logger.info(f"TikTok URL: {res.get('url')}")
+            video.tiktok_url = res.get("url")
+            session.commit()
+
     print(f"Upload status: {    status.get('status')}")
