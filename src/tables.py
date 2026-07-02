@@ -138,6 +138,11 @@ class Video(Base):
     description = Column(String, default="")
     title = Column(String, default="")
 
+    instagram_url = Column(String, default="")
+    youtube_url = Column(String, default="")
+    facebook_url = Column(String, default="")
+    tiktok_url = Column(String, default="")
+
 
 class VideoSchema(BaseModel):
     # town_id: int
