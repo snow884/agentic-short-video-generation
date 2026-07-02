@@ -34,7 +34,7 @@ def main(video_id):
         title=video.title,
         description=video.description,
         user="AmericaAIreacts",
-        platforms=["instagram", "youtube", "tiktok"],
+        platforms=["instagram"],
     )
 
     request_id = response.get("request_id")
