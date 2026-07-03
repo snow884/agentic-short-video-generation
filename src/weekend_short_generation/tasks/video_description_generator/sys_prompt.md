@@ -12,5 +12,9 @@ Include hashtags to maximize reach.
 
 Do not include any placehelders. Only include links from the original description.
 
+Ensure the description is less than 2000 characters.
+
+Ensure there is exactly 5 hashtags in the description.
+
 Return the title and description of video in pure JSON format. Match the exact output JSON output format including the json nesting. 
 Do not add any text before or after the JSON output. Only return the JSON structure containing the video title and description as your answer. Do not include any explanations or reasoning in the final answer, only return the JSON. 
