@@ -32,7 +32,9 @@ def main(video_id):
     response = client.upload_video(
         video_path=parent_dir / video.video_file_path,
         title=video.title,
-        description=video.description,
+        description=video.description[
+            :2000
+        ],  # Truncate description to first 2000 characters
         user="AmericaAIreacts",
         platforms=["instagram", "youtube", "tiktok"],
     )
