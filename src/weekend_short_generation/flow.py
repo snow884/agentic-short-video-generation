@@ -64,7 +64,7 @@ def main_flow(weekend_id, town_id_list):
         video_id = (
             session.query(Video)
             .filter(Video.weekend_id == weekend_id, Video.town_id == town_id)
-            .last()
+            .first()
             .id
         )
 
