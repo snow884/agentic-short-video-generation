@@ -109,7 +109,7 @@ async def run_agent(
     if not context:
         context = await async_browser.new_context()
 
-    context.add_init_script(
+    await context.add_init_script(
         "Object.defineProperty(navigator, 'webdriver', {get: () => undefined})"
     )
 
