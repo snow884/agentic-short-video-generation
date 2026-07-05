@@ -1,3 +1,5 @@
+"""Orchestrates the weekend short generation pipeline for each town."""
+
 from dotenv import load_dotenv
 from prefect import flow, task
 from prefect.logging import get_run_logger
@@ -23,6 +25,15 @@ from tables import Towns, Video, Weekends
 
 @task(task_run_name="create_video-{weekend_id}-{town_id}")
 def create_video(weekend_id, town_id):
+    """Create a new video record for a given weekend and town.
+
+    Args:
+        weekend_id: Identifier for the weekend being processed.
+        town_id: Identifier for the town associated with the video.
+
+    Returns:
+        The newly created video identifier.
+    """
 
     session = next(get_db())
 
@@ -48,6 +59,7 @@ def create_video(weekend_id, town_id):
 
 @flow(name="Weekend Short Generation Flow", log_prints=True)
 def main_flow(weekend_id, town_id_list):
+    """Run the end-to-end short generation workflow for every town in the list."""
 
     logger = get_run_logger()
 
@@ -85,6 +97,8 @@ def main_flow(weekend_id, town_id_list):
         video_description_generator_agent_main(video_id)
 
         subtitle_gen_agent_main(video_id)
+
+        sdadssdsaads
 
         upload_video_main(video_id)
 

@@ -1,4 +1,6 @@
-from typing import List
+from __future__ import annotations
+
+from typing import List, Optional
 
 from sqlalchemy import Column, ForeignKey, Integer, String
 
@@ -122,7 +124,7 @@ class EventsSchema(BaseModel):
 
 
 class EventList(BaseModel):
-    events: list[EventsSchema] | None = []
+    events: Optional[list[EventsSchema]] = []
 
 
 class Video(Base):
@@ -180,7 +182,7 @@ class VideoSegmentsSchema(BaseModel):
 
 class VideoSegmentsList(BaseModel):
 
-    video_segments: list[VideoSegmentsSchema] | None = []
+    video_segments: Optional[list[VideoSegmentsSchema]] = []
 
 
 class ImageType(enum.Enum):
@@ -217,4 +219,4 @@ class TownsList(BaseModel):
 
 class TownsList(BaseModel):
 
-    towns: List[TownsSchema] | None = []
+    towns: Optional[List[TownsSchema]] = []

@@ -409,7 +409,11 @@ def main(video_id):
     ollama.generate(model=os.getenv("RESEARCH_AGENT_MODEL"), keep_alive=0)
     time.sleep(60)  # Wait for a few seconds to ensure the model is cleared from memory
 
-    print(Video_Segments_List.video_segments[0])
+    if len(Video_Segments_List.video_segments) < 3:
+        raise Exception(
+            f"Less than 3 events were added to the database for video {video.id}."
+            " Please check the event research agent's output."
+        )
 
 
 if __name__ == "__main__":
