@@ -12,7 +12,7 @@
 
     Steps:
     
-    1.) Use the tool get_regional_trending_queries to identify rising and breakout queries on google. Provide keywords such as 'festival', 'convention', 'bash', 'event', 'market', etc. Then select the search queries are are rising or have a breakout. Make sure you are including the most popular and searched for events.
+    1.) Use the tool get_regional_trending_queries to identify rising and breakout queries in recent google search trends. Provide keywords such as 'festival', 'convention', 'bash', 'event', 'market', etc. Then select the search queries are are rising or have a breakout and search more information about them in step 2. Make sure you are including the most popular events and events rising in popularity.
 
     2.) Use the Tavily Search API tools {tavity_tools_str} to search for identified in step 1.). Inspect the search results returned by the search API and open them and inspect them as needed using the tools {browser_tools_str} to obtain more information. 
     
