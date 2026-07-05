@@ -239,16 +239,16 @@ def check_text_spoken_length_matches_timestamps(segments_list: list):
     ):
         print(
             "Error: The first segment has an event_id of"
-            f" {segments_list[0]['event_id']} which is not None. Set the event_id of"
-            " the first segment to None, 0 or -1 to indicate that it is an"
+            f" {segments_list[0]['event_id']} which is not None, 0 or -1. Set the"
+            " event_id of the first segment to None, 0 or -1 to indicate that it is an"
             " introduction segment without a specific event."
         )
         res_str = (
             res_str
             + "Error: The first segment has an event_id of"
-            f" {segments_list[0]['event_id']} which is not None. Set the event_id of"
-            " the first segment to None, 0 or -1 to indicate that it is an introduction"
-            " segment without a specific event."
+            f" {segments_list[0]['event_id']} which is not None, 0 or -1. Set the"
+            " event_id of the first segment to None, 0 or -1 to indicate that it is"
+            " an introduction segment without a specific event."
         )
         res_str = res_str + "\n"
 
@@ -259,16 +259,16 @@ def check_text_spoken_length_matches_timestamps(segments_list: list):
     ):
         print(
             "Error: The second segment has an event_id of"
-            f" {segments_list[1]['event_id']} which is not None. Set the event_id of"
-            " the second segment to None, 0 or -1 to indicate that it is an"
-            " introduction segment without a specific event."
+            f" {segments_list[1]['event_id']} which is not None, 0 or -1. Set the"
+            " event_id of the second segment to None, 0 or -1 to indicate that it is"
+            " an introduction segment without a specific event."
         )
         res_str = (
             res_str
             + "Error: The second segment has an event_id of"
-            f" {segments_list[1]['event_id']} which is not None. Set the event_id of"
-            " the second segment to None, 0 or -1 to indicate that it is an"
-            " introduction segment without a specific event."
+            f" {segments_list[1]['event_id']} which is not None, 0 or -1. Set the"
+            " event_id of the second segment to None, 0 or -1 to indicate that it is"
+            " an introduction segment without a specific event."
         )
         res_str = res_str + "\n"
 
@@ -279,16 +279,16 @@ def check_text_spoken_length_matches_timestamps(segments_list: list):
     ):
         print(
             "Error: The last segment has an event_id of"
-            f" {segments_list[-1]['event_id']} which is not None. Set the event_id of"
-            " the last segment to None, 0 or -1 to indicate that it is a conclusion"
-            " segment without a specific event."
+            f" {segments_list[-1]['event_id']} which is not None, 0 or -1. Set the"
+            " event_id of the last segment to None, 0 or -1 to indicate that it is a"
+            " conclusion segment without a specific event."
         )
         res_str = (
             res_str
             + "Error: The last segment has an event_id of"
-            f" {segments_list[-1]['event_id']} which is not None. Set the event_id of"
-            " the last segment to None, 0 or -1 to indicate that it is a conclusion"
-            " segment without a specific event."
+            f" {segments_list[-1]['event_id']} which is not None, 0 or -1. Set the"
+            " event_id of the last segment to None, 0 or -1 to indicate that it is a"
+            " conclusion segment without a specific event."
         )
         res_str = res_str + "\n"
 
