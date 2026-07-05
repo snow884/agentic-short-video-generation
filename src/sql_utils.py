@@ -1,3 +1,5 @@
+"""Utility helpers for creating and seeding the local SQLite database."""
+
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
 
@@ -9,6 +11,8 @@ engine = create_engine(
 
 
 def get_db():
+    """Yield a SQLAlchemy session bound to the local SQLite database."""
+
     db = Session(engine)
     try:
         yield db
@@ -17,11 +21,13 @@ def get_db():
 
 
 def create_tables():
+    """Create all configured database tables in the local database."""
 
     Base.metadata.create_all(engine)
 
 
 def populate_weekends():
+    """Seed the weekends table with a minimal sample weekend when empty."""
 
     session = next(get_db())
 
@@ -30,7 +36,7 @@ def populate_weekends():
         return
 
     # Example: Populate weekends with some dummy data
-    weekends = [Weekends(date="2026-07-04")]
+    weekends = [Weekends(date="2026-07-11")]
 
     for weekend in weekends:
         session.add(weekend)
@@ -40,6 +46,7 @@ def populate_weekends():
 
 
 def populate_towns():
+    """Populate the towns table from the bundled seed data when it is empty."""
 
     session = next(get_db())
 
