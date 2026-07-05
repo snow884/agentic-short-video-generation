@@ -245,15 +245,16 @@ def main(town_id=0, weekend_id=0):
         prompt_dir=Path(__file__).parent.resolve(),
         extra_tools=[check_events, get_regional_trending_queries],
     )
-    event_id_list = populate_db_with_events(
-        event_list, town_id=town_id, weekend_id=weekend_id
-    )
 
     if len(event_id_list) == 0:
         raise Exception(
             f"No events were added to the database for town_id {town_id} and weekend_id"
             f" {weekend_id}. Please check the event research agent's output."
         )
+
+    event_id_list = populate_db_with_events(
+        event_list, town_id=town_id, weekend_id=weekend_id
+    )
 
     return event_id_list
 
