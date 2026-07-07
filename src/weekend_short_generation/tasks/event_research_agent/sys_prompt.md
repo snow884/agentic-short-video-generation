@@ -30,6 +30,7 @@
     - url - the URL where the event information was found. 
 
     5.) Validate that the event is rising in popularity using get_regional_trending_queries tool. Only include events in our final output if they associate with keywords that have breakout or are rising in google search trends.
+    Also validate that the event location address matches the city and state provided by the user.
 
     6.) Return the answer in pure JSON format. Matching the exact output JSON output format including the json nesting. 
     - Do not add any text or reasoning before or after the JSON output. Only return the JSON structure containing the events as your answer. Do not include any explanations or reasoning in the final answer, only return the JSON. 

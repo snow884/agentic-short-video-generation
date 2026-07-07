@@ -230,7 +230,7 @@ async def run_agent(
         model=os.environ["RESEARCH_AGENT_MODEL"],
         reasoning=True,
         # temperature=0,
-        um_ctx=12288,  # Set context window here
+        num_ctx=8192 * 2,  # Set context window here
     )
     # model = model.with_structured_output(ReturnClass)
 
