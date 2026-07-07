@@ -4,6 +4,7 @@ import re
 from datetime import datetime
 from pathlib import Path
 
+import usaddress
 from langchain_core.tools import tool
 from prefect import task
 from prefect.logging import get_run_logger
@@ -115,6 +116,38 @@ def check_events(events_list: list):
                 + f"Event {event['event_name']} has an invalid location address format."
                 " Please ensure the address follows the format: '123 Main St, City,"
                 " ST 12345'."
+            )
+            res = res + "\n"
+
+        try:
+            # usaddress tags fragments using a probabilistic model
+            parsed_address, address_type = usaddress.tag(event["location_address"])
+
+            # Check for basic required US address structural pieces
+            has_state = "StateName" in parsed_address
+            has_zip = "ZipCode" in parsed_address
+
+            if has_state and has_zip:
+                print(
+                    "📝 Matches US Address Structure. Detected State:"
+                    f" {parsed_address['StateName']}"
+                )
+            else:
+
+                res = (
+                    res
+                    + f"Event {event['event_name']} has an invalid location address"
+                    " format.The address in missing vital US components (State or"
+                    " ZIP Code)."
+                )
+                res = res + "\n"
+
+        except usaddress.RepeatedLabelError:
+
+            res = (
+                res
+                + f"Event {event['event_name']} has an invalid location address format."
+                "Critical parsing error: The string does not match standard US layout."
             )
             res = res + "\n"
 
