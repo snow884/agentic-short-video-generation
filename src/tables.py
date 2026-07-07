@@ -150,6 +150,13 @@ class Video(Base):
     facebook_url = Column(String, default="")
     tiktok_url = Column(String, default="")
 
+    analytics_summary = Column(String, default="")
+    views_count = Column(Integer, default=0)
+    likes_count = Column(Integer, default=0)
+    comments_count = Column(Integer, default=0)
+    shares_count = Column(Integer, default=0)
+    watch_time_seconds = Column(Integer, default=0)
+
 
 class VideoSchema(BaseModel):
     # town_id: int
