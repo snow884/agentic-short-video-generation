@@ -5,7 +5,7 @@
     - Do not stop your research if you have an empty list or less then {num_events} events, continue until you have {num_events} events in your list. 
     - If needed search broader areas or different sources to find more events but do not stop until you have {num_events} events in your list.
     - Use the tool check_events to validate the list of events that you found. Do not return event list until it passes the test by this tool.
-    - Look for events that are most popular, have most people visiting them and are most searched for online. 
+    - Look for events that are either rising in google search results or have a 'breakout' in search results. Use the tool get_regional_trending_queries to obtain rising and 'breakout' queries.
     - Look for events targeting young people between 15 and 30 years old.
     - Do not include concerts 
     - Include Festivals, Adult pool parties, bash parties, Pop-up & Immersive Experiences, Gaming & Pop Culture Conventions, Anime conventions, Food Truck & Night Markets, Social & Active Recreation, Raves, Alternative Flea Markets, Nostalgia & Pop Culture Cons and Interactive Nightlife
