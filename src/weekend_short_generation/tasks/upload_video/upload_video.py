@@ -77,3 +77,49 @@ def main(video_id):
             session.commit()
 
     print(f"Upload status: {    status.get('status')}")
+
+    response = client.upload_video(
+        video_path=parent_dir / video.video_file_path,
+        title=video.title + "\n\n" + video.description,
+        user="AmericaAIreacts",
+        platforms=["tiktok"],
+    )
+
+    request_id = response.get("request_id")
+
+    status = client.get_status(request_id)
+
+    while status.get("status") not in ["completed", "failed"]:
+        status = client.get_status(request_id)
+        logger.info(f"Upload status: {status}")
+        time.sleep(10)
+
+    results = status.get("results")
+
+    for res in results:
+        logger.info(
+            f"Platform: {res.get('platform')}, Status: {res.get('status')}, URL:"
+            f" {res.get('url')}"
+        )
+
+        if res.get("platform") == "instagram":
+            logger.info(f"Instagram URL: {res.get('url')}")
+            video.instagram_url = res.get("url")
+            session.commit()
+
+        if res.get("platform") == "youtube":
+            logger.info(f"Youtube URL: {res.get('url')}")
+            video.youtube_url = res.get("url")
+            session.commit()
+
+        # if res.get("platform") == "facebook":
+        #     logger.info(f"Facebook URL: {res.get('url')}")
+        #     video.facebook_url = res.get("url")
+        #     session.commit()
+
+        if res.get("platform") == "tiktok":
+            logger.info(f"TikTok URL: {res.get('url')}")
+            video.tiktok_url = res.get("url")
+            session.commit()
+
+    print(f"Upload status: {    status.get('status')}")
