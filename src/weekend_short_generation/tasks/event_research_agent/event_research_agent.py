@@ -233,9 +233,6 @@ def get_regional_trending_queries(keyword: str, geo_code: str) -> str:
             {
                 "query": "example query", # The related query term.
                 "value": "18", # The relative search interest value for the query, indicating its popularity compared to other queries.
-                "extracted_value": 18, # same as value but as an integer
-                "link": "xyz",
-                "serpapi_link": "xyz"
             }
     """
     params = {
@@ -248,8 +245,32 @@ def get_regional_trending_queries(keyword: str, geo_code: str) -> str:
     }
 
     try:
+
         search = GoogleSearch(params)
         results = search.get_dict()
+
+        # Extract the related queries dictionary
+        related_queries = results.get("related_queries", {})
+
+        # Isolate the 'rising' queries array
+        rising_queries = related_queries.get("rising", [])
+
+        output = []
+
+        # Filter and print only rising or breakout queries
+        for item in rising_queries:
+            query = item.get("query")
+            value = item.get("value")  # Percentage increase or 'Breakout'
+
+            # "Breakout" will appear as the value string when search volume jumps > 5000%
+            if "Breakout" in str(value) or "%" in str(value):
+                print(f"Query: {query} | Trend Value: {value}")
+                output.append(
+                    {
+                        "query": query,
+                        "value": value,
+                    }
+                )
 
         # Extract related queries if they exist in the payload
         related_queries = results.get("related_queries", {})
