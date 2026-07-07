@@ -102,8 +102,9 @@ def main_flow(weekend_id, town_id_list):
         subtitle_gen_agent_main(video_id)
 
         upload_video_main(video_id)
+        
         collect_video_analytics_main(video_id)
 
 
 if __name__ == "__main__":
-    main_flow(weekend_id=1, town_id_list=[i for i in range(2, 49)])
+    main_flow(weekend_id=1, town_id_list=[i for i in range(1, 49)])
