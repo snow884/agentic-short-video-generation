@@ -223,11 +223,20 @@ def get_regional_trending_queries(keyword: str, geo_code: str) -> str:
     """
     Fetches ONLY rising and breakout related queries for a specific keyword
     in a targeted location over the last 7 days.
+
     Args:
         keyword (str): The search term to query (e.g., 'real estate').
         geo_code (str): The Google Trends geo code (e.g., 'US-TX' for Texas, 'US-NY-501' for NYC).
     Returns:
         str: A JSON formatted string containing rising and top related queries.
+        Example:
+            {
+                "query": "example query", # The related query term.
+                "value": "18", # The relative search interest value for the query, indicating its popularity compared to other queries.
+                "extracted_value": 18, # same as value but as an integer
+                "link": "xyz",
+                "serpapi_link": "xyz"
+            }
     """
     params = {
         "engine": "google_trends",
