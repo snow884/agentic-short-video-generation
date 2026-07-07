@@ -36,7 +36,7 @@ def main(video_id):
             :2000
         ],  # Truncate description to first 2000 characters
         user="AmericaAIreacts",
-        platforms=["instagram", "youtube", "tiktok", "twitter"],
+        platforms=["instagram", "youtube", "tiktok"],
     )
 
     request_id = response.get("request_id")
