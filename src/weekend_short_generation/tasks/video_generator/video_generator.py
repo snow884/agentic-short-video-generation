@@ -9,15 +9,8 @@ os.environ["IMAGEIO_FFMPEG_EXE"] = "/usr/bin/ffmpeg"
 
 import hashlib
 import time
-from datetime import datetime
 
-from moviepy import (
-    CompositeVideoClip,
-    TextClip,
-    VideoFileClip,
-    concatenate_videoclips,
-    vfx,
-)
+from moviepy import CompositeVideoClip, VideoFileClip, concatenate_videoclips, vfx
 from moviepy.video.fx import MultiplySpeed
 from prefect import task
 from pydub import AudioSegment
@@ -92,73 +85,73 @@ def main(video_id):
 
         event = None
 
-        if (
-            previous_event_id != segment.event_id
-            and segment.event_id is not None
-            and segment.event_id not in [0, -1]
-        ):
-            event = session.query(Events).filter(Events.id == segment.event_id).first()
+        # if (
+        #     previous_event_id != segment.event_id
+        #     and segment.event_id is not None
+        #     and segment.event_id not in [0, -1]
+        # ):
+        #     event = session.query(Events).filter(Events.id == segment.event_id).first()
 
-        date_obj = None
+        # date_obj = None
 
-        if event is None:
+        # if event is None:
 
-            print(
-                f"Warning: Event with ID {segment.event_id} not found for segment"
-                f" {segment.id}"
-            )
-        else:
-            try:
-                date_obj = datetime.strptime(event.date, "%Y-%m-%d")
-                formatted_date_time = date_obj.strftime("%b %d")
-            except Exception as e:
-                print(f"Error parsing date for event {event.event_name}: {e}")
-                if event.date:
-                    formatted_date_time = event.date
-                else:
+        #     print(
+        #         f"Warning: Event with ID {segment.event_id} not found for segment"
+        #         f" {segment.id}"
+        #     )
+        # else:
+        #     try:
+        #         date_obj = datetime.strptime(event.date, "%Y-%m-%d")
+        #         formatted_date_time = date_obj.strftime("%b %d")
+        #     except Exception as e:
+        #         print(f"Error parsing date for event {event.event_name}: {e}")
+        #         if event.date:
+        #             formatted_date_time = event.date
+        #         else:
 
-                    formatted_date_time = "Unknown Date"
+        #             formatted_date_time = "Unknown Date"
 
-            if event.time:
-                formatted_date_time += " at " + event.time
-            if date_obj:
-                weekday = date_obj.strftime("%a")
-            else:
-                weekday = ""
-            text = event.event_name
-            title = (
-                TextClip(
-                    text=text.capitalize()
-                    + (
-                        "\n\n"
-                        + (
-                            weekday.capitalize()
-                            + ", "
-                            + formatted_date_time.capitalize()
-                        )
-                        if date_obj
-                        else ""
-                    ),
-                    # font_size=25,
-                    color="yellow",
-                    method="caption",  # Required for 'align' to work
-                    text_align="center",
-                    size=(
-                        int(clip_resized_center.w * 0.6),
-                        int(clip_resized_center.h * 0.6),
-                    ),  # Width is 80% of video, height auto
-                    font=(  # Specify a font file or name
-                        "/usr/share/fonts/truetype/liberation/LiberationSans-Bold.ttf"
-                    ),
-                    margin=(40, 20),
-                )
-                .with_duration(5)
-                .with_position("center")
-            )
+        #     if event.time:
+        #         formatted_date_time += " at " + event.time
+        #     if date_obj:
+        #         weekday = date_obj.strftime("%a")
+        #     else:
+        #         weekday = ""
+        #     text = event.event_name
+        #     title = (
+        #         TextClip(
+        #             text=text.capitalize()
+        #             + (
+        #                 "\n\n"
+        #                 + (
+        #                     weekday.capitalize()
+        #                     + ", "
+        #                     + formatted_date_time.capitalize()
+        #                 )
+        #                 if date_obj
+        #                 else ""
+        #             ),
+        #             # font_size=25,
+        #             color="yellow",
+        #             method="caption",  # Required for 'align' to work
+        #             text_align="center",
+        #             size=(
+        #                 int(clip_resized_center.w * 0.6),
+        #                 int(clip_resized_center.h * 0.6),
+        #             ),  # Width is 80% of video, height auto
+        #             font=(  # Specify a font file or name
+        #                 "/usr/share/fonts/truetype/liberation/LiberationSans-Bold.ttf"
+        #             ),
+        #             margin=(40, 20),
+        #         )
+        #         .with_duration(5)
+        #         .with_position("center")
+        #     )
 
-            clip_resized_center = CompositeVideoClip([clip_resized_center, title])
+        #     clip_resized_center = CompositeVideoClip([clip_resized_center, title])
 
-            previous_event_id = segment.event_id
+        #     previous_event_id = segment.event_id
 
         if combined_video is None:
             combined_video = clip_resized_center

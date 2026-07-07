@@ -49,16 +49,12 @@ def populate_db_vid_desc(video_id: int, video_in: VideoSchema):
     retries=3,
     retry_delay_seconds=10,
 )
-def main(video_id):
+def main(video_id, event_id):
     session = next(get_db())
 
     video = session.query(Video).filter(Video.id == video_id).first()
 
-    events = (
-        session.query(Events)
-        .filter(Events.weekend_id == video.weekend_id, Events.town_id == video.town_id)
-        .all()
-    )
+    event = session.query(Events).filter(Events.id == event_id).first()
 
     segments = (
         session.query(VideoSegments)
@@ -71,7 +67,7 @@ def main(video_id):
         print(f"No segments found for video id {video_id}.")
         return
 
-    if not events:
+    if not event:
         print("No events found for the given weekend and town.")
         return
 
@@ -104,29 +100,10 @@ def main(video_id):
 
     last_event_id = None
 
-    for segment in segments:
-        if segment.event_id is None or segment.event_id in [0, -1]:
-            continue
-
-        event = session.query(Events).filter(Events.id == segment.event_id).first()
-
-        s = segment.timestamp % 60
-        m = segment.timestamp // 60
-        if event:
-            event_id = event.id
-        else:
-            event_id = None
-
-        if event:
-            if not last_event_id or event_id != last_event_id:
-                description = (
-                    description
-                    + f"{m:02d}:{s:02d} {event.event_name} at {event.location_address}."
-                    f" {event.url if event.url else ''} {event.url_facebook if event.url_facebook else ''} {event.url_instagram if event.url_instagram else ''}. \n"
-                )
-
-            if not last_event_id:
-                last_event_id = segment.event_id
+    description = (
+        f"{event.event_name} at {event.location_address}."
+        f" {event.url if event.url else ''} {event.url_facebook if event.url_facebook else ''} {event.url_instagram if event.url_instagram else ''}. \n"
+    )
 
     user_prompt_params = {
         "town_name": town.name,
