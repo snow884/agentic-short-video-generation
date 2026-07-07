@@ -1,1 +1,1 @@
-Provide a list of events near {town_name}, {town_state} on the weekend of {weekend_date}. 
+Provide a list of events trending in google search located near {town_name}, {town_state} on the weekend of {weekend_date}. 
