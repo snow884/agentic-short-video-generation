@@ -55,7 +55,7 @@ def check_events(events_list: list):
                 "instagram_hashtags",
                 "youtube_hashtags",
                 "google_trends_query",
-                "google_trends_results",
+                "google_trends_value",
             ]
         ):  # check that it's a dict and has the right keys
             res = (

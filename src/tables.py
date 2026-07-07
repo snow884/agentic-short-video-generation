@@ -105,7 +105,7 @@ class Events(Base):
     tiktok_hashtags = Column(String, default="")
 
     google_trends_query = Column(String, default="")
-    google_trends_results = Column(String, default="")
+    google_trends_value = Column(String, default="")
 
     # weekend: Mapped["Weekends"] = relationship(back_populates="events")
     # town: Mapped["Towns"] = relationship(back_populates="events")
@@ -125,7 +125,7 @@ class EventsSchema(BaseModel):
     keywords: str
     tiktok_hashtags: str
     google_trends_query: str
-    google_trends_results: str
+    google_trends_value: str
 
 
 class EventList(BaseModel):
