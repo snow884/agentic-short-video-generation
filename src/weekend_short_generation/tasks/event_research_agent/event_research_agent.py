@@ -280,7 +280,7 @@ def get_regional_trending_queries(keyword: str, geo_code: str) -> str:
                 f" '{geo_code}'."
             )
 
-        return json.dumps(related_queries, indent=2)
+        return json.dumps(output, indent=2)
 
     except Exception as e:
         return f"An error occurred: {str(e)}"
