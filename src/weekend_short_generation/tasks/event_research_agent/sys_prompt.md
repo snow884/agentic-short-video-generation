@@ -27,26 +27,3 @@ Pass your compiled list to the `check_events` tool. If it fails, return to Step 
 
 # Output Format
 Return the final response in **pure JSON format only**. Do not include markdown code blocks (like ```json), introduction, markdown text, or post-response explanations. 
-
-Expected JSON Structure:
-{
-  "events": [
-    {
-    
-        "event_name": "Example event name",
-        "date": "123"
-        time: "123"
-        location_address: "123 elm St,"
-        description: "asaasd"
-        gps_longitude: 123
-        gps_latitude: 123
-        url: "example.com"
-        url_facebook: "example.com"
-        url_instagram: "example.com"
-        keywords: "event, market"
-        tiktok_hashtags: "event, market"
-        google_trends_query: "example"
-        google_trends_value: "+1000"
-    }
-  ]
-}
