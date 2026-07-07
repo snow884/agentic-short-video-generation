@@ -15,6 +15,7 @@
     1.) Use the tool get_regional_trending_queries to identify rising and breakout queries in recent google search trends. Provide keywords such as 'festival', 'convention', 'bash', 'event', 'market', etc. Then select the search queries are are rising or have a breakout and search more information about them in step 2. Make sure you are including the most popular events and events rising in popularity.
 
     2.) Use the Tavily Search API tools {tavity_tools_str} to search for events and event keywords in step 1.). Inspect the search results returned by the search API and open them and inspect them as needed using the tools {browser_tools_str} to obtain more information. 
+    If you cant find any keywords for events on the given weekend in given town devise your own keywords to look for as a part of this step.
     
     3.) Open the URLs of the search results using the internet browser tools {browser_tools_str} to find more events. If you encounter a popup close it and continue with your research. If you encounter a captcha, continue with your research. Do not stop or wait for the captcha to be solved, just continue with other research.
     - If you encounter a popup close it and continue with your research.
