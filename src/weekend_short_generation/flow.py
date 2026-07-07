@@ -70,8 +70,6 @@ def main_flow(weekend_id, town_id_list):
 
     for town_id in town_id_list:
 
-        video_id = create_video(weekend_id, town_id)
-
         # session = next(get_db())
 
         # video_id = (
@@ -90,20 +88,25 @@ def main_flow(weekend_id, town_id_list):
         event_id_list = event_research_agent_main(
             town_id=town_id, weekend_id=weekend_id
         )
+        for event_id in event_id_list:
 
-        video_script_generator_agent_main(video_id)
+            logger.info(f"Event ID: {event_id}")
 
-        video_parts_generator_agent_main(video_id)
+            video_id = create_video(weekend_id, town_id)
 
-        video_generator_agent_main(video_id)
+            video_script_generator_agent_main(video_id)
 
-        video_description_generator_agent_main(video_id)
+            video_parts_generator_agent_main(video_id)
 
-        subtitle_gen_agent_main(video_id)
+            video_generator_agent_main(video_id)
 
-        upload_video_main(video_id)
+            video_description_generator_agent_main(video_id)
 
-        collect_video_analytics_main(video_id)
+            subtitle_gen_agent_main(video_id)
+
+            upload_video_main(video_id)
+
+            collect_video_analytics_main(video_id)
 
 
 if __name__ == "__main__":

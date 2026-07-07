@@ -16,7 +16,7 @@ from tables import Events, Towns, Video, VideoSegments, VideoSegmentsList, Weeke
 
 load_dotenv()
 
-VIDEO_LENGTH = 100
+VIDEO_LENGTH = 24
 
 
 def object_as_dict(obj):
@@ -232,107 +232,47 @@ def check_text_spoken_length_matches_timestamps(segments_list: list):
             )
             res_str = res_str + "\n"
 
-    if (
-        not segments_list[0]["event_id"] is None
-        or not segments_list[0]["event_id"] == 0
-        or not segments_list[0]["event_id"] == -1
-    ):
+    breast_mention_count = 0
+    for i, segment in enumerate(segments_list):
+
+        if "breasts" in segment["script_text"].lower():
+            breast_mention_count = breast_mention_count + 1
+
+    if breast_mention_count / len(segments_list) > 0.5:
+
         print(
-            "Error: The first segment has an event_id of"
-            f" {segments_list[0]['event_id']} which is not None, 0 or -1. Set the"
-            " event_id of the first segment to None, 0 or -1 to indicate that it is an"
-            " introduction segment without a specific event."
+            "Error: The script text mentions 'breast' only in"
+            f" {breast_mention_count} out of {len(segments_list)} segments, which is"
+            " more than 50.00% of the segments. Mention 'breasts' less frequently in"
+            " the script text to better align with the theme of the video."
         )
         res_str = (
             res_str
-            + "Error: The first segment has an event_id of"
-            f" {segments_list[0]['event_id']} which is not None, 0 or -1. Set the"
-            " event_id of the first segment to None, 0 or -1 to indicate that it is"
-            " an introduction segment without a specific event."
+            + "Error: The script text mentions 'breasts' only in"
+            f" {breast_mention_count} out of {len(segments_list)} segments, which is"
+            " more than 50.00 percent of the segments. Mention 'breasts' less"
+            " frequently in the script text to better align with the theme of the"
+            " video."
         )
         res_str = res_str + "\n"
 
-    if (
-        not segments_list[1]["event_id"] is None
-        or not segments_list[1]["event_id"] == 0
-        or not segments_list[1]["event_id"] == -1
-    ):
+    if breast_mention_count / len(segments_list) < 0.2:
+
         print(
-            "Error: The second segment has an event_id of"
-            f" {segments_list[1]['event_id']} which is not None, 0 or -1. Set the"
-            " event_id of the second segment to None, 0 or -1 to indicate that it is"
-            " an introduction segment without a specific event."
+            "Error: The script text mentions 'breasts' only in"
+            f" {breast_mention_count} out of {len(segments_list)} segments, which is"
+            " less than 20 percent of the segments. Mention 'breasts' more frequently"
+            " in the script text to better align with the theme of the video."
         )
         res_str = (
             res_str
-            + "Error: The second segment has an event_id of"
-            f" {segments_list[1]['event_id']} which is not None, 0 or -1. Set the"
-            " event_id of the second segment to None, 0 or -1 to indicate that it is"
-            " an introduction segment without a specific event."
+            + "Error: The script text mentions 'breasts' only in"
+            f" {breast_mention_count} out of {len(segments_list)} segments, which is"
+            " less than 20 percent of the segments. Mention 'breasts' more"
+            " frequently in the script text to better align with the theme of the"
+            " video."
         )
         res_str = res_str + "\n"
-
-    if (
-        not segments_list[-1]["event_id"] is None
-        or not segments_list[-1]["event_id"] == 0
-        or not segments_list[-1]["event_id"] == -1
-    ):
-        print(
-            "Error: The last segment has an event_id of"
-            f" {segments_list[-1]['event_id']} which is not None, 0 or -1. Set the"
-            " event_id of the last segment to None, 0 or -1 to indicate that it is a"
-            " conclusion segment without a specific event."
-        )
-        res_str = (
-            res_str
-            + "Error: The last segment has an event_id of"
-            f" {segments_list[-1]['event_id']} which is not None, 0 or -1. Set the"
-            " event_id of the last segment to None, 0 or -1 to indicate that it is a"
-            " conclusion segment without a specific event."
-        )
-        res_str = res_str + "\n"
-
-    # breast_mention_count = 0
-    # for i, segment in enumerate(segments_list):
-
-    #     if "breasts" in segment["script_text"].lower():
-    #         breast_mention_count = breast_mention_count + 1
-
-    # if breast_mention_count / len(segments_list) > 0.5:
-
-    #     print(
-    #         "Error: The script text mentions 'breast' only in"
-    #         f" {breast_mention_count} out of {len(segments_list)} segments, which is"
-    #         " more than 50.00% of the segments. Mention 'breasts' less frequently in"
-    #         " the script text to better align with the theme of the video."
-    #     )
-    #     res_str = (
-    #         res_str
-    #         + "Error: The script text mentions 'breasts' only in"
-    #         f" {breast_mention_count} out of {len(segments_list)} segments, which is"
-    #         " more than 50.00 percent of the segments. Mention 'breasts' less"
-    #         " frequently in the script text to better align with the theme of the"
-    #         " video."
-    #     )
-    #     res_str = res_str + "\n"
-
-    # if breast_mention_count / len(segments_list) < 0.2:
-
-    #     print(
-    #         "Error: The script text mentions 'breasts' only in"
-    #         f" {breast_mention_count} out of {len(segments_list)} segments, which is"
-    #         " less than 20 percent of the segments. Mention 'breasts' more frequently"
-    #         " in the script text to better align with the theme of the video."
-    #     )
-    #     res_str = (
-    #         res_str
-    #         + "Error: The script text mentions 'breasts' only in"
-    #         f" {breast_mention_count} out of {len(segments_list)} segments, which is"
-    #         " less than 20 percent of the segments. Mention 'breasts' more"
-    #         " frequently in the script text to better align with the theme of the"
-    #         " video."
-    #     )
-    #     res_str = res_str + "\n"
 
     print("All segments have correct length relative to their timestamps.")
 
@@ -348,18 +288,14 @@ def check_text_spoken_length_matches_timestamps(segments_list: list):
     retries=3,
     retry_delay_seconds=10,
 )
-def main(video_id):
+def main(video_id, event_id):
     session = next(get_db())
 
     video = session.query(Video).filter(Video.id == video_id).first()
 
-    events = (
-        session.query(Events)
-        .filter(Events.weekend_id == video.weekend_id, Events.town_id == video.town_id)
-        .all()
-    )
+    event = session.query(Events).filter(Events.id == event_id).first()
 
-    if not events:
+    if not event:
         print("No events found for the given weekend and town.")
         return
 
@@ -377,18 +313,15 @@ def main(video_id):
         "town_name": t.name,
         "state": t.state,
         "weekend_date": w.date,
-        "event_list": json.dumps(
-            [
-                {
-                    "name": event.event_name,
-                    "address": event.location_address,
-                    "description": event.description,
-                    "date": event.date,
-                    "time": event.time,
-                    "id": event.id,
-                }
-                for event in events
-            ]
+        "event_info": json.dumps(
+            {
+                "name": event.event_name,
+                "address": event.location_address,
+                "description": event.description,
+                "date": event.date,
+                "time": event.time,
+                "id": event.id,
+            }
         ),
     }
     system_prompt_params = {"video_length": VIDEO_LENGTH}
