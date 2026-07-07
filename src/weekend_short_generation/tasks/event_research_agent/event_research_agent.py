@@ -272,14 +272,6 @@ def get_regional_trending_queries(keyword: str, geo_code: str) -> str:
                     }
                 )
 
-        # Extract related queries if they exist in the payload
-        related_queries = results.get("related_queries", {})
-        if not related_queries:
-            return (
-                f"No regional query trend data found for '{keyword}' in geo"
-                f" '{geo_code}'."
-            )
-
         return json.dumps(output, indent=2)
 
     except Exception as e:
