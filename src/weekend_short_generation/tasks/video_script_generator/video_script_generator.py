@@ -234,6 +234,7 @@ def check_text_spoken_length_matches_timestamps(segments_list: list):
 
     words_to_include = [
         "breasts",
+        "bust",
         "bootylicious",
         "gyatt",
         "busty",
@@ -249,7 +250,7 @@ def check_text_spoken_length_matches_timestamps(segments_list: list):
     for i, segment in enumerate(segments_list):
 
         for word_to_include in words_to_include:
-            if word_to_include in segment["script_text"].lower():
+            if word_to_include in segment["scene_description"].lower():
                 breast_mention_count = breast_mention_count + 1
 
     # if breast_mention_count / len(segments_list) > 0.5:
@@ -273,18 +274,19 @@ def check_text_spoken_length_matches_timestamps(segments_list: list):
     if breast_mention_count / len(segments_list) < 0.5:
 
         print(
-            f"Error: The script text mentions the words {words_to_include} only in"
-            f" {breast_mention_count} out of {len(segments_list)} segments, which is"
-            " less than 20 percent of the segments. Mention these words more frequently"
-            " in the script text to better align with the theme of the video."
+            "Error: The scene_description text mentions the words"
+            f" {words_to_include} only in {breast_mention_count} out of"
+            f" {len(segments_list)} segments, which is less than 50 percent of the"
+            " segments. Mention these words more frequently in the scene_description"
+            " text to better align with the theme of the video."
         )
         res_str = (
             res_str
-            + f"Error: The script text mentions the words {words_to_include} only in"
-            f" {breast_mention_count} out of {len(segments_list)} segments, which is"
-            " less than 20 percent of the segments. Mention these words more"
-            " frequently in the script text to better align with the theme of the"
-            " video."
+            + "Error: The scene_description text mentions the words"
+            f" {words_to_include} only in {breast_mention_count} out of"
+            f" {len(segments_list)} segments, which is less than 50 percent of the"
+            " segments. Mention these words more frequently in the scene_description"
+            " text to better align with the theme of the video."
         )
         res_str = res_str + "\n"
 
@@ -371,7 +373,7 @@ if __name__ == "__main__":
                 "script_text": "This is a test script.",
                 "timestamp": 0,
                 "scene_description": "This is a test scene description.",
-                "caption": "Test caption",
+                # "caption": "Test caption",
                 "event_id": None,
             },
             {
