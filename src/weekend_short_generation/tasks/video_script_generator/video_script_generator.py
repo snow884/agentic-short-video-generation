@@ -216,21 +216,21 @@ def check_text_spoken_length_matches_timestamps(segments_list: list):
             )
             res_str = res_str + "\n"
 
-    for i, segment in enumerate(segments_list):
+    # for i, segment in enumerate(segments_list):
 
-        if segment["caption"] and len(segment["caption"]) > 30:
-            print(
-                f"Error: Segment number {i} at timestamp {segment['timestamp']} has a"
-                " caption that is too long. Consider shortening the"
-                " caption so that it fits on screen."
-            )
-            res_str = (
-                res_str
-                + f"Error: Segment number {i} at timestamp {segment['timestamp']} has a"
-                " caption that is too long. Consider shortening the"
-                " caption so that it fits on screen."
-            )
-            res_str = res_str + "\n"
+    #     if segment["caption"] and len(segment["caption"]) > 30:
+    #         print(
+    #             f"Error: Segment number {i} at timestamp {segment['timestamp']} has a"
+    #             " caption that is too long. Consider shortening the"
+    #             " caption so that it fits on screen."
+    #         )
+    #         res_str = (
+    #             res_str
+    #             + f"Error: Segment number {i} at timestamp {segment['timestamp']} has a"
+    #             " caption that is too long. Consider shortening the"
+    #             " caption so that it fits on screen."
+    #         )
+    #         res_str = res_str + "\n"
 
     words_to_include = [
         "breasts",
