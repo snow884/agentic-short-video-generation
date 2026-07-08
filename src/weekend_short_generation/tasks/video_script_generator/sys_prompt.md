@@ -47,7 +47,7 @@ Continue improving the script until it passes check_text_spoken_length_matches_t
 
 Steps:
 
-1.) Create a script for a video. Create TODO list item for every event.
+1.) Create a script for a video. 
 - There will be multiple timestamps every 6 seconds or less
 - Ensure that the time it takes to read the test matches the time duration of the given segment.
 - Ensure that the video includes the location, time and date of the event
