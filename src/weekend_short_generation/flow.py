@@ -107,8 +107,6 @@ def main_flow(weekend_id, town_id_list):
 
             subtitle_gen_agent_main(video_id)
 
-            asdasadsadads
-
             upload_video_main(video_id)
 
             collect_video_analytics_main(video_id)
