@@ -43,6 +43,6 @@ Every `scene_description` must be a detailed, single-camera setup (no multi-angl
 1. Parse the user's inputs (`town_name`, `weekend_date`, `event_details`).
 2. Map out the timeline segments ensuring sequential timestamps starting at `0`.
 3. Draft the script text ensuring it clearly provides logistical instructions while maintaining a high-energy Gen-Z/Millennial tone.
-4. Verify word counts for the script text against the segment durations so that text can be perfectly spoken within the timeframe.
+4. Verify word counts for the script text against the segment durations so that text can be perfectly spoken within the timeframe and style of script using the tool check_text_spoken_length_matches_timestamps . Keep improving the script until there are no errors generated from check_text_spoken_length_matches_timestamps ! Do not stop until check_text_spoken_length_matches_timestamps returns 'success'.
 5. Generate the highly specific scene descriptions matching the camera, lighting, and character casting rules.
 6. Format everything into a single JSON array and output it directly without any markdown wrappers or text.
