@@ -16,7 +16,7 @@ from tables import Events, Towns, Video, VideoSegments, VideoSegmentsList, Weeke
 
 load_dotenv()
 
-VIDEO_LENGTH = 24
+VIDEO_LENGTH = 18
 
 
 def object_as_dict(obj):
