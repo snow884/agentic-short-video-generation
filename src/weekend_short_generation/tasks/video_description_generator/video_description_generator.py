@@ -110,18 +110,15 @@ def main(video_id, event_id):
         "state": town.state,
         "weekend_date": weekend.date,
         "description": description,
-        "events_list": json.dumps(
-            [
-                {
-                    "name": event.event_name,
-                    "address": event.location_address,
-                    "description": event.description,
-                    "date": event.date,
-                    "time": event.time,
-                    "id": event.id,
-                }
-                for event in events
-            ]
+        "events_info": json.dumps(
+            {
+                "name": event.event_name,
+                "address": event.location_address,
+                "description": event.description,
+                "date": event.date,
+                "time": event.time,
+                "id": event.id,
+            }
         ),
     }
     system_prompt_params = {}
