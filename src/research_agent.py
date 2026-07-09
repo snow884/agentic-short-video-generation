@@ -236,7 +236,7 @@ async def run_agent(
     model = ChatGoogleGenerativeAI(
         model="gemini-3.1-pro-preview",
         thinking_level=(  # Enables structured thinking capabilities if supported
-            "medium"
+            "high"  # Options: "none", "low", "medium", "high"
         ),
     )
 
