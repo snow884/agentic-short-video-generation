@@ -4,7 +4,10 @@ import re
 from datetime import datetime
 from pathlib import Path
 
-import usaddress
+try:
+    import usaddress
+except ImportError:  # pragma: no cover - optional dependency
+    usaddress = None
 from langchain_core.tools import tool
 from prefect import task
 from prefect.logging import get_run_logger
@@ -12,7 +15,7 @@ from serpapi import GoogleSearch
 
 from research_agent import run_agent_sync
 from sql_utils import get_db
-from tables import EventList, Events, Towns, Weekends
+from tables import EventList, Events, EventsSchema, Towns, Weekends
 
 
 def check_events(events_list: EventList) -> str:
@@ -38,29 +41,21 @@ def check_events(events_list: EventList) -> str:
 
     res = ""
 
+    required_keys = set(EventsSchema.model_fields.keys())
+
     for event in events_list.events:
-        if set(event.keys()) != set(
-            [
-                "event_name",
-                "date",
-                "time",
-                "location_address",
-                "description",
-                "gps_longitude",
-                "gps_latitude",
-                "url",
-                "url_facebook",
-                "url_instagram",
-                "tiktok_hashtags",
-                "instagram_hashtags",
-                "youtube_hashtags",
-                "google_trends_query",
-                "google_trends_value",
-            ]
-        ):  # check that it's a dict and has the right keys
+        event_data = (
+            event.model_dump()
+            if hasattr(event, "model_dump")
+            else event.dict()
+            if hasattr(event, "dict")
+            else dict(event)
+        )
+        if set(event_data.keys()) != required_keys:
             res = (
                 res
-                + f"Event {event.get('event_name', 'Unknown')} has missing or extra"
+                + f"Event {event_data.get('event_name', 'Unknown')} has missing or"
+                " extra"
                 " fields. Please ensure all events have the correct fields."
             )
             res = res + "\n"
@@ -84,44 +79,58 @@ def check_events(events_list: EventList) -> str:
             return False
 
     for event in events_list.events:
+        event_data = (
+            event.model_dump()
+            if hasattr(event, "model_dump")
+            else event.dict()
+            if hasattr(event, "dict")
+            else dict(event)
+        )
+
         if (
-            not event.get("event_name")
-            or not event.get("date")
-            or not event.get("time")
-            or not event.get("description")
+            not event_data.get("event_name")
+            or not event_data.get("date")
+            or not event_data.get("time")
+            or not event_data.get("description")
         ):
 
             res = (
                 res
-                + f"Event {event.get('event_name', 'Unknown')} is missing required"
+                + f"Event {event_data.get('event_name', 'Unknown')} is missing required"
                 " fields. Please ensure all events have an event_name, event_time,"
                 " and event_description."
             )
             res = res + "\n"
 
-        if not event.get("location_address") and not event.get("location_name"):
+        if not event_data.get("location_address") and not event_data.get(
+            "location_name"
+        ):
             res = (
                 res
-                + f"Event {event.get('event_name', 'Unknown')} has a location provided"
-                " but is missing location_name or location_address. Please ensure"
-                " that if a location address is provided."
+                + f"Event {event_data.get('event_name', 'Unknown')} has a location"
+                " provided but is missing location_name or location_address. Please"
+                " ensure that if a location address is provided."
             )
             res = res + "\n"
 
         address_pattern = r"^\d+\s[A-z0-9\s]+,\s[A-z\s]+,\s[A-Z]{2}\s\d{5}$"
+        location_address = event_data.get("location_address", "")
 
-        if not re.match(address_pattern, event["location_address"]):
+        if not re.match(address_pattern, location_address):
             res = (
                 res
-                + f"Event {event['event_name']} has an invalid location address format."
-                " Please ensure the address follows the format: '123 Main St, City,"
-                " ST 12345'."
+                + f"Event {event_data.get('event_name', 'Unknown')} has an invalid"
+                " location address format. Please ensure the address follows the"
+                " format: '123 Main St, City, ST 12345'."
             )
             res = res + "\n"
 
         try:
+            if usaddress is None:
+                raise ImportError("usaddress is unavailable")
+
             # usaddress tags fragments using a probabilistic model
-            parsed_address, address_type = usaddress.tag(event["location_address"])
+            parsed_address, _ = usaddress.tag(location_address)
 
             # Check for basic required US address structural pieces
             has_state = "StateName" in parsed_address
@@ -136,9 +145,9 @@ def check_events(events_list: EventList) -> str:
 
                 res = (
                     res
-                    + f"Event {event['event_name']} has an invalid location address"
-                    " format.The address in missing vital US components (State or"
-                    " ZIP Code)."
+                    + f"Event {event_data.get('event_name', 'Unknown')} has an invalid"
+                    " location address format.The address in missing vital US"
+                    " components (State or ZIP Code)."
                 )
                 res = res + "\n"
 
@@ -146,51 +155,59 @@ def check_events(events_list: EventList) -> str:
 
             res = (
                 res
-                + f"Event {event['event_name']} has an invalid location address format."
-                "Critical parsing error: The string does not match standard US layout."
+                + f"Event {event_data.get('event_name', 'Unknown')} has an invalid"
+                " location address format.Critical parsing error: The string does"
+                " not match standard US layout."
             )
             res = res + "\n"
 
-        if not validate_time(event["time"], "%I:%M %p"):
+        if not validate_time(event_data.get("time", ""), "%I:%M %p"):
             res = (
                 res
-                + f"Event {event['event_name']} has an invalid event time format."
-                " Please ensure the time follows the format: '7:00 PM'."
+                + f"Event {event_data.get('event_name', 'Unknown')} has an invalid"
+                " event time format. Please ensure the time follows the format:"
+                " '7:00 PM'."
             )
             res = res + "\n"
 
-        if not validate_date(event["date"], "%Y-%m-%d"):
+        if not validate_date(event_data.get("date", ""), "%Y-%m-%d"):
             res = (
                 res
-                + f"Event {event['event_name']} has an invalid event date format."
-                " Please ensure the date follows the format: 'YYYY-MM-DD'."
+                + f"Event {event_data.get('event_name', 'Unknown')} has an invalid"
+                " event date format. Please ensure the date follows the format:"
+                " 'YYYY-MM-DD'."
             )
             res = res + "\n"
 
-        if len(event["keywords"].split(",")) <= 1:
+        keywords = str(event_data.get("keywords", ""))
+        if len(keywords.split(",")) <= 1:
             res = (
                 res
-                + f"Event {event['event_name']} is missing keywords or you only"
-                " provided one keyword. Please provide keywords that are trending"
-                " for this event based on your research as a comma separated list."
+                + f"Event {event_data.get('event_name', 'Unknown')} is missing keywords"
+                " or you only provided one keyword. Please provide keywords that are"
+                " trending for this event based on your research as a comma"
+                " separated list."
             )
             res = res + "\n"
 
-        if len(event["tiktok_hashtags"].split(",")) <= 1:
+        hashtags = str(event_data.get("tiktok_hashtags", ""))
+        if len(hashtags.split(",")) <= 1:
             res = (
                 res
-                + f"Event {event['event_name']} is missing TikTok hashtags or you only"
-                " provided one hashtag. Please provide hashtags that are trending"
-                " for this event based on your research as a comma separated list."
+                + f"Event {event_data.get('event_name', 'Unknown')} is missing TikTok"
+                " hashtags or you only provided one hashtag. Please provide hashtags"
+                " that are trending for this event based on your research as a comma"
+                " separated list."
             )
             res = res + "\n"
 
-        if len(event["description"]) <= 1000:
+        description = str(event_data.get("description", ""))
+        if len(description) <= 1000:
             res = (
                 res
-                + f"Event {event['event_name']} has a description that is too short."
-                " Please provide a more detailed description of the event, ideally"
-                " over 1000 characters."
+                + f"Event {event_data.get('event_name', 'Unknown')} has a description"
+                " that is too short. Please provide a more detailed description of"
+                " the event, ideally over 1000 characters."
             )
             res = res + "\n"
 
