@@ -80,12 +80,11 @@ def check_text_spoken_length_matches_timestamps(segments_list: VideoSegmentsList
         return "You provided an empty value. No scripts segments to check."
 
     durations = [0] * len(segments_list)
+    res_str = ""
 
     for i, segment in enumerate(segments_list):
 
         durations[i] = generate_audio_file(segment["script_text"])
-
-        res_str = ""
 
         if i < (len(segments_list) - 1):
             next_timestamp = segments_list[i + 1]["timestamp"]
