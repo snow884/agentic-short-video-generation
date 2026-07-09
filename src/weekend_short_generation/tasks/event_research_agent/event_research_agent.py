@@ -1,7 +1,6 @@
 import json
 import os
 import re
-from ast import List
 from datetime import datetime
 from pathlib import Path
 
@@ -16,7 +15,7 @@ from sql_utils import get_db
 from tables import EventList, Events, Towns, Weekends
 
 
-def check_events(events_list: List[dict]) -> str:
+def check_events(events_list: list[dict]) -> str:
     """
     Checks the event list, ensuring that there are at least 5 events and that each event has the required fields (event_name, event_time, event_description) populated. If a location is provided, it checks for the presence of location_name and location_address, and validates the format of the location_address and event_time. It returns a message indicating any issues found with the events or "success" if all events are appropriately matched.
 
