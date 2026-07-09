@@ -22,7 +22,7 @@ every segment includes:
 Rules for scene_description:
 - Ensure that the scene matches the weather, time of day, environment, climate, ethnicity of attendees, landmarks, vegetation and animals expected at the event location at the event time.
 - Include beautiful women that are slim, have tattoos and also are very bootylicious, gyatt, busty, buxom, well-endowed, curvaceous, bosomy, chesty, top-heavy. Also include some of the following features (pick randomly): long eyelashes, full lips, pigtail hairstyles, hair dyed pink, hair dyed purple, makeup and seductive facial expressions. For clothes include Micro-mini skirts, Micro-shorts, Backless shirts, Backless dresses, fishnet stockings, bikini, Micro-shorts, Thongs sticking from under pants, Skin-tight leather pants, Corset tops, Crop tops, Deep V-necklines. 
-- Ensure that for every person in the video you describe their body shape, clothes, ethnicity, hairstyles and facial expressions . For women emphasize large breasts.
+- Ensure that for every person in the video you describe their body shape, clothes, ethnicity, hairstyles and facial expressions .
 - Include products, types of vehicles, types of trees, items, buildings, weather, animals, vegetation, lightning conditions and background that are typical for the event and location. 
 - Do not include multiple scenes or multiple camera angles into scene description. Keep everything as a simple one scene
 - Do not include any names such as city or street names in the scene description. Do not include names of people. e.g. Instead of New Yor City just say city. 
