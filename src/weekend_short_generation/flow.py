@@ -111,8 +111,6 @@ def main_flow(weekend_id, town_id_list):
 
             collect_video_analytics_main(video_id)
 
-    aadsdadas
-
 
 if __name__ == "__main__":
-    main_flow(weekend_id=1, town_id_list=[i for i in range(1, 49)])
+    main_flow(weekend_id=1, town_id_list=[i for i in range(2, 49)])
