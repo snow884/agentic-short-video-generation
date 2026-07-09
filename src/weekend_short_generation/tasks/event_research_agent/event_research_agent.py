@@ -185,6 +185,15 @@ def check_events(events_list: list):
             )
             res = res + "\n"
 
+        if len(event["description"]) <= 1000:
+            res = (
+                res
+                + f"Event {event['event_name']} has a description that is too short."
+                " Please provide a more detailed description of the event, ideally"
+                " over 1000 characters."
+            )
+            res = res + "\n"
+
     if not res:
         res = "success"
 
