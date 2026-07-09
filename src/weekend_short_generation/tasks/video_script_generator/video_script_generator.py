@@ -64,12 +64,12 @@ def generate_audio_file(text, file_path="your_audio_file.wav"):
     return duration
 
 
-def check_text_spoken_length_matches_timestamps(segments_list: list):
+def check_text_spoken_length_matches_timestamps(segments_list: VideoSegmentsList):
     """
     Checks the length of each video segment's script text relative to its timestamp difference from the previous segment. If the script text length is not approximately equal to the time difference (assuming a speaking rate of 2 words per second), it returns a warning message for that segment.
 
     Args:
-        segments_list (list): The list of video segments to check.
+        segments_list (VideoSegmentsList): The list of video segments to check.
 
     Returns:
         str: A message indicating whether all segments have correct length relative to their timestamps, or detailing any segments that do not meet the criteria. Returns "success" if all segments are appropriately matched.
