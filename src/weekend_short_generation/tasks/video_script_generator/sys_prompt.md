@@ -18,7 +18,7 @@ every segment includes:
 - timestamp - defines the point in time n seconds in the video where the segment should start
 - script_text - the text stat should be spoken while the segment is displayed. 
 - caption - Caption that should be displayed on the screen when this segment begins, include name of the event when introducing new event. Do NOT include caption for every segment.
-- scene_description - two 80-200 word description of the scene that should be played at this timestamp
+- scene_description - two 80-200 word description of the scene that should be played at this timestamp. This description will be fed into the Wan2.2-T2V-A14B-4steps-lora-rank64-Seko-V1.1 model text-to-video model. Optimize the scene_description for as a text input for this model
 
 Rules for scene_description:
 - Ensure that the scene matches the weather, time of day, environment, climate, ethnicity of attendees, landmarks, vegetation and animals expected at the event location at the event time.
@@ -35,17 +35,10 @@ Ensure that you include the following information:
 - include 💡 Lighting & Aesthetics - Clearly tag the mood and environmental lighting so the model aligns the color grading. Lighting terms: volumetric dusk, neon rim light, backlight effect, harsh noon sun.Style terms: teal-and-orange, 16mm film grain, anamorphic bokeh, desaturated colors. 
 - include ⚽️ objects and items associated with each particular event 
 - Here is an example scene description: "Medium close-up shot, daylight, side lighting, warm colors. A skilled chef in a white chef's coat and black pants swiftly chops various vegetables on a wooden cutting board. The sunlight streams in through a large window, casting a soft glow on the chef's focused expression and the vibrant array of vegetables. The background features a cluttered kitchen with pots hanging from racks and ingredients neatly arranged on shelves. Steam rises from a simmering pot on the stove as the chef's movements create a rhythmic dance of knife and board."
-- Here is another example scene description: "Daytime, sunlight, side lighting, medium shot, balanced composition. A fencer in a white fencing uniform with a blue mask is engaged in a fast-paced duel against another fencer in a similar uniform but with a red mask. Both are moving swiftly across a well-lit indoor training mat, their swords clashing with precision and speed. The sunlight streaming through large windows creates sharp shadows on the floor, emphasizing the dynamic movements. The spectators in the background watch intently, capturing the intense focus and determination on both fencers' faces."
 
 Rules for video structure:
 - Ensure that you include the most exciting and dynamic segments at the beginning of the video to maximize audience retention. Make sure the fist 6 seconds of the video are as existing as possible.
-- Provide a "hook" in the first 3 seconds of the video
-Use tight, macro shots of moving elements (a badge being scanned, a hand grabbing a lanyard, feet walking fast into a venue, or a crowd reacting to a speaker).
-Example 1: (1 second of a curtain dropping/crowd cheering) -> "This was the exact second the doors opened at [Event], and the energy didn't drop for three days straight."
-Example 2: (Fast pan of a room buzzing with people laughing and exchanging contacts) -> "I came to this event completely alone, and within 10 minutes, this happened."
-Example 3: "I ate my way through the entire [City] Food Festival so you don't have to. Here are the only three booths actually worth the line."
-Example 4: "Everyone thinks [Event] is about [X], but the smartest people only come here for [Y]."
-Example 5: "Why [Event Name] is actually a massive waste of time—unless you do this one specific thing on Day 1."
+- Provide a "hook" in the first 3 seconds of the video to maximize engagement.
 
 Rules for style:
 - The video will play in the form of a Tiktok video. 
