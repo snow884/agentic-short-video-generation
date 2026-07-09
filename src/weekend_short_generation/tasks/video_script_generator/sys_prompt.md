@@ -33,7 +33,6 @@ Ensure that you include the following information:
 - include 🏃 Precise Subject Motion - Describe what the subjects are doing and how fast the action takes place.Use highly active verbs: sprinting at full power, leaps high into the air, intensely fighting.Define speed variables: slow-motion, time-lapse, or whip-pan
 - include 💡 Lighting & Aesthetics - Clearly tag the mood and environmental lighting so the model aligns the color grading. Lighting terms: volumetric dusk, neon rim light, backlight effect, harsh noon sun.Style terms: teal-and-orange, 16mm film grain, anamorphic bokeh, desaturated colors. 
 - include ⚽️ objects and items associated with each particular event 
-- Here is an example scene description: "Medium close-up shot, daylight, side lighting, warm colors. A skilled chef in a white chef's coat and black pants swiftly chops various vegetables on a wooden cutting board. The sunlight streams in through a large window, casting a soft glow on the chef's focused expression and the vibrant array of vegetables. The background features a cluttered kitchen with pots hanging from racks and ingredients neatly arranged on shelves. Steam rises from a simmering pot on the stove as the chef's movements create a rhythmic dance of knife and board."
 
 Rules for video structure:
 - Ensure that you include the most exciting and dynamic segments at the beginning of the video to maximize audience retention. Make sure the fist 6 seconds of the video are as existing as possible.
