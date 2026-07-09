@@ -27,18 +27,18 @@ def check_events(events_list: EventList) -> str:
     """
     print(f"Checking events for {events_list}...")
 
-    if not events_list:
+    if not events_list.events:
         return "You provided an empty value. No events to check."
 
-    if len(events_list) < 5:
+    if len(events_list.events) < 5:
         return (
-            f"You provided only {len(events_list)} events. Please provide at least 5"
-            " events."
+            f"You provided only {len(events_list.events)} events. Please provide at"
+            " least 5 events."
         )
 
     res = ""
 
-    for event in events_list:
+    for event in events_list.events:
         if set(event.keys()) != set(
             [
                 "event_name",
@@ -83,28 +83,28 @@ def check_events(events_list: EventList) -> str:
             # Returns False if parsing fails (wrong format or invalid date like Feb 30)
             return False
 
-    for event in events_list:
+    for event in events_list.events:
         if (
-            not event["event_name"]
-            or not event["date"]
-            or not event["time"]
-            or not event["description"]
+            not event.get("event_name")
+            or not event.get("date")
+            or not event.get("time")
+            or not event.get("description")
         ):
 
             res = (
                 res
-                + f"Event {event['event_name']} is missing required fields. Please"
-                " ensure all events have an event_name, event_time, and"
-                " event_description."
+                + f"Event {event.get('event_name', 'Unknown')} is missing required"
+                " fields. Please ensure all events have an event_name, event_time,"
+                " and event_description."
             )
             res = res + "\n"
 
-        if not event["location_address"]:
+        if not event.get("location_address") and not event.get("location_name"):
             res = (
                 res
-                + f"Event {event['event_name']} has a location provided but is missing"
-                " location_name or location_address. Please ensure that if a"
-                " location address is provided."
+                + f"Event {event.get('event_name', 'Unknown')} has a location provided"
+                " but is missing location_name or location_address. Please ensure"
+                " that if a location address is provided."
             )
             res = res + "\n"
 

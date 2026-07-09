@@ -35,3 +35,4 @@ websocket-client
 upload-post
 usaddress
 orpheus_tts
+sqlalchemy 

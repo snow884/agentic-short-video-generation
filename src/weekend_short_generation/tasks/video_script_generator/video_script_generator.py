@@ -87,33 +87,46 @@ def check_text_spoken_length_matches_timestamps(segments_list: VideoSegmentsList
 
         res_str = ""
 
-        if (i < (len(segments_list) - 1)) and abs(
-            (
-                durations[i]
-                / ((segment["timestamp"] - segments_list[i + 1]["timestamp"]))
-            )
-            - 1
-        ) > 0.05:  # Assuming 2 words per second as a speaking rate
-            print(
-                f"Error: Segment number {i} at timestamp {segment['timestamp']} has"
-                f" script takes approximately {durations[i]} seconds to speak, but the"
-                " timestamp difference to the next segment at"
-                f" { segments_list[i+1]['timestamp']} is"
-                f" {abs(segment['timestamp'] - segments_list[i+1]['timestamp'])} seconds."
-                " Adjust the timestamps or script text length for better"
-                " synchronization."
-            )
-            res_str = (
-                res_str
-                + f"Error: Segment number {i} at timestamp {segment['timestamp']} has"
-                f" script takes approximately {durations[i]} seconds to speak, but"
-                f" the timestamp difference to the next segment number {i+1} at"
-                f" timestamp { segments_list[i+1]['timestamp']} is"
-                f" {abs(segment['timestamp'] - segments_list[i+1]['timestamp'])} seconds."
-                " Adjust the timestamps or script text length for better"
-                " synchronization."
-            )
-            res_str = res_str + "\n"
+        if i < (len(segments_list) - 1):
+            next_timestamp = segments_list[i + 1]["timestamp"]
+            time_gap = abs(next_timestamp - segment["timestamp"])
+
+            if time_gap <= 0:
+                print(
+                    f"Error: Segment number {i} at timestamp {segment['timestamp']} has"
+                    f" a timestamp that is not less than the next segment number {i+1}"
+                    f" at timestamp {next_timestamp}."
+                )
+                res_str = (
+                    res_str
+                    + f"Error: Segment number {i} at timestamp"
+                    f" {segment['timestamp']} has"
+                    f" a timestamp that is not less than the next segment number {i+1}"
+                    f" at timestamp {next_timestamp}."
+                )
+                res_str = res_str + "\n"
+            elif (
+                abs((durations[i] / time_gap) - 1) > 0.05
+            ):  # Assuming 2 words per second as a speaking rate
+                print(
+                    f"Error: Segment number {i} at timestamp {segment['timestamp']} has"
+                    f" script takes approximately {durations[i]} seconds to speak, but"
+                    " the timestamp difference to the next segment at"
+                    f" {next_timestamp} is {time_gap} seconds. Adjust the timestamps or"
+                    " script text length for better synchronization."
+                )
+                res_str = (
+                    res_str
+                    + f"Error: Segment number {i} at timestamp"
+                    f" {segment['timestamp']} has"
+                    f" script takes approximately {durations[i]} seconds to speak, but"
+                    f" the timestamp difference to the next segment number {i+1} at"
+                    f" timestamp {next_timestamp} is"
+                    f" {time_gap} seconds."
+                    " Adjust the timestamps or script text length for better"
+                    " synchronization."
+                )
+                res_str = res_str + "\n"
 
     for i, segment in enumerate(segments_list):
 
