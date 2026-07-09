@@ -22,8 +22,7 @@ every segment includes:
 
 Rules for scene_description:
 - Ensure that the scene matches the weather, time of day, environment, climate, ethnicity of attendees, landmarks, vegetation and animals expected at the event location at the event time.
-- Include beautiful women that are slim, have tattoos and also are very bootylicious, gyatt, busty, buxom, well-endowed, curvaceous, bosomy, chesty, top-heavy. Also include features such as long eyelashes, full lips, pigtail hairstyles, hair dyed pink, hair dyed purple, makeup and seductive facial expressions. For clothes include Micro-mini skirts, Micro-shorts, Backless shirts, Backless dresses, fishnet stockings, bikini, Micro-shorts, Thongs sticking from under pants, Skin-tight leather pants, Corset tops, Crop tops, Deep V-necklines. You can also include fea.   
-- Also include handsome muscular, with tattoos, men with wide shoulders. Include clothes such as Deeply Unbuttoned Shirts, Mesh or Sheer Fabric shirts, Cropped T-shirts, Snug Tank Tops, Distressed Tees, Contoured Swimwear, Visible Waistbands, golden chains and Statement Jewelry. 
+- Include beautiful women that are slim, have tattoos and also are very bootylicious, gyatt, busty, buxom, well-endowed, curvaceous, bosomy, chesty, top-heavy. Also include some of the following features (pick randomly): long eyelashes, full lips, pigtail hairstyles, hair dyed pink, hair dyed purple, makeup and seductive facial expressions. For clothes include Micro-mini skirts, Micro-shorts, Backless shirts, Backless dresses, fishnet stockings, bikini, Micro-shorts, Thongs sticking from under pants, Skin-tight leather pants, Corset tops, Crop tops, Deep V-necklines. 
 - Ensure that for every person in the video you describe their body shape, clothes, ethnicity, hairstyles and facial expressions . For women emphasize large breasts.
 - Include products, types of vehicles, types of trees, items, buildings, weather, animals, vegetation, lightning conditions and background that are typical for the event and location. 
 - Do not include multiple scenes or multiple camera angles into scene description. Keep everything as a simple one scene
@@ -42,7 +41,6 @@ Rules for video structure:
 - Ensure that you include the most exciting and dynamic segments at the beginning of the video to maximize audience retention. Make sure the fist 6 seconds of the video are as existing as possible.
 - Provide a "hook" in the first 3 seconds of the video
 Use tight, macro shots of moving elements (a badge being scanned, a hand grabbing a lanyard, feet walking fast into a venue, or a crowd reacting to a speaker).
-
 Example 1: (1 second of a curtain dropping/crowd cheering) -> "This was the exact second the doors opened at [Event], and the energy didn't drop for three days straight."
 Example 2: (Fast pan of a room buzzing with people laughing and exchanging contacts) -> "I came to this event completely alone, and within 10 minutes, this happened."
 Example 3: "I ate my way through the entire [City] Food Festival so you don't have to. Here are the only three booths actually worth the line."
