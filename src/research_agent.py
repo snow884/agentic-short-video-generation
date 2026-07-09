@@ -1,14 +1,12 @@
 import asyncio
 import http.cookiejar
 import json
-import os
 
 import nest_asyncio
 from deepagents import create_deep_agent
 from langchain_community.agent_toolkits import PlayWrightBrowserToolkit
 from langchain_community.tools.playwright.utils import create_async_playwright_browser
 from langchain_core.prompts import PromptTemplate
-from langchain_ollama import ChatOllama
 from langchain_tavily import TavilySearch
 
 nest_asyncio.apply()
@@ -23,6 +21,7 @@ from langchain_community.agent_toolkits import PlayWrightBrowserToolkit
 from langchain_community.tools.playwright.base import BaseBrowserTool
 from langchain_community.tools.playwright.click import ClickTool
 from langchain_core.callbacks import CallbackManagerForToolRun
+from langchain_google_genai import ChatGoogleGenerativeAI
 from prefect.logging import get_run_logger
 from pydantic import BaseModel, Field
 
@@ -226,13 +225,20 @@ async def run_agent(
 
     browser_tools.append(PlaywrightUploadFileTool(async_browser=toolkit.async_browser))
 
-    model = ChatOllama(
-        model=os.environ["RESEARCH_AGENT_MODEL"],
-        reasoning=True,
-        # temperature=0,
-        num_ctx=8192 * 2,  # Set context window here
-    )
+    # model = ChatOllama(
+    #     model=os.environ["RESEARCH_AGENT_MODEL"],
+    #     reasoning=True,
+    #     # temperature=0,
+    #     num_ctx=8192 * 2,  # Set context window here
+    # )
     # model = model.with_structured_output(ReturnClass)
+
+    model = ChatGoogleGenerativeAI(
+        model="gemini-3.1-pro-preview",
+        thinking_level=(  # Enables structured thinking capabilities if supported
+            "medium"
+        ),
+    )
 
     tavity_tools_str = ", ".join([t.name for t in tavity_tools])
     browser_tools_str = ", ".join([t.name for t in browser_tools])
