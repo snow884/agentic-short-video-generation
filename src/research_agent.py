@@ -238,7 +238,7 @@ async def run_agent(
         thinking_level=(  # Enables structured thinking capabilities if supported
             "high"  # Options: "none", "low", "medium", "high"
         ),
-        temperature=1.0,
+        temperature=1.2,
     )
 
     tavity_tools_str = ", ".join([t.name for t in tavity_tools])
