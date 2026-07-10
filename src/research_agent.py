@@ -22,7 +22,6 @@ from langchain_community.agent_toolkits import PlayWrightBrowserToolkit
 from langchain_community.tools.playwright.base import BaseBrowserTool
 from langchain_community.tools.playwright.click import ClickTool
 from langchain_core.callbacks import CallbackManagerForToolRun
-from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_ollama import ChatOllama
 from prefect.logging import get_run_logger
 from pydantic import BaseModel, Field
@@ -235,13 +234,13 @@ async def run_agent(
     )
     # model = model.with_structured_output(ReturnClass)
 
-    model = ChatGoogleGenerativeAI(
-        model="gemini-3.1-pro-preview",
-        thinking_level=(  # Enables structured thinking capabilities if supported
-            "high"  # Options: "none", "low", "medium", "high"
-        ),
-        temperature=1.2,
-    )
+    # model = ChatGoogleGenerativeAI(
+    #     model="gemini-3.1-pro-preview",
+    #     thinking_level=(  # Enables structured thinking capabilities if supported
+    #         "high"  # Options: "none", "low", "medium", "high"
+    #     ),
+    #     temperature=1.2,
+    # )
 
     tavity_tools_str = ", ".join([t.name for t in tavity_tools])
     browser_tools_str = ", ".join([t.name for t in browser_tools])
