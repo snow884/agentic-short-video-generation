@@ -1,6 +1,4 @@
 import json
-import os
-import time
 from pathlib import Path
 
 from dotenv import load_dotenv
@@ -133,11 +131,11 @@ def main(video_id, event_id):
     print("Received Video data: ", VideoData)
     populate_db_vid_desc(video_id=video_id, video_in=VideoData)
 
-    print("clear model from vmem...")
-    import ollama
+    # print("clear model from vmem...")
+    # import ollama
 
-    ollama.generate(model=os.getenv("RESEARCH_AGENT_MODEL"), keep_alive=0)
-    time.sleep(60)  # Wait for a few seconds to ensure the model is cleared from memory
+    # ollama.generate(model=os.getenv("RESEARCH_AGENT_MODEL"), keep_alive=0)
+    # time.sleep(60)  # Wait for a few seconds to ensure the model is cleared from memory
 
     print(VideoData.description)
 

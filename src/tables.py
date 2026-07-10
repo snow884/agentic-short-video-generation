@@ -17,7 +17,7 @@ except ImportError:
 
 import enum
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 
 class Towns(Base):
@@ -193,8 +193,19 @@ class VideoSegmentsSchema(BaseModel):
 
 
 class VideoSegmentsList(BaseModel):
+    model_config = ConfigDict(populate_by_name=True, extra="ignore")
 
-    video_segments: Optional[list[VideoSegmentsSchema]] = []
+    video_segments: Optional[list[VideoSegmentsSchema]] = Field(default_factory=list)
+
+    @model_validator(mode="before")
+    @classmethod
+    def _coerce_segment_input(cls, data):
+        if isinstance(data, dict):
+            normalized = dict(data)
+            if "video_segments" not in normalized and "segments" in normalized:
+                normalized["video_segments"] = normalized.pop("segments")
+            return normalized
+        return data
 
 
 class ImageType(enum.Enum):

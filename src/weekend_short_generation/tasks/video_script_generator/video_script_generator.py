@@ -1,7 +1,5 @@
 import hashlib
 import json
-import os
-import time
 from pathlib import Path
 
 import soundfile as sf
@@ -64,6 +62,41 @@ def generate_audio_file(text, file_path="your_audio_file.wav"):
     return duration
 
 
+def _get_segments(segments_list):
+    if segments_list is None:
+        return []
+
+    if (
+        hasattr(segments_list, "video_segments")
+        and getattr(segments_list, "video_segments") is not None
+    ):
+        return list(getattr(segments_list, "video_segments"))
+
+    if (
+        hasattr(segments_list, "segments")
+        and getattr(segments_list, "segments") is not None
+    ):
+        return list(getattr(segments_list, "segments"))
+
+    if isinstance(segments_list, (list, tuple)):
+        return list(segments_list)
+
+    return []
+
+
+def _segment_value(segment, key):
+    if isinstance(segment, dict):
+        return segment.get(key)
+
+    if hasattr(segment, "model_dump"):
+        return segment.model_dump().get(key)
+
+    if hasattr(segment, "dict"):
+        return segment.dict().get(key)
+
+    return getattr(segment, key, None)
+
+
 def check_text_spoken_length_matches_timestamps(segments_list: VideoSegmentsList):
     """
     Checks the length of each video segment's script text relative to its timestamp difference from the previous segment. If the script text length is not approximately equal to the time difference (assuming a speaking rate of 2 words per second), it returns a warning message for that segment.
@@ -76,30 +109,32 @@ def check_text_spoken_length_matches_timestamps(segments_list: VideoSegmentsList
     """
     print(f"Checking segments length relative to timestamps for {segments_list}...")
 
-    if not segments_list:
+    segments = _get_segments(segments_list)
+    if not segments:
         return "You provided an empty value. No scripts segments to check."
 
-    durations = [0] * len(segments_list)
+    durations = [0] * len(segments)
     res_str = ""
 
-    for i, segment in enumerate(segments_list):
+    for i, segment in enumerate(segments):
+        script_text = _segment_value(segment, "script_text") or ""
+        durations[i] = generate_audio_file(script_text)
 
-        durations[i] = generate_audio_file(segment["script_text"])
-
-        if i < (len(segments_list) - 1):
-            next_timestamp = segments_list[i + 1]["timestamp"]
-            time_gap = abs(next_timestamp - segment["timestamp"])
+        if i < (len(segments) - 1):
+            next_timestamp = _segment_value(segments[i + 1], "timestamp")
+            timestamp = _segment_value(segment, "timestamp")
+            time_gap = abs(next_timestamp - timestamp)
 
             if time_gap <= 0:
                 print(
-                    f"Error: Segment number {i} at timestamp {segment['timestamp']} has"
+                    f"Error: Segment number {i} at timestamp {timestamp} has"
                     f" a timestamp that is not less than the next segment number {i+1}"
                     f" at timestamp {next_timestamp}."
                 )
                 res_str = (
                     res_str
                     + f"Error: Segment number {i} at timestamp"
-                    f" {segment['timestamp']} has"
+                    f" {timestamp} has"
                     f" a timestamp that is not less than the next segment number {i+1}"
                     f" at timestamp {next_timestamp}."
                 )
@@ -108,7 +143,7 @@ def check_text_spoken_length_matches_timestamps(segments_list: VideoSegmentsList
                 abs((durations[i] / time_gap) - 1) > 0.05
             ):  # Assuming 2 words per second as a speaking rate
                 print(
-                    f"Error: Segment number {i} at timestamp {segment['timestamp']} has"
+                    f"Error: Segment number {i} at timestamp {timestamp} has"
                     f" script takes approximately {durations[i]} seconds to speak, but"
                     " the timestamp difference to the next segment at"
                     f" {next_timestamp} is {time_gap} seconds. Adjust the timestamps or"
@@ -117,7 +152,7 @@ def check_text_spoken_length_matches_timestamps(segments_list: VideoSegmentsList
                 res_str = (
                     res_str
                     + f"Error: Segment number {i} at timestamp"
-                    f" {segment['timestamp']} has"
+                    f" {timestamp} has"
                     f" script takes approximately {durations[i]} seconds to speak, but"
                     f" the timestamp difference to the next segment number {i+1} at"
                     f" timestamp {next_timestamp} is"
@@ -127,51 +162,56 @@ def check_text_spoken_length_matches_timestamps(segments_list: VideoSegmentsList
                 )
                 res_str = res_str + "\n"
 
-    for i, segment in enumerate(segments_list):
+    for i, segment in enumerate(segments):
+        timestamp = _segment_value(segment, "timestamp")
 
-        if (i < (len(segments_list) - 1)) and (
-            segment["timestamp"] >= segments_list[i + 1]["timestamp"]
+        if (i < (len(segments) - 1)) and (
+            timestamp >= _segment_value(segments[i + 1], "timestamp")
         ):
             print(
-                f"Error: Segment number {i} at timestamp {segment['timestamp']} has a"
-                f" timestamp that is not less than the next segment number {i+1} at"
-                f" timestamp { segments_list[i+1]['timestamp']}. Adjust the timestamps"
-                " for better synchronization."
+                f"Error: Segment number {i} at timestamp {timestamp} has a timestamp"
+                f" that is not less than the next segment number {i+1} at timestamp"
+                f" {_segment_value(segments[i + 1], 'timestamp')}. Adjust the"
+                " timestamps for better synchronization."
             )
             res_str = (
                 res_str
-                + f"Error: Segment number {i} at timestamp {segment['timestamp']} has a"
+                + f"Error: Segment number {i} at timestamp {timestamp} has a"
                 f" timestamp that is not less than the next segment number {i+1} at"
-                f" timestamp { segments_list[i+1]['timestamp']}. Adjust the"
+                f" timestamp {_segment_value(segments[i + 1], 'timestamp')}. Adjust the"
                 " timestamps for better synchronization."
             )
             res_str = res_str + "\n"
 
-    for i, segment in enumerate(segments_list):
+    for i, segment in enumerate(segments):
+        timestamp = _segment_value(segment, "timestamp")
 
         if durations[i] > 6.0 or durations[i] < 4.0:
             print(
-                f"Error: Segment number {i} at timestamp {segment['timestamp']} has a"
+                f"Error: Segment number {i} at timestamp {timestamp} has a"
                 f" duration of {durations[i]} seconds which is outside the acceptable"
                 " range of 4 to 6 seconds. Adjust the script text length for better"
                 " synchronization."
             )
             res_str = (
                 res_str
-                + f"Error: Segment number {i} at timestamp {segment['timestamp']} has a"
+                + f"Error: Segment number {i} at timestamp {timestamp} has a"
                 f" duration of {durations[i]} seconds which is outside the acceptable"
                 " range of 4 to 6 seconds. Adjust the script text length for better"
                 " synchronization."
             )
             res_str = res_str + "\n"
 
-    if abs(segments_list[-1]["timestamp"] / VIDEO_LENGTH - 1) > 0.05:
+    if (
+        len(segments) > 1
+        and abs(_segment_value(segments[-1], "timestamp") / VIDEO_LENGTH - 1) > 0.05
+    ):
         print(
             "Error: The last segment has a timestamp of"
-            f" {segments_list[-1]['timestamp']} seconds which is significantly"
-            f" different than the expected video length of {VIDEO_LENGTH} seconds."
-            " Consider adjusting the timestamps or adding more segments to better"
-            " utilize the video length."
+            f" {_segment_value(segments[-1], 'timestamp')} seconds which is"
+            " significantly different than the expected video length of"
+            f" {VIDEO_LENGTH} seconds. Consider adjusting the timestamps or adding more"
+            " segments to better utilize the video length."
         )
         res_str = (
             res_str
@@ -180,7 +220,7 @@ def check_text_spoken_length_matches_timestamps(segments_list: VideoSegmentsList
         )
         res_str = res_str + "\n"
 
-    if (sum(durations) / VIDEO_LENGTH - 1) > 0.05:
+    if len(segments) > 1 and (sum(durations) / VIDEO_LENGTH - 1) > 0.05:
         print(
             f"Error: The total duration of all segments is {sum(durations)} seconds"
             " which is significantly different than the expected video length of"
@@ -194,39 +234,44 @@ def check_text_spoken_length_matches_timestamps(segments_list: VideoSegmentsList
         )
         res_str = res_str + "\n"
 
-    for i, segment in enumerate(segments_list):
+    for i, segment in enumerate(segments):
+        scene_description = _segment_value(segment, "scene_description") or ""
+        timestamp = _segment_value(segment, "timestamp")
 
-        if segment["scene_description"] and len(segment["scene_description"]) > 300:
+        if scene_description and len(scene_description) > 300:
             print(
-                f"Error: Segment number {i} at timestamp {segment['timestamp']} has a"
+                f"Error: Segment number {i} at timestamp {timestamp} has a"
                 " scene description that is too long, make sure it is at most 300"
                 " characters. Consider shortening the description so that it provides"
                 " enough context without being overwhelming."
             )
             res_str = (
                 res_str
-                + f"Error: Segment number {i} at timestamp {segment['timestamp']} has a"
+                + f"Error: Segment number {i} at timestamp {timestamp} has a"
                 " scene description that is too long, make sure it is at most 300"
                 " characters. Consider shortening the description so that it"
                 " provides enough context without being overwhelming."
             )
             res_str = res_str + "\n"
 
-        if segment["scene_description"] and len(segment["scene_description"]) < 80:
+        if scene_description and len(scene_description) < 80:
             print(
-                f"Error: Segment number {i} at timestamp {segment['timestamp']} has a"
+                f"Error: Segment number {i} at timestamp {timestamp} has a"
                 " scene description that is too short, make sure it is at least 80"
                 " characters. Consider lengthening the description so that it provides"
                 " enough context."
             )
             res_str = (
                 res_str
-                + f"Error: Segment number {i} at timestamp {segment['timestamp']} has a"
+                + f"Error: Segment number {i} at timestamp {timestamp} has a"
                 " scene description that is too short, make sure it is at least 80"
                 " characters. Consider lengthening the description so that it"
                 " provides enough context."
             )
             res_str = res_str + "\n"
+
+    if not res_str:
+        res_str = ""
 
     # for i, segment in enumerate(segments_list):
 
@@ -259,10 +304,11 @@ def check_text_spoken_length_matches_timestamps(segments_list: VideoSegmentsList
     ]
 
     breast_mention_count = 0
-    for i, segment in enumerate(segments_list):
+    for i, segment in enumerate(segments):
+        scene_description = _segment_value(segment, "scene_description") or ""
 
         for word_to_include in words_to_include:
-            if word_to_include in segment["scene_description"].lower():
+            if word_to_include in scene_description.lower():
                 breast_mention_count = breast_mention_count + 1
 
     # if breast_mention_count / len(segments_list) > 0.5:
@@ -283,12 +329,12 @@ def check_text_spoken_length_matches_timestamps(segments_list: VideoSegmentsList
     #     )
     #     res_str = res_str + "\n"
 
-    if breast_mention_count / len(segments_list) < 0.5:
+    if len(segments) and breast_mention_count / len(segments) < 0.5:
 
         print(
             "Error: The scene_description text mentions the words"
             f" {words_to_include} only in {breast_mention_count} out of"
-            f" {len(segments_list)} segments, which is less than 50 percent of the"
+            f" {len(segments)} segments, which is less than 50 percent of the"
             " segments. Mention these words more frequently in the scene_description"
             " text to better align with the theme of the video."
         )
@@ -296,7 +342,7 @@ def check_text_spoken_length_matches_timestamps(segments_list: VideoSegmentsList
             res_str
             + "Error: The scene_description text mentions the words"
             f" {words_to_include} only in {breast_mention_count} out of"
-            f" {len(segments_list)} segments, which is less than 50 percent of the"
+            f" {len(segments)} segments, which is less than 50 percent of the"
             " segments. Mention these words more frequently in the scene_description"
             " text to better align with the theme of the video."
         )
@@ -364,11 +410,11 @@ def main(video_id, event_id):
     print("Received Video Segments list: ", Video_Segments_List)
     populate_db_with_events(video.id, Video_Segments_List)
 
-    print("clear model from vmem...")
-    import ollama
+    # print("clear model from vmem...")
+    # import ollama
 
-    ollama.generate(model=os.getenv("RESEARCH_AGENT_MODEL"), keep_alive=0)
-    time.sleep(60)  # Wait for a few seconds to ensure the model is cleared from memory
+    # ollama.generate(model=os.getenv("RESEARCH_AGENT_MODEL"), keep_alive=0)
+    # time.sleep(60)  # Wait for a few seconds to ensure the model is cleared from memory
 
     if len(Video_Segments_List.video_segments) < 3:
         raise Exception(
