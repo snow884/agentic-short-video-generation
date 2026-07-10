@@ -11,6 +11,7 @@ from langchain_tavily import TavilySearch
 
 nest_asyncio.apply()
 
+import os
 from pathlib import Path
 from typing import Optional, Type
 
@@ -22,6 +23,7 @@ from langchain_community.tools.playwright.base import BaseBrowserTool
 from langchain_community.tools.playwright.click import ClickTool
 from langchain_core.callbacks import CallbackManagerForToolRun
 from langchain_google_genai import ChatGoogleGenerativeAI
+from langchain_ollama import ChatOllama
 from prefect.logging import get_run_logger
 from pydantic import BaseModel, Field
 
@@ -225,12 +227,12 @@ async def run_agent(
 
     browser_tools.append(PlaywrightUploadFileTool(async_browser=toolkit.async_browser))
 
-    # model = ChatOllama(
-    #     model=os.environ["RESEARCH_AGENT_MODEL"],
-    #     reasoning=True,
-    #     # temperature=0,
-    #     num_ctx=8192 * 2,  # Set context window here
-    # )
+    model = ChatOllama(
+        model=os.environ["RESEARCH_AGENT_MODEL"],
+        reasoning=True,
+        # temperature=0,
+        num_ctx=8192 * 2,  # Set context window here
+    )
     # model = model.with_structured_output(ReturnClass)
 
     model = ChatGoogleGenerativeAI(
