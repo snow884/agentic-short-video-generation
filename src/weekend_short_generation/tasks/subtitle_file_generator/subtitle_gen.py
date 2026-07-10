@@ -11,8 +11,8 @@ from tables import Video
 
 @task(
     task_run_name="subtitle_gen-{video_id}",
-    retries=3,
-    retry_delay_seconds=10,
+    # retries=3,
+    # retry_delay_seconds=10,
 )
 def main(video_id=0):
 
