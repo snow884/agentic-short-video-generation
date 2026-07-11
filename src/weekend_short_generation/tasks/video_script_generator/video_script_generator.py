@@ -16,7 +16,7 @@ load_dotenv()
 
 VIDEO_LENGTH = 18
 SEGMENT_LENGTH_TOLERANCE = (
-    0.1  # 10% tolerance for segment length relative to timestamp difference
+    0.05  # 5% tolerance for segment length relative to timestamp difference
 )
 
 
