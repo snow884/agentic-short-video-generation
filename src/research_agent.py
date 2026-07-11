@@ -232,7 +232,7 @@ async def run_agent(
         # temperature=0,
         num_ctx=8192 * 2,  # Set context window here
     )
-    model = model.with_structured_output(ReturnClass)
+    # model = model.with_structured_output(ReturnClass)
 
     # model = ChatGoogleGenerativeAI(
     #     model="gemini-3.1-pro-preview",
