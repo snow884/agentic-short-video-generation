@@ -15,6 +15,9 @@ from tables import Events, Towns, Video, VideoSegments, VideoSegmentsList, Weeke
 load_dotenv()
 
 VIDEO_LENGTH = 18
+SEGMENT_LENGTH_TOLERANCE = (
+    0.1  # 10% tolerance for segment length relative to timestamp difference
+)
 
 
 def object_as_dict(obj):
@@ -140,7 +143,7 @@ def check_text_spoken_length_matches_timestamps(segments_list: VideoSegmentsList
                 )
                 res_str = res_str + "\n"
             elif (
-                abs((durations[i] / time_gap) - 1) > 0.05
+                abs((durations[i] / time_gap) - 1) > SEGMENT_LENGTH_TOLERANCE
             ):  # Assuming 2 words per second as a speaking rate
                 print(
                     f"Error: Segment number {i} at timestamp {timestamp} has"
@@ -204,7 +207,8 @@ def check_text_spoken_length_matches_timestamps(segments_list: VideoSegmentsList
 
     if (
         len(segments) > 1
-        and abs(_segment_value(segments[-1], "timestamp") / VIDEO_LENGTH - 1) > 0.05
+        and abs(_segment_value(segments[-1], "timestamp") / VIDEO_LENGTH - 1)
+        > SEGMENT_LENGTH_TOLERANCE
     ):
         print(
             "Error: The last segment has a timestamp of"
@@ -220,7 +224,10 @@ def check_text_spoken_length_matches_timestamps(segments_list: VideoSegmentsList
         )
         res_str = res_str + "\n"
 
-    if len(segments) > 1 and (sum(durations) / VIDEO_LENGTH - 1) > 0.05:
+    if (
+        len(segments) > 1
+        and (sum(durations) / VIDEO_LENGTH - 1) > SEGMENT_LENGTH_TOLERANCE
+    ):
         print(
             f"Error: The total duration of all segments is {sum(durations)} seconds"
             " which is significantly different than the expected video length of"
