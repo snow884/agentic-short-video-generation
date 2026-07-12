@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Database Inspector</title>
+    <style>
+      :root {
+        color-scheme: light dark;
+        font-family: Arial, sans-serif;
+      }
+      body {
+        margin: 0;
+        padding: 20px;
+        background: #111827;
+        color: #f9fafb;
+      }
+      .container {
+        max-width: 1400px;
+        margin: 0 auto;
+      }
+      .toolbar {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        margin-bottom: 16px;
+        flex-wrap: wrap;
+      }
+      select, button {
+        padding: 8px 12px;
+        border-radius: 6px;
+        border: 1px solid #4b5563;
+        background: #1f2937;
+        color: inherit;
+      }
+      button {
+        cursor: pointer;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 8px;
+      }
+      th, td {
+        border: 1px solid #374151;
+        padding: 8px;
+        text-align: left;
+        vertical-align: top;
+      }
+      th {
+        background: #374151;
+      }
+      .muted {
+        color: #9ca3af;
+      }
+      pre {
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Database Inspector</h1>
+      <p class="muted">Browse the workflow tables stored in the local SQLite database.</p>
+      <div class="toolbar">
+        <label for="entitySelect">Entity</label>
+        <select id="entitySelect"></select>
+        <button id="refreshBtn" type="button">Refresh</button>
+      </div>
+      <div id="status" class="muted">Loading…</div>
+      <div id="tableContainer"></div>
+    </div>
+
+    <script>
+      const entitySelect = document.getElementById('entitySelect');
+      const refreshBtn = document.getElementById('refreshBtn');
+      const status = document.getElementById('status');
+      const tableContainer = document.getElementById('tableContainer');
+
+      async function loadEntities() {
+        const response = await fetch('/api/entities');
+        const entities = await response.json();
+        entitySelect.innerHTML = entities.map((entity) => `<option value="${entity.name}">${entity.label}</option>`).join('');
+        if (entities.length) {
+          loadRows(entities[0].name);
+        }
+      }
+
+      async function loadRows(entity) {
+        status.textContent = `Loading ${entity}…`;
+        const response = await fetch(`/api/rows?entity=${encodeURIComponent(entity)}`);
+        const payload = await response.json();
+        renderTable(payload);
+      }
+
+      function renderTable(payload) {
+        if (!payload.rows || !payload.rows.length) {
+          tableContainer.innerHTML = '<p>No rows found.</p>';
+          status.textContent = `${payload.entity || 'entity'}: 0 rows`;
+          return;
+        }
+
+        const columns = payload.columns || Object.keys(payload.rows[0]);
+        const rows = payload.rows;
+        const header = columns.map((column) => `<th>${column}</th>`).join('');
+        const body = rows.map((row) => {
+          const cells = columns.map((column) => {
+            const value = row[column];
+            const rendered = typeof value === 'string' ? value : JSON.stringify(value);
+            return `<td>${escapeHtml(rendered)}</td>`;
+          });
+          return `<tr>${cells.join('')}</tr>`;
+        }).join('');
+
+        tableContainer.innerHTML = `<table><thead><tr>${header}</tr></thead><tbody>${body}</tbody></table>`;
+        status.textContent = `${payload.entity}: ${payload.count} rows`;
+      }
+
+      function escapeHtml(value) {
+        return String(value)
+          .replaceAll('&', '&amp;')
+          .replaceAll('<', '&lt;')
+          .replaceAll('>', '&gt;')
+          .replaceAll('"', '&quot;')
+          .replaceAll("'", '&#39;');
+      }
+
+      entitySelect.addEventListener('change', (event) => {
+        loadRows(event.target.value);
+      });
+      refreshBtn.addEventListener('click', () => {
+        loadRows(entitySelect.value);
+      });
+
+      loadEntities();
+    </script>
+  </body>
+</html>
