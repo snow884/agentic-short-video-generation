@@ -8,9 +8,10 @@ from tasks.event_research_agent.event_research_agent import (
 )
 from tasks.subtitle_file_generator.subtitle_gen import main as subtitle_gen_agent_main
 from tasks.upload_video.upload_video import main as upload_video_main
-from tasks.upload_video_analytics.collect_video_analytics import (
-    main as collect_video_analytics_main,
-)
+
+# from tasks.upload_video_analytics.collect_video_analytics import (
+#     main as collect_video_analytics_main,
+# )
 from tasks.video_description_generator.video_description_generator import (
     main as video_description_generator_agent_main,
 )
@@ -103,11 +104,11 @@ def main_flow(weekend_id, town_id_list):
             video_description_generator_agent_main(video_id, event_id)
 
             subtitle_gen_agent_main(video_id)
-            khkhjhjkkjhjkhj
+            # khkhjhjkkjhjkhj
 
             upload_video_main(video_id)
 
-            collect_video_analytics_main(video_id)
+            # collect_video_analytics_main(video_id)
 
 
 if __name__ == "__main__":
