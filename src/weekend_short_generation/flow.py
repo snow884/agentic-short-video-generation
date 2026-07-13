@@ -19,6 +19,9 @@ from tasks.video_generator.video_generator import main as video_generator_agent_
 from tasks.video_parts_generator.video_parts_generator import (
     main as video_parts_generator_agent_main,
 )
+from tasks.video_script_generator.video_script_generator import (
+    main as video_script_generator_agent_main,
+)
 
 from sql_utils import get_db
 from tables import Towns, Video, Weekends
@@ -95,7 +98,7 @@ def main_flow(weekend_id, town_id_list):
 
             # video_id = 1
 
-            # video_script_generator_agent_main(video_id, event_id)
+            video_script_generator_agent_main(video_id, event_id)
 
             video_parts_generator_agent_main(video_id)
 
