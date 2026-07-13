@@ -229,6 +229,9 @@ def main(video_id):
         .all()
     )
 
+    if len(video_segments) == 0:
+        raise ValueError(f"No video segments found for video id {video_id}.")
+
     combined_video = None
     combined_audio = None
 
