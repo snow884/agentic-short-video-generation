@@ -161,8 +161,19 @@ def get_entity_schema(entity: str) -> dict[str, object]:
 
 
 def main() -> None:
-    server = ThreadingHTTPServer(("127.0.0.1", 8000), DatabaseInspectorHandler)
-    print(f"Database inspector running at http://127.0.0.1:8000")
+    port = 8000
+    while True:
+        try:
+            server = ThreadingHTTPServer(("127.0.0.1", port), DatabaseInspectorHandler)
+            break
+        except OSError as exc:
+            if exc.errno != 48:
+                raise
+            port += 1
+            if port > 8010:
+                raise
+
+    print(f"Database inspector running at http://127.0.0.1:{port}")
     try:
         server.serve_forever()
     except KeyboardInterrupt:
