@@ -93,7 +93,7 @@ def main_flow(weekend_id, town_id_list):
 
             video_id = create_video(weekend_id, town_id)
 
-            video_id = 1
+            # video_id = 1
 
             # video_script_generator_agent_main(video_id, event_id)
 
