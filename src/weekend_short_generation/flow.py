@@ -95,7 +95,7 @@ def main_flow(weekend_id, town_id_list):
 
             logger.info(f"Event ID: {event_id}")
 
-            video_id = create_video(weekend_id, town_id)
+            # video_id = create_video(weekend_id, town_id)
 
             video_id = 1
 
