@@ -90,12 +90,12 @@ def main_flow(weekend_id, town_id_list):
         # event_id_list = event_research_agent_main(
         #     town_id=town_id, weekend_id=weekend_id
         # )
-        event_id_list = [0]
+        event_id_list = [1]
         for event_id in event_id_list:
 
             logger.info(f"Event ID: {event_id}")
 
-            # video_id = create_video(weekend_id, town_id)
+            video_id = create_video(weekend_id, town_id)
 
             video_id = 1
 
