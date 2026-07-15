@@ -17,7 +17,6 @@ from typing import Optional, Type
 
 from deepagents.backends.filesystem import FilesystemBackend
 from langchain.agents.middleware import ToolRetryMiddleware
-from langchain.agents.structured_output import ProviderStrategy
 from langchain_community.agent_toolkits import PlayWrightBrowserToolkit
 from langchain_community.tools.playwright.base import BaseBrowserTool
 from langchain_community.tools.playwright.click import ClickTool
@@ -232,7 +231,7 @@ async def run_agent(
         # temperature=0,
         num_ctx=2 * 8192,  # Set context window here
     )
-    model = model.with_structured_output(ReturnClass)
+    # model = model.with_structured_output(ReturnClass)
 
     # model = ChatGoogleGenerativeAI(
     #     model="gemini-3.1-pro-preview",
@@ -273,7 +272,8 @@ async def run_agent(
         system_prompt=PromptTemplate.from_file(prompt_dir / "sys_prompt.md").format(
             **system_prompt_params_combined
         ),
-        response_format=ProviderStrategy(ReturnClass),
+        # response_format=ProviderStrategy(ReturnClass),
+        response_format=ReturnClass,
         middleware=[
             ToolRetryMiddleware(
                 max_retries=3,
