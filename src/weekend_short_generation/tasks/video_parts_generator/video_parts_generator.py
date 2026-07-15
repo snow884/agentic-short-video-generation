@@ -209,7 +209,9 @@ def run_comfyui_workflow(
             print(f"📦 Found video file: {filename}. Starting download...")
             download_file(filename, subfolder, folder_type)
         else:
-            print("❌ Video file info could not be found in execution history.")
+            raise ValueError(
+                "❌ Video file info could not be found in execution history."
+            )
 
         ws.close()
 
