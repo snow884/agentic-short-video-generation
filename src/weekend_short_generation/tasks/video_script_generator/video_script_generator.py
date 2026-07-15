@@ -1,5 +1,6 @@
 import hashlib
 import json
+import time
 from pathlib import Path
 
 import soundfile as sf
@@ -421,11 +422,11 @@ def main(video_id, event_id):
     print("Received Video Segments list: ", Video_Segments_List)
     populate_db_with_events(video.id, Video_Segments_List)
 
-    # print("clear model from vmem...")
-    # import ollama
+    print("clear model from vmem...")
+    import ollama
 
-    # ollama.generate(model=os.getenv("RESEARCH_AGENT_MODEL"), keep_alive=0)
-    # time.sleep(60)  # Wait for a few seconds to ensure the model is cleared from memory
+    ollama.generate(model=os.getenv("RESEARCH_AGENT_MODEL"), keep_alive=0)
+    time.sleep(60)  # Wait for a few seconds to ensure the model is cleared from memory
 
     if len(Video_Segments_List.video_segments) < 3:
         raise Exception(
