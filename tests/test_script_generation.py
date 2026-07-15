@@ -58,6 +58,34 @@ def test_check_text_spoken_length_matches_timestamps(monkeypatch):
     assert res == "success"
 
 
+def test_check_text_spoken_length_matches_timestamps_accepts_list_of_dicts(
+    monkeypatch,
+):
+    segments = [
+        {
+            "script_text": "This is a test script.",
+            "timestamp": 0,
+            "scene_description": (
+                "This is a buxom test scene description that provides enough"
+                " context for the first segment so the validator treats it as"
+                " sufficiently detailed."
+            ),
+            "event_id": -1,
+            "caption": "This is a caption for the first segment.",
+        }
+    ]
+
+    monkeypatch.setattr(
+        video_script_generator,
+        "generate_audio_file",
+        lambda text, file_path="your_audio_file.wav": 6.0,
+    )
+
+    res = video_script_generator.check_text_spoken_length_matches_timestamps(segments)
+
+    assert res == "success"
+
+
 def test_check_text_spoken_length_matches_timestamps_reports_timing_mismatch(
     monkeypatch,
 ):
