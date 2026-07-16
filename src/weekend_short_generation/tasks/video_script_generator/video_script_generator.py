@@ -372,8 +372,8 @@ def check_text_spoken_length_matches_timestamps(
 
 @task(
     task_run_name="video_script_generator_agent-{video_id}",
-    # retries=3,
-    # retry_delay_seconds=10,
+    retries=3,
+    retry_delay_seconds=10,
 )
 def main(video_id, event_id):
     session = next(get_db())
