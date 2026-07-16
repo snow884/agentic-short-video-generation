@@ -308,8 +308,8 @@ def get_regional_trending_queries(keyword: str, geo_code: str) -> str:
 
 @task(
     task_run_name="event_research_agent-{town_id}-{weekend_id}",
-    # retries=3,
-    # retry_delay_seconds=10,
+    retries=3,
+    retry_delay_seconds=10,
 )
 def main(town_id=0, weekend_id=0):
 
