@@ -25,6 +25,8 @@ from langchain_ollama import ChatOllama
 from prefect.logging import get_run_logger
 from pydantic import BaseModel, Field
 
+from research_agent.utils import ProviderStrategy
+
 
 async def run_agent(
     user_prompt_params: dict = {
@@ -272,8 +274,8 @@ async def run_agent(
         system_prompt=PromptTemplate.from_file(prompt_dir / "sys_prompt.md").format(
             **system_prompt_params_combined
         ),
-        # response_format=ProviderStrategy(ReturnClass),
-        response_format=ReturnClass,
+        response_format=ProviderStrategy(ReturnClass),
+        # response_format=ReturnClass,
         middleware=[
             ToolRetryMiddleware(
                 max_retries=3,
