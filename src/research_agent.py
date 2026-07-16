@@ -17,6 +17,7 @@ from typing import Optional, Type
 
 from deepagents.backends.filesystem import FilesystemBackend
 from langchain.agents.middleware import ToolRetryMiddleware
+from langchain.agents.structured_output import ProviderStrategy
 from langchain_community.agent_toolkits import PlayWrightBrowserToolkit
 from langchain_community.tools.playwright.base import BaseBrowserTool
 from langchain_community.tools.playwright.click import ClickTool
@@ -24,8 +25,6 @@ from langchain_core.callbacks import CallbackManagerForToolRun
 from langchain_ollama import ChatOllama
 from prefect.logging import get_run_logger
 from pydantic import BaseModel, Field
-
-from research_agent.utils import ProviderStrategy
 
 
 async def run_agent(
