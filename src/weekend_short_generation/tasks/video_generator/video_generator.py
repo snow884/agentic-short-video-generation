@@ -10,7 +10,7 @@ os.environ["IMAGEIO_FFMPEG_EXE"] = "/usr/bin/ffmpeg"
 import hashlib
 import time
 
-from moviepy import CompositeVideoClip, VideoFileClip, concatenate_videoclips, vfx
+from moviepy import CompositeVideoClip, VideoFileClip, concatenate_videoclips
 from moviepy.video.fx import MultiplySpeed
 from prefect import task
 from pydub import AudioSegment
@@ -186,27 +186,28 @@ def main(video_id):
 
     print(video.sad_talker_video_path)
 
-    bg_clip = combined_video
+    # bg_clip = combined_video
     fg_clip = VideoFileClip(video.sad_talker_video_path)
     final_audio = fg_clip.audio
 
-    new_height = bg_clip.h / 3
-    fg_clip = fg_clip.resized(height=int(new_height))
+    # new_height = bg_clip.h / 3
+    # fg_clip = fg_clip.resized(height=int(new_height))
 
-    # 2. Apply the green screen mask
-    # 'color' is the RGB value of the green to remove
-    # 'thr' (threshold) and 's' (stiffness) help fine-tune the edges
-    masked_fg = fg_clip.with_effects(
-        [vfx.MaskColor(color=[13, 184, 20], threshold=70, stiffness=5)]
-    )
+    # # 2. Apply the green screen mask
+    # # 'color' is the RGB value of the green to remove
+    # # 'thr' (threshold) and 's' (stiffness) help fine-tune the edges
+    # masked_fg = fg_clip.with_effects(
+    #     [vfx.MaskColor(color=[13, 184, 20], threshold=70, stiffness=5)]
+    # )
 
-    masked_fg = masked_fg.with_position(("right", "bottom")).with_start(0)
+    # masked_fg = masked_fg.with_position(("right", "bottom")).with_start(0)
 
-    # 3. Overlay the masked clip onto the background
-    # You can set the position and start time of the overlay
+    # # 3. Overlay the masked clip onto the background
+    # # You can set the position and start time of the overlay
 
-    final_video = CompositeVideoClip([bg_clip, masked_fg])
-    final_video = final_video.with_audio(final_audio)
+    # final_video = CompositeVideoClip([bg_clip, masked_fg])
+
+    final_video = combined_video.with_audio(final_audio)
 
     # 1. Get the current Unix timestamp
     timestamp = str(time.time())

@@ -17,6 +17,8 @@ from research_agent import run_agent_sync
 from sql_utils import get_db
 from tables import EventList, Events, EventsSchema, Towns, Weekends
 
+NUM_EVENTS_REQUIRED = 2
+
 
 def check_events(events_list: EventList) -> str:
     """
@@ -33,10 +35,10 @@ def check_events(events_list: EventList) -> str:
     if not events_list.events:
         return "You provided an empty value. No events to check."
 
-    if len(events_list.events) < 5:
+    if len(events_list.events) < NUM_EVENTS_REQUIRED:
         return (
             f"You provided only {len(events_list.events)} events. Please provide at"
-            " least 5 events."
+            f" least {NUM_EVENTS_REQUIRED} events."
         )
 
     res = ""
@@ -323,7 +325,7 @@ def main(town_id=0, weekend_id=0):
             "town_state": t.state,
             "weekend_date": w.date,
         },
-        system_prompt_params={"num_events": 5},
+        system_prompt_params={"num_events": NUM_EVENTS_REQUIRED},
         ReturnClass=EventList,
         prompt_dir=Path(__file__).parent.resolve(),
         extra_tools=[check_events, get_regional_trending_queries],
