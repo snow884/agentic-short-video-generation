@@ -400,6 +400,7 @@ def main(video_id, event_id):
         "town_name": t.name,
         "state": t.state,
         "weekend_date": w.date,
+        "video_length": VIDEO_LENGTH,
         "event_info": json.dumps(
             {
                 "name": event.event_name,
