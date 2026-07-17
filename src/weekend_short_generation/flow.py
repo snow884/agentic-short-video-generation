@@ -119,4 +119,4 @@ def main_flow(weekend_id, town_id_list):
 
 
 if __name__ == "__main__":
-    main_flow(weekend_id=1, town_id_list=[i for i in range(6, 49)])
+    main_flow(weekend_id=1, town_id_list=[i for i in range(7, 49)])
