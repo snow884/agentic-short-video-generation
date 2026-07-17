@@ -234,8 +234,8 @@ async def run_agent(
         # Context Management
         num_ctx=8192,  # Adjust based on your memory needs (Default 262k is VRAM heavy)
         # Advanced Settings
-        top_p=0.95,
-        repeat_penalty=1.1,
+        # top_p=0.95,
+        # repeat_penalty=1.1,
     )
     # model = model.with_structured_output(ReturnClass)
 
