@@ -229,8 +229,13 @@ async def run_agent(
     model = ChatOllama(
         model=os.environ["RESEARCH_AGENT_MODEL"],
         reasoning=True,
-        # temperature=0,
-        num_ctx=2 * 8192,  # Set context window here
+        temperature=0.6,  # Balanced for creativity and accuracy
+        num_predict=2048,  # Limit max tokens to prevent runaway generation
+        # Context Management
+        num_ctx=8192,  # Adjust based on your memory needs (Default 262k is VRAM heavy)
+        # Advanced Settings
+        top_p=0.95,
+        repeat_penalty=1.1,
     )
     # model = model.with_structured_output(ReturnClass)
 
