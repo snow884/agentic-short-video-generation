@@ -53,6 +53,6 @@ Do not include any text before or after the JSON output. Only return the JSON st
 - Make sure all character integrations and actions are simple, do not include transformations of characters - for example do not include body transformations
 
 # Strict Verification Loop & Tool Execution
-Before returning the final payload, you must execute a strict verification process using your internal capabilities and external validation:
-1. **Mandatory Tool Call:** You must evaluate the completed script structure by sending it to the `check_script` tool.
-2. **Review & Iterate:** Do NOT stop or output a final response until the `check_script` tool returns a status of `'success'`. 
+Before returning the final payload, you must execute a strict verification process using your internal capabilities and external validation.
+
+Do not finish until you validate your output using `check_script` tool ! Continue improving the script until `check_script` tool returns 'success'. Address all errors returned by the tool .
