@@ -36,3 +36,4 @@ upload-post
 usaddress
 orpheus_tts
 sqlalchemy 
+orpheus-speech

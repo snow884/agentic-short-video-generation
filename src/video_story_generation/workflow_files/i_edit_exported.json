@@ -1,0 +1,210 @@
+{
+  "8": {
+    "inputs": {
+      "samples": [
+        "65",
+        0
+      ],
+      "vae": [
+        "71",
+        0
+      ]
+    },
+    "class_type": "VAEDecode",
+    "_meta": {
+      "title": "VAE Decode"
+    }
+  },
+  "9": {
+    "inputs": {
+      "filename_prefix": "ComfyUI",
+      "images": [
+        "8",
+        0
+      ]
+    },
+    "class_type": "SaveImage",
+    "_meta": {
+      "title": "Save Image"
+    }
+  },
+  "41": {
+    "inputs": {
+      "image": "MultiGPU_00014_.jpg"
+    },
+    "class_type": "LoadImage",
+    "_meta": {
+      "title": "Load Image"
+    }
+  },
+  "65": {
+    "inputs": {
+      "seed": 493455888014906,
+      "steps": 32,
+      "cfg": 5,
+      "sampler_name": "euler",
+      "scheduler": "simple",
+      "denoise": 0.82,
+      "model": [
+        "67",
+        0
+      ],
+      "positive": [
+        "68",
+        0
+      ],
+      "negative": [
+        "69",
+        0
+      ],
+      "latent_image": [
+        "66",
+        0
+      ]
+    },
+    "class_type": "KSampler",
+    "_meta": {
+      "title": "KSampler"
+    }
+  },
+  "66": {
+    "inputs": {
+      "width": 576,
+      "height": 896,
+      "batch_size": 1
+    },
+    "class_type": "EmptySD3LatentImage",
+    "_meta": {
+      "title": "EmptySD3LatentImage"
+    }
+  },
+  "67": {
+    "inputs": {
+      "shift": 3.1,
+      "model": [
+        "73",
+        0
+      ]
+    },
+    "class_type": "ModelSamplingAuraFlow",
+    "_meta": {
+      "title": "ModelSamplingAuraFlow"
+    }
+  },
+  "68": {
+    "inputs": {
+      "prompt": "Combine image 1 and image 2 into one coherent scene with both original characters clearly visible at the same time. Preserve each person's identity, face, body shape, clothing style, and pose cues from their respective source image. Crisp focus, high detail skin texture, detailed eyes, realistic facial features, sharp edges, clean lighting, natural proportions.",
+      "clip": [
+        "72",
+        0
+      ],
+      "vae": [
+        "71",
+        0
+      ],
+      "image1": [
+        "41",
+        0
+      ],
+      "image2": [
+        "74",
+        0
+      ],
+      "image3": [
+        "75",
+        0
+      ]
+    },
+    "class_type": "TextEncodeQwenImageEditPlus",
+    "_meta": {
+      "title": "TextEncodeQwenImageEditPlus (Positive)"
+    }
+  },
+  "69": {
+    "inputs": {
+      "prompt": "single character only, missing second person, identity swap, wrong person mapping, blurry, soft focus, lowres, jpeg artifacts, over-smoothed skin, waxy face, deformed face, mismatched faces, extra limbs, cropped body",
+      "clip": [
+        "72",
+        0
+      ],
+      "vae": [
+        "71",
+        0
+      ],
+      "image1": [
+        "41",
+        0
+      ],
+      "image2": [
+        "74",
+        0
+      ],
+      "image3": [
+        "75",
+        0
+      ]
+    },
+    "class_type": "TextEncodeQwenImageEditPlus",
+    "_meta": {
+      "title": "TextEncodeQwenImageEditPlus"
+    }
+  },
+  "71": {
+    "inputs": {
+      "vae_name": "qwen_image_vae.safetensors",
+      "device": "cuda:1"
+    },
+    "class_type": "VAELoaderMultiGPU",
+    "_meta": {
+      "title": "VAELoaderMultiGPU"
+    }
+  },
+  "72": {
+    "inputs": {
+      "clip_name": "qwen_2.5_vl_7b_fp8_scaled.safetensors",
+      "type": "qwen_image",
+      "device": "cuda:0",
+      "virtual_vram_gb": 3.9,
+      "donor_device": "cuda:0",
+      "expert_mode_allocations": "",
+      "eject_models": false
+    },
+    "class_type": "CLIPLoaderDisTorch2MultiGPU",
+    "_meta": {
+      "title": "CLIPLoaderDisTorch2MultiGPU"
+    }
+  },
+  "73": {
+    "inputs": {
+      "unet_name": "qwen_image_edit_2509_fp8_e4m3fn.safetensors",
+      "weight_dtype": "default",
+      "compute_device": "cuda:0",
+      "virtual_vram_gb": 7,
+      "donor_device": "cuda:1",
+      "expert_mode_allocations": "",
+      "eject_models": true
+    },
+    "class_type": "UNETLoaderDisTorch2MultiGPU",
+    "_meta": {
+      "title": "UNETLoaderDisTorch2MultiGPU"
+    }
+  },
+  "74": {
+    "inputs": {
+      "image": "MultiGPU_00018_.jpg"
+    },
+    "class_type": "LoadImage",
+    "_meta": {
+      "title": "Load Image"
+    }
+  },
+  "75": {
+    "inputs": {
+      "image": "MultiGPU_00019_.jpg"
+    },
+    "class_type": "LoadImage",
+    "_meta": {
+      "title": "Load Image"
+    }
+  }
+}

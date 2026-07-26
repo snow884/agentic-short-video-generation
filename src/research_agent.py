@@ -1,30 +1,17 @@
 import asyncio
-import http.cookiejar
 import json
 
 import nest_asyncio
 from deepagents import create_deep_agent
-from langchain_community.agent_toolkits import PlayWrightBrowserToolkit
-from langchain_community.tools.playwright.utils import create_async_playwright_browser
 from langchain_core.prompts import PromptTemplate
-from langchain_tavily import TavilySearch
 
 nest_asyncio.apply()
 
-import os
 from pathlib import Path
-from typing import Optional, Type
 
 from deepagents.backends.filesystem import FilesystemBackend
-from langchain.agents.middleware import ToolRetryMiddleware
-from langchain.agents.structured_output import ProviderStrategy
-from langchain_community.agent_toolkits import PlayWrightBrowserToolkit
-from langchain_community.tools.playwright.base import BaseBrowserTool
-from langchain_community.tools.playwright.click import ClickTool
-from langchain_core.callbacks import CallbackManagerForToolRun
 from langchain_ollama import ChatOllama
 from prefect.logging import get_run_logger
-from pydantic import BaseModel, Field
 
 
 async def run_agent(
@@ -42,197 +29,197 @@ async def run_agent(
 
     logger = get_run_logger()
 
-    tavity_tools = [
-        TavilySearch(
-            max_results=5,
-            topic="general",
-            # include_answer=False,
-            # include_raw_content=False,
-            # include_images=False,
-            # include_image_descriptions=False,
-            # search_depth="basic",
-            # time_range="day",
-            # include_domains=None,
-            # exclude_domains=None
-        )
-    ]
+    # tavity_tools = [
+    #     TavilySearch(
+    #         max_results=5,
+    #         topic="general",
+    #         # include_answer=False,
+    #         # include_raw_content=False,
+    #         # include_images=False,
+    #         # include_image_descriptions=False,
+    #         # search_depth="basic",
+    #         # time_range="day",
+    #         # include_domains=None,
+    #         # exclude_domains=None
+    #     )
+    # ]
 
-    custom_ua = (
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like"
-        " Gecko) Chrome/131.0.0.0 Safari/537.36"
-    )
-    width, height = 1920, 1080
+    # custom_ua = (
+    #     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like"
+    #     " Gecko) Chrome/131.0.0.0 Safari/537.36"
+    # )
+    # width, height = 1920, 1080
 
-    async_browser = create_async_playwright_browser(
-        headless=False,
-        args=[
-            "--disable-gpu",
-            "--no-sandbox",
-            f"--user-agent={custom_ua}",
-            f"--window-size={width},{height}",
-            "--start-maximized",
-            "--disable-web-security",  # Bypasses CSP/Same-Origin Policy
-            "--disable-javascript",
-        ],
-    )
+    # async_browser = create_async_playwright_browser(
+    #     headless=False,
+    #     args=[
+    #         "--disable-gpu",
+    #         "--no-sandbox",
+    #         f"--user-agent={custom_ua}",
+    #         f"--window-size={width},{height}",
+    #         "--start-maximized",
+    #         "--disable-web-security",  # Bypasses CSP/Same-Origin Policy
+    #         "--disable-javascript",
+    #     ],
+    # )
 
-    toolkit = PlayWrightBrowserToolkit.from_browser(async_browser=async_browser)
+    # toolkit = PlayWrightBrowserToolkit.from_browser(async_browser=async_browser)
 
-    context = None
+    # context = None
 
-    # 2. Parse the cookies.txt file
-    if extra_cookie_file:
-        cookie_jar = http.cookiejar.MozillaCookieJar()
-        cookie_jar.load(extra_cookie_file, ignore_discard=True, ignore_expires=True)
+    # # 2. Parse the cookies.txt file
+    # if extra_cookie_file:
+    #     cookie_jar = http.cookiejar.MozillaCookieJar()
+    #     cookie_jar.load(extra_cookie_file, ignore_discard=True, ignore_expires=True)
 
-        cookie_list = []
-        for cookie in cookie_jar:
-            cookie_dict = {
-                "name": cookie.name,
-                "value": cookie.value,
-                "domain": cookie.domain,
-                "path": cookie.path,
-                "secure": cookie.secure,
-                "httpOnly": cookie.has_nonstandard_attr("HttpOnly"),
-            }
-            if cookie.expires:
-                cookie_dict["expires"] = cookie.expires
-            cookie_list.append(cookie_dict)
+    #     cookie_list = []
+    #     for cookie in cookie_jar:
+    #         cookie_dict = {
+    #             "name": cookie.name,
+    #             "value": cookie.value,
+    #             "domain": cookie.domain,
+    #             "path": cookie.path,
+    #             "secure": cookie.secure,
+    #             "httpOnly": cookie.has_nonstandard_attr("HttpOnly"),
+    #         }
+    #         if cookie.expires:
+    #             cookie_dict["expires"] = cookie.expires
+    #         cookie_list.append(cookie_dict)
 
-        # 3. Add to the Playwright browser context
-        # browser_context = async_browser.contexts[0]  # or a newly created context
+    #     # 3. Add to the Playwright browser context
+    #     # browser_context = async_browser.contexts[0]  # or a newly created context
 
-        context = await async_browser.new_context()
+    #     context = await async_browser.new_context()
 
-        await context.add_cookies(cookie_list)
+    #     await context.add_cookies(cookie_list)
 
-    if not context:
-        context = await async_browser.new_context()
+    # if not context:
+    #     context = await async_browser.new_context()
 
-    await context.add_init_script(
-        "Object.defineProperty(navigator, 'webdriver', {get: () => undefined})"
-    )
+    # await context.add_init_script(
+    #     "Object.defineProperty(navigator, 'webdriver', {get: () => undefined})"
+    # )
 
-    browser_tools = toolkit.get_tools()
+    # browser_tools = toolkit.get_tools()
 
-    class ForceClickTool(ClickTool):
-        name: str = "force_click_element"
-        description: str = (
-            "Use this to force-click an element via JavaScript when standard clicks"
-            " fail."
-        )
+    # class ForceClickTool(ClickTool):
+    #     name: str = "force_click_element"
+    #     description: str = (
+    #         "Use this to force-click an element via JavaScript when standard clicks"
+    #         " fail."
+    #     )
 
-        def _run(
-            self, selector: str, run_manager: Optional[CallbackManagerForToolRun] = None
-        ) -> str:
-            # Resolves via the underlying sync/async Playwright page instance
+    #     def _run(
+    #         self, selector: str, run_manager: Optional[CallbackManagerForToolRun] = None
+    #     ) -> str:
+    #         # Resolves via the underlying sync/async Playwright page instance
 
-            context = async_browser.new_context()
+    #         context = async_browser.new_context()
 
-            page = context.pages[0]
+    #         page = context.pages[0]
 
-            try:
-                # Force click bypasses standard visibility/interactivity checks
-                page.click(selector, force=True)
-                return f"Successfully force-clicked element: {selector}"
-            except Exception:
-                # Ultimate fallback: Evaluate direct browser JavaScript execution
-                try:
-                    page.evaluate(f"document.querySelector('{selector}').click()")
-                    return f"Successfully dispatched JS click to element: {selector}"
-                except Exception as e:
-                    return f"Failed to click element: {str(e)}"
+    #         try:
+    #             # Force click bypasses standard visibility/interactivity checks
+    #             page.click(selector, force=True)
+    #             return f"Successfully force-clicked element: {selector}"
+    #         except Exception:
+    #             # Ultimate fallback: Evaluate direct browser JavaScript execution
+    #             try:
+    #                 page.evaluate(f"document.querySelector('{selector}').click()")
+    #                 return f"Successfully dispatched JS click to element: {selector}"
+    #             except Exception as e:
+    #                 return f"Failed to click element: {str(e)}"
 
-    browser_tools.append(
-        ForceClickTool(
-            sync_browser=toolkit.sync_browser, async_browser=toolkit.async_browser
-        )
-    )
+    # browser_tools.append(
+    #     ForceClickTool(
+    #         sync_browser=toolkit.sync_browser, async_browser=toolkit.async_browser
+    #     )
+    # )
 
-    # 1. Define the input validation schema for the LLM
-    class UploadFileInput(BaseModel):
-        selector: str = Field(
-            description=(
-                "The CSS selector for the file input element. Usually"
-                " 'input[type=file]'."
-            )
-        )
-        file_path: str = Field(
-            description="The absolute local system path to the video/file to upload."
-        )
+    # # 1. Define the input validation schema for the LLM
+    # class UploadFileInput(BaseModel):
+    #     selector: str = Field(
+    #         description=(
+    #             "The CSS selector for the file input element. Usually"
+    #             " 'input[type=file]'."
+    #         )
+    #     )
+    #     file_path: str = Field(
+    #         description="The absolute local system path to the video/file to upload."
+    #     )
 
-    # 2. Build the Custom Playwright upload tool inherited from LangChain's base
-    class PlaywrightUploadFileTool(BaseBrowserTool):
-        name: str = "upload_file"
-        description: str = (
-            "Use this tool to upload a video or file directly to an HTML input tag. Do"
-            " NOT click the button first; use this tool directly with the target file"
-            " path."
-        )
-        args_schema: Type[BaseModel] = UploadFileInput
+    # # 2. Build the Custom Playwright upload tool inherited from LangChain's base
+    # class PlaywrightUploadFileTool(BaseBrowserTool):
+    #     name: str = "upload_file"
+    #     description: str = (
+    #         "Use this tool to upload a video or file directly to an HTML input tag. Do"
+    #         " NOT click the button first; use this tool directly with the target file"
+    #         " path."
+    #     )
+    #     args_schema: Type[BaseModel] = UploadFileInput
 
-        def _run(
-            self,
-            selector: str,
-            file_path: str,
-            run_manager: Optional[CallbackManagerForToolRun] = None,
-        ) -> str:
-            # Access active browser context (supports sync and async modes)
-            if self.sync_browser:
+    #     def _run(
+    #         self,
+    #         selector: str,
+    #         file_path: str,
+    #         run_manager: Optional[CallbackManagerForToolRun] = None,
+    #     ) -> str:
+    #         # Access active browser context (supports sync and async modes)
+    #         if self.sync_browser:
 
-                context = async_browser.new_context()
+    #             context = async_browser.new_context()
 
-                page = context.pages[0]
+    #             page = context.pages[0]
 
-                # page = self.sync_browser.pages[0]
-                try:
-                    page.wait_for_selector(selector, state="attached", timeout=5000)
-                    page.set_input_files(selector, file_path)  # Direct injection
-                    return (
-                        f"Successfully attached file {file_path} to selector"
-                        f" '{selector}'"
-                    )
-                except Exception as e:
-                    return f"Sync file upload failed: {str(e)}"
-            else:
-                return "This tool instance requires a synchronous browser context."
+    #             # page = self.sync_browser.pages[0]
+    #             try:
+    #                 page.wait_for_selector(selector, state="attached", timeout=5000)
+    #                 page.set_input_files(selector, file_path)  # Direct injection
+    #                 return (
+    #                     f"Successfully attached file {file_path} to selector"
+    #                     f" '{selector}'"
+    #                 )
+    #             except Exception as e:
+    #                 return f"Sync file upload failed: {str(e)}"
+    #         else:
+    #             return "This tool instance requires a synchronous browser context."
 
-        # If your agent setup is using AsyncPlaywright, use this method instead:
-        async def _arun(
-            self,
-            selector: str,
-            file_path: str,
-            run_manager: Optional[CallbackManagerForToolRun] = None,
-        ) -> str:
-            if self.async_browser:
-                # page = self.async_browser.pages[0]
-                context = await async_browser.new_context()
+    #     # If your agent setup is using AsyncPlaywright, use this method instead:
+    #     async def _arun(
+    #         self,
+    #         selector: str,
+    #         file_path: str,
+    #         run_manager: Optional[CallbackManagerForToolRun] = None,
+    #     ) -> str:
+    #         if self.async_browser:
+    #             # page = self.async_browser.pages[0]
+    #             context = await async_browser.new_context()
 
-                page = await context.pages[0]
+    #             page = await context.pages[0]
 
-                try:
-                    await page.wait_for_selector(
-                        selector, state="attached", timeout=5000
-                    )
-                    await page.set_input_files(selector, file_path)  # Direct injection
-                    return (
-                        f"Successfully attached file {file_path} to selector"
-                        f" '{selector}'"
-                    )
-                except Exception as e:
-                    return f"Async file upload failed: {str(e)}"
-            else:
-                return "This tool instance requires an asynchronous browser context."
+    #             try:
+    #                 await page.wait_for_selector(
+    #                     selector, state="attached", timeout=5000
+    #                 )
+    #                 await page.set_input_files(selector, file_path)  # Direct injection
+    #                 return (
+    #                     f"Successfully attached file {file_path} to selector"
+    #                     f" '{selector}'"
+    #                 )
+    #             except Exception as e:
+    #                 return f"Async file upload failed: {str(e)}"
+    #         else:
+    #             return "This tool instance requires an asynchronous browser context."
 
-    browser_tools.append(PlaywrightUploadFileTool(async_browser=toolkit.async_browser))
+    # browser_tools.append(PlaywrightUploadFileTool(async_browser=toolkit.async_browser))
 
     model = ChatOllama(
-        model=os.environ["RESEARCH_AGENT_MODEL"],
+        model="qwen3.6:27b",  # os.environ["RESEARCH_AGENT_MODEL"],
         reasoning=True,
-        temperature=0.6,  # Balanced for creativity and accuracy
-        num_predict=2048,  # Limit max tokens to prevent runaway generation
+        temperature=0,  # Balanced for creativity and accuracy
+        # num_predict=2048,  # Limit max tokens to prevent runaway generation
         # Context Management
-        num_ctx=8192,  # Adjust based on your memory needs (Default 262k is VRAM heavy)
+        # num_ctx=8192,  # Adjust based on your memory needs (Default 262k is VRAM heavy)
         # Advanced Settings
         # top_p=0.95,
         # repeat_penalty=1.1,
@@ -247,13 +234,13 @@ async def run_agent(
     #     temperature=1.2,
     # )
 
-    tavity_tools_str = ", ".join([t.name for t in tavity_tools])
-    browser_tools_str = ", ".join([t.name for t in browser_tools])
+    # tavity_tools_str = ", ".join([t.name for t in tavity_tools])
+    # browser_tools_str = ", ".join([t.name for t in browser_tools])
 
     system_prompt_params_combined = {
         **system_prompt_params,
-        "tavity_tools_str": tavity_tools_str,
-        "browser_tools_str": browser_tools_str,
+        # "tavity_tools_str": tavity_tools_str,
+        # "browser_tools_str": browser_tools_str,
     }
 
     logger.info("system prompt: ")
@@ -274,19 +261,20 @@ async def run_agent(
 
     agent_chain = create_deep_agent(
         model=model,
-        tools=browser_tools + tavity_tools + extra_tools,
+        # tools=browser_tools + tavity_tools + extra_tools,
+        tools=extra_tools,
         system_prompt=PromptTemplate.from_file(prompt_dir / "sys_prompt.md").format(
             **system_prompt_params_combined
         ),
-        response_format=ProviderStrategy(ReturnClass),
+        response_format=ReturnClass,
         # response_format=ReturnClass,
-        middleware=[
-            ToolRetryMiddleware(
-                max_retries=3,
-                backoff_factor=2.0,
-                initial_delay=1.0,
-            ),
-        ],
+        # middleware=[
+        #     ToolRetryMiddleware(
+        #         max_retries=3,
+        #         backoff_factor=2.0,
+        #         initial_delay=1.0,
+        #     ),
+        # ],
         debug=True,
         cache=None,
         backend=FilesystemBackend(root_dir=parent_dir),

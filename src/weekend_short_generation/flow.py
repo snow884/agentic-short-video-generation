@@ -1,5 +1,6 @@
 """Orchestrates the weekend short generation pipeline for each town."""
 
+
 from dotenv import load_dotenv
 from prefect import flow, task
 from prefect.logging import get_run_logger
@@ -119,4 +120,4 @@ def main_flow(weekend_id, town_id_list):
 
 
 if __name__ == "__main__":
-    main_flow(weekend_id=1, town_id_list=[i for i in range(7, 49)])
+    main_flow(weekend_id=1, town_id_list=[i for i in range(2, 49)])
