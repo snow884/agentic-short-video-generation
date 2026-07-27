@@ -49,7 +49,7 @@ def main(video_id):
 
         print(
             f"Segment ID: {segment.id}, Audio Path: {segment.audio_file_path}, Video"
-            f" Path: {segment.video_file_path}"
+            f" Path: {segment.video_path}"
         )
 
         sound = AudioSegment.from_file(segment.audio_file_path)
@@ -58,7 +58,7 @@ def main(video_id):
 
         combined_audio = sound if combined_audio is None else combined_audio + sound
 
-        clip = VideoFileClip(segment.video_file_path)
+        clip = VideoFileClip(segment.video_path)
 
         slowdown_ratio = clip.duration / duration
 
