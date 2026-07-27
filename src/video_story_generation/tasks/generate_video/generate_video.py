@@ -14,8 +14,12 @@ os.environ["IMAGEIO_FFMPEG_EXE"] = "/usr/bin/ffmpeg"
 import hashlib
 import time
 
-from moviepy import VideoFileClip, concatenate_videoclips
-from moviepy.editor import AudioFileClip, concatenate_audioclips
+from moviepy import (
+    AudioFileClip,
+    VideoFileClip,
+    concatenate_audioclips,
+    concatenate_videoclips,
+)
 from moviepy.video.fx import MultiplySpeed
 from prefect import task
 
