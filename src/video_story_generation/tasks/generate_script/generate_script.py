@@ -84,25 +84,39 @@ def check_script(video_script: dict) -> str:
     video_segment_list = video_segment_list_in["video_segments"]
     person_and_prop = video_segment_list_in["people_and_props"]
 
-    # for segment_i, segment in enumerate(video_segment_list):
-    #     diff1 = list(set(list(segment.keys())) ^ set([ "start_image_prompt",  "video_prompt", "people_and_props", "start_image_people_and_props_names", "narrator_script", "timestamp"]))
-    #     if diff1 != []:
-    #         error_text = (
-    #             f"Error: Segment {segment_i} has invalid keys. Key diff = {diff1} Expected keys are: "
-    #             f"{{'start_image_prompt', 'video_prompt', 'people_and_props', 'start_image_people_and_props_names', 'narrator_script', 'timestamp'}}"
-    #         )
-    #         print(error_text)
-    #         res += error_text + "\n"
+    for segment_i, segment in enumerate(video_segment_list):
+        diff1 = list(
+            set(list(segment.keys()))
+            ^ set(
+                [
+                    "start_image_prompt",
+                    "video_prompt",
+                    "people_and_props",
+                    "start_image_people_and_props_names",
+                    "narrator_script",
+                    "timestamp",
+                ]
+            )
+        )
+        if diff1 != []:
+            error_text = (
+                f"Error: Segment {segment_i} has invalid keys. Key diff ="
+                f" {diff1} Expected keys are: {{'start_image_prompt', 'video_prompt',"
+                " 'people_and_props', 'start_image_people_and_props_names',"
+                " 'narrator_script', 'timestamp'}"
+            )
+            print(error_text)
+            res += error_text + "\n"
 
-    # for person_and_prop_i, person_and_prop_item in enumerate(person_and_prop):
-    #     diff1 = list(set(list(person_and_prop_item.keys())) ^ set(["name", "prompt"]))
-    #     if diff1 != []:
-    #         error_text = (
-    #             f"Error: Person/Prop {person_and_prop_i} has invalid keys. Key diff = {diff1} Expected keys are: "
-    #             f"{{'name', 'prompt'}}"
-    #         )
-    #         print(error_text)
-    #         res += error_text + "\n"
+    for person_and_prop_i, person_and_prop_item in enumerate(person_and_prop):
+        diff1 = list(set(list(person_and_prop_item.keys())) ^ set(["name", "prompt"]))
+        if diff1 != []:
+            error_text = (
+                f"Error: Person/Prop {person_and_prop_i} has invalid keys. Key diff ="
+                f" {diff1} Expected keys are: {{'name', 'prompt'}}"
+            )
+            print(error_text)
+            res += error_text + "\n"
 
     if res:
         return res
