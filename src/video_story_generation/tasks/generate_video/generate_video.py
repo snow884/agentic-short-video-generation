@@ -15,9 +15,9 @@ import hashlib
 import time
 
 from moviepy import VideoFileClip, concatenate_videoclips
+from moviepy.editor import AudioFileClip, concatenate_audioclips
 from moviepy.video.fx import MultiplySpeed
 from prefect import task
-from pydub import AudioSegment
 
 
 @task(task_run_name="generate_full_video")
@@ -52,11 +52,15 @@ def main(video_id):
             f" Path: {segment.video_path}"
         )
 
-        sound = AudioSegment.from_file(segment.audio_file_path)
+        sound = AudioFileClip(segment.audio_file_path)
 
-        duration = sound.duration_seconds
+        duration = sound.duration
 
-        combined_audio = sound if combined_audio is None else combined_audio + sound
+        combined_audio = (
+            sound
+            if combined_audio is None
+            else concatenate_audioclips([combined_audio, sound])
+        )
 
         clip = VideoFileClip(segment.video_path)
 
