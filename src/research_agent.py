@@ -10,6 +10,7 @@ nest_asyncio.apply()
 from pathlib import Path
 
 from deepagents.backends.filesystem import FilesystemBackend
+from langchain.agents.structured_output import ToolStrategy
 from langchain_ollama import ChatOllama
 from prefect.logging import get_run_logger
 
@@ -266,7 +267,7 @@ async def run_agent(
         system_prompt=PromptTemplate.from_file(prompt_dir / "sys_prompt.md").format(
             **system_prompt_params_combined
         ),
-        response_format=ReturnClass,
+        response_format=ToolStrategy(ReturnClass),
         # response_format=ReturnClass,
         # middleware=[
         #     ToolRetryMiddleware(
