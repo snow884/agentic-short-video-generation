@@ -39,15 +39,12 @@ def generate_audio_file_get_duration(text, file_path="temp_audio_file.wav"):
     return duration
 
 
-VideoSegmentsListToolInput = VideoSegmentsList
-
-
 def check_script(video_segment_list_in: VideoSegmentsListToolInput) -> str:
     """
     Validates the video segments list to ensure it meets the required criteria.
 
     Args:
-        video_segment_list_dict (VideoSegmentsListToolInput): Video segments list to validate.
+        video_segment_list_in (VideoSegmentsListToolInput): Video segments list to validate.
 
     Returns:
         str: "success" if validation passes, otherwise an error message.
