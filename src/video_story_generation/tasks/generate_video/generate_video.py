@@ -47,11 +47,7 @@ def main(video_id):
 
         # image = session.query(Image).filter(Image.id == segment.Image_id).first()
 
-        print(
-            f"Segment ID: {segment.id}, Event ID: {segment.event_id}, Timestamp:"
-            f" {segment.timestamp}, Script Text: {segment.script_text}, Sound File"
-            f" Path: {segment.sound_file_path}"
-        )
+        print(f"Segment ID: {segment.id}, Path: {segment.sound_file_path}")
 
         sound = AudioSegment.from_file(segment.sound_file_path)
 
