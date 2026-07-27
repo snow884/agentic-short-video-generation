@@ -1,7 +1,7 @@
 import time
 
+import ollama
 from dotenv import load_dotenv
-from ollama import ollama
 from prefect import flow, get_run_logger
 from tasks.generate_audio.generate_audio import main as generate_audio_main
 from tasks.generate_people_and_prop_images.generate_people_and_prop_images import (
