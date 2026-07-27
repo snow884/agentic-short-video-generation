@@ -61,7 +61,7 @@ def main_flow():
 
     logger.info("Waiting 10s to clear model from memory...")
 
-    ollama.generate(model="qwen3.6:27b-q4_K_M", keep_alive=0)
+    ollama.generate(model="qwen3.6:27b", keep_alive=0)
     time.sleep(10)  # Wait for a few seconds to ensure the model is cleared from memory
 
     generate_people_and_prop_images_main(video_id=video_id)
