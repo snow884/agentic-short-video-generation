@@ -332,7 +332,7 @@ def main(video_id):
         "video_prompt": video.prompt,
     }
 
-    system_prompt_params = {}
+    system_prompt_params = {"video_length": VIDEO_LENGTH}
 
     Video_Segments_List = run_agent_sync(
         user_prompt_params=user_prompt_params,
