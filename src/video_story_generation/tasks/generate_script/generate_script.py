@@ -11,7 +11,6 @@ from video_story_generation.tables import (
     Videos,
     VideoSegments,
     VideoSegmentsList,
-    VideoSegmentsListToolInput,
 )
 
 # from kokoro import KPipeline
@@ -40,12 +39,12 @@ def generate_audio_file_get_duration(text, file_path="temp_audio_file.wav"):
     return duration
 
 
-def check_script(video_segment_list_in: VideoSegmentsListToolInput) -> str:
+def check_script(video_segment_list_in: dict) -> str:
     """
     Validates the video segments list to ensure it meets the required criteria.
 
     Args:
-        video_segment_list_in (VideoSegmentsListToolInput): Video segments list to validate.
+        video_segment_list_in (dict): Video segments list to validate.
 
     Returns:
         str: "success" if validation passes, otherwise an error message.
@@ -54,12 +53,12 @@ def check_script(video_segment_list_in: VideoSegmentsListToolInput) -> str:
     res = ""
 
     print(
-        f"Checking script with {len(video_segment_list_in.video_segments)} segments and"
-        f" {len(video_segment_list_in.people_and_props)} people/props."
+        f"Checking script with {len(video_segment_list_in['video_segments'])} segments"
+        f" and {len(video_segment_list_in['people_and_props'])} people/props."
     )
 
-    video_segment_list = video_segment_list_in.video_segments
-    person_and_prop = video_segment_list_in.people_and_props
+    video_segment_list = video_segment_list_in["video_segments"]
+    person_and_prop = video_segment_list_in["people_and_props"]
 
     # for segment_i, segment in enumerate(video_segment_list):
     #     diff1 = list(set(list(segment.keys())) ^ set([ "start_image_prompt",  "video_prompt", "people_and_props", "start_image_people_and_props_names", "narrator_script", "timestamp"]))
