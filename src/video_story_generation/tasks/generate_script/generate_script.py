@@ -39,7 +39,7 @@ def generate_audio_file_get_duration(text, file_path="temp_audio_file.wav"):
     return duration
 
 
-VideoSegmentsListToolInput = VideoSegmentsList.deepcopy()
+VideoSegmentsListToolInput = VideoSegmentsList.copy()
 
 
 def check_script(video_segment_list_in: VideoSegmentsListToolInput) -> str:
