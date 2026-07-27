@@ -111,3 +111,25 @@ class VideoSegmentsList(BaseModel):
 
             return normalized
         return data
+
+
+class VideoSegmentsListToolInput(BaseModel):
+    model_config = ConfigDict(populate_by_name=True, extra="ignore")
+
+    video_segments: Optional[list[VideoSegmentsSchema]] = Field(default_factory=list)
+
+    people_and_props: Optional[list[PeopleAndPropsSchema]] = Field(default_factory=list)
+
+    @model_validator(mode="before")
+    @classmethod
+    def _coerce_segment_input(cls, data):
+        if isinstance(data, dict):
+            normalized = dict(data)
+            if "video_segments" not in normalized and "segments" in normalized:
+                normalized["video_segments"] = normalized.pop("segments")
+
+            if "people_and_props" not in normalized and "people" in normalized:
+                normalized["people_and_props"] = normalized.pop("people")
+
+            return normalized
+        return data
