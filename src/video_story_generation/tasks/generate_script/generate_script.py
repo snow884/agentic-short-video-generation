@@ -11,6 +11,7 @@ from video_story_generation.tables import (
     Videos,
     VideoSegments,
     VideoSegmentsList,
+    VideoSegmentsListToolInput,
 )
 
 # from kokoro import KPipeline
