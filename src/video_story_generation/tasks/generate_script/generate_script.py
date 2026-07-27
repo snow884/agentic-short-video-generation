@@ -91,18 +91,18 @@ def check_script(video_script: dict) -> str:
                 [
                     "start_image_prompt",
                     "video_prompt",
-                    "people_and_props",
                     "start_image_people_and_props_names",
                     "narrator_script",
                     "timestamp",
                 ]
             )
         )
+
         if diff1 != []:
             error_text = (
                 f"Error: Segment {segment_i} has invalid keys. Key diff ="
                 f" {diff1} Expected keys are: {{'start_image_prompt', 'video_prompt',"
-                " 'people_and_props', 'start_image_people_and_props_names',"
+                " 'start_image_people_and_props_names',"
                 " 'narrator_script', 'timestamp'}"
             )
             print(error_text)
