@@ -67,7 +67,7 @@ def main(video_id):
             f" Path: {segment.sound_file_path}"
         )
 
-        sound = AudioSegment.from_file(segment.sound_file_path)
+        sound = AudioSegment.from_file(segment.audio_file_path)
 
         duration = sound.duration_seconds
 
