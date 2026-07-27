@@ -84,12 +84,12 @@ def check_script(video_segment_list_in: dict) -> str:
         return res
 
     for segment_i, segment in enumerate(video_segment_list):
-        if not isinstance(segment.start_image_people_and_props_names, str):
+        if not isinstance(segment["start_image_people_and_props_names"], str):
             error_text = (
                 f"Error: Segment {segment_i} has invalid type for"
                 " 'start_image_people_and_props_names'. Expected type is str listing"
                 " people and prop names separated by commas, but got"
-                f" {type(segment.start_image_people_and_props_names)}."
+                f" {type(segment['start_image_people_and_props_names'])}."
             )
             print(error_text)
             res += error_text + "\n"
@@ -112,77 +112,78 @@ def check_script(video_segment_list_in: dict) -> str:
     last_timestamp = 0
     for segment_i, segment in enumerate(video_segment_list):
         if segment_i == 0:
-            if segment.timestamp != 0:
+            if segment["timestamp"] != 0:
                 error_text = (
-                    f"Error: Segment {segment_i} has a timestamp {segment.timestamp}."
-                    " The first segment's timestamp must be 0."
+                    f"Error: Segment {segment_i} has a timestamp"
+                    f" {segment['timestamp']}. The first segment's timestamp must be 0."
                 )
                 print(error_text)
                 res += error_text + "\n"
         else:
-            if (segment.timestamp - last_timestamp) != SEGMENT_LENGTH:
+            if (segment["timestamp"] - last_timestamp) != SEGMENT_LENGTH:
                 error_text = (
                     f"Error: Segment {segment_i} has a timestamp"
-                    f" {segment.timestamp} that is not exactly {SEGMENT_LENGTH} seconds"
-                    f" after the previous segment's timestamp {last_timestamp}."
-                    " Timestamps must be in ascending order and spaced by"
-                    f" {SEGMENT_LENGTH} seconds."
+                    f" {segment['timestamp']} that is not exactly"
+                    f" {SEGMENT_LENGTH} seconds after the previous segment's timestamp"
+                    f" {last_timestamp}. Timestamps must be in ascending order and"
+                    f" spaced by {SEGMENT_LENGTH} seconds."
                 )
                 print(error_text)
                 res += error_text + "\n"
 
-        last_timestamp = segment.timestamp
+        last_timestamp = segment["timestamp"]
 
     for person_and_prop_item in person_and_prop:
 
-        if len(person_and_prop_item.name.split(" ")) < 2:
+        if len(person_and_prop_item["name"].split(" ")) < 2:
             error_text = (
-                f"Error: Person or prop '{person_and_prop_item.name}' is too short."
+                f"Error: Person or prop '{person_and_prop_item['name']}' is too short."
                 " Please provide a more detailed name with at least 2 words."
             )
             print(error_text)
             res += error_text + "\n"
 
-        if len(person_and_prop_item.name.split(" ")) > 10:
+        if len(person_and_prop_item["name"].split(" ")) > 10:
             error_text = (
-                f"Error: Person or prop '{person_and_prop_item.name}' is too long."
+                f"Error: Person or prop '{person_and_prop_item['name']}' is too long."
                 " Please shorten the name to less than 10 words."
             )
             print(error_text)
             res += error_text + "\n"
 
-        if len(person_and_prop_item.prompt.split(" ")) < 40:
+        if len(person_and_prop_item["prompt"].split(" ")) < 40:
             error_text = (
-                f"Error: Description for person or prop '{person_and_prop_item.name}'"
-                " is too short. Please provide a more detailed description with at"
-                " least 40 words."
+                "Error: Description for person or prop"
+                f" '{person_and_prop_item['name']}' is too short. Please provide a more"
+                " detailed description with at least 40 words."
             )
             print(error_text)
             res += error_text + "\n"
 
-        if len(person_and_prop_item.prompt.split(" ")) > 120:
+        if len(person_and_prop_item["prompt"].split(" ")) > 120:
             error_text = (
-                f"Error: Description for person or prop '{person_and_prop_item.name}'"
-                " is too long. Please shorten the description to less than 120 words."
+                "Error: Description for person or prop"
+                f" '{person_and_prop_item['name']}' is too long. Please shorten the"
+                " description to less than 120 words."
             )
             print(error_text)
             res += error_text + "\n"
 
         name_is_valid = all(
-            char.isalnum() or char.isspace() for char in person_and_prop_item.name
+            char.isalnum() or char.isspace() for char in person_and_prop_item["name"]
         )
 
         if not name_is_valid:
             error_text = (
-                f"Error: Person or prop '{person_and_prop_item.name}' contains invalid"
-                " characters. Please use only letters, numbers, and spaces."
+                f"Error: Person or prop '{person_and_prop_item['name']}' contains"
+                " invalid characters. Please use only letters, numbers, and spaces."
             )
             print(error_text)
             res += error_text + "\n"
 
     for segment_i, segment in enumerate(video_segment_list):
 
-        if len(segment.start_image_prompt.split(" ")) < 40:
+        if len(segment["start_image_prompt"].split(" ")) < 40:
             error_text = (
                 f"Error: The Start image prompt for segment {segment_i} is too short."
                 " Please provide a more detailed prompt with more than 40 words."
@@ -190,7 +191,7 @@ def check_script(video_segment_list_in: dict) -> str:
             print(error_text)
             res += error_text + "\n"
 
-        if len(segment.start_image_prompt.split(" ")) > 120:
+        if len(segment["start_image_prompt"].split(" ")) > 120:
             error_text = (
                 f"Error: The Start image prompt for segment {segment_i} is too long."
                 " Please shorten the prompt to less than 120 words."
@@ -198,8 +199,8 @@ def check_script(video_segment_list_in: dict) -> str:
             print(error_text)
             res += error_text + "\n"
 
-        for prop in segment.start_image_people_and_props_names.split(","):
-            if prop not in segment.start_image_prompt:
+        for prop in segment["start_image_people_and_props_names"].split(","):
+            if prop not in segment["start_image_prompt"]:
                 error_text = (
                     f"Error: Prop '{prop}' in segment {segment_i} is not mentioned in"
                     " the Start image prompt. Please ensure all props/people listed"
@@ -208,7 +209,7 @@ def check_script(video_segment_list_in: dict) -> str:
                 print(error_text)
                 res += error_text + "\n"
 
-        if len(segment.video_prompt.split(" ")) < 40:
+        if len(segment["video_prompt"].split(" ")) < 40:
             error_text = (
                 f"Error: Video prompt for segment {segment_i} is too short. Please"
                 " provide a more detailed prompt with more than 40 words."
@@ -216,7 +217,7 @@ def check_script(video_segment_list_in: dict) -> str:
             print(error_text)
             res += error_text + "\n"
 
-        if len(segment.video_prompt.split(" ")) > 120:
+        if len(segment["video_prompt"].split(" ")) > 120:
             error_text = (
                 f"Error: Video prompt for segment {segment_i} is too long. Please"
                 " shorten the prompt to less than 120 words."
@@ -224,7 +225,7 @@ def check_script(video_segment_list_in: dict) -> str:
             print(error_text)
             res += error_text + "\n"
 
-        people_and_props_list = segment.start_image_people_and_props_names.split(",")
+        people_and_props_list = segment["start_image_people_and_props_names"].split(",")
 
         if len(people_and_props_list) > 3:
             error_text = (
@@ -251,7 +252,7 @@ def check_script(video_segment_list_in: dict) -> str:
             res += error_text + "\n"
 
         for prop in people_and_props_list:
-            if len(segment.start_image_people_and_props_names.split(",")) == 0:
+            if len(segment["start_image_people_and_props_names"].split(",")) == 0:
                 error_text = (
                     f"Error: Segment {segment_i} has an empty person or prop name."
                     " Please provide valid names."
@@ -259,11 +260,11 @@ def check_script(video_segment_list_in: dict) -> str:
                 print(error_text)
                 res += error_text + "\n"
 
-            if prop not in segment.start_image_people_and_props_names.split(","):
+            if prop not in segment["start_image_people_and_props_names"].split(","):
                 error_text = (
                     f"Error: Segment {segment_i} has an invalid person or prop '{prop}'"
                     " that is not one of segment.start_image_people_and_props_names"
-                    f" ('{segment.start_image_people_and_props_names.split(',')}')."
+                    f" ('{segment['start_image_people_and_props_names'].split(',')}')."
                     " Please ensure all entries are valid."
                 )
                 print(error_text)
@@ -272,7 +273,7 @@ def check_script(video_segment_list_in: dict) -> str:
     for segment_i, segment in enumerate(video_segment_list):
 
         duration = generate_audio_file_get_duration(
-            segment.narrator_script,
+            segment["narrator_script"],
             file_path=f"data/audio/temp_audio_file_{segment_i}.wav",
         )
 
