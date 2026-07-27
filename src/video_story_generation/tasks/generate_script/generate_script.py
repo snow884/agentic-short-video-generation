@@ -8,11 +8,9 @@ from research_agent import run_agent_sync
 from sql_utils import get_db
 from video_story_generation.tables import (
     PeopleAndProps,
-    PeopleAndPropsSchema,
     Videos,
     VideoSegments,
     VideoSegmentsList,
-    VideoSegmentsSchema,
 )
 
 # from kokoro import KPipeline
@@ -41,28 +39,29 @@ def generate_audio_file_get_duration(text, file_path="temp_audio_file.wav"):
     return duration
 
 
-def check_script(
-    video_segment_list: list[VideoSegmentsSchema],
-    person_and_prop: list[PeopleAndPropsSchema],
-) -> str:
+def check_script(video_segment_list_dict: dict) -> str:
     """
     Validates the video segments list to ensure it meets the required criteria.
 
     Args:
-        video_segment_list (list[VideoSegmentsSchema]): List of video segments to validate.
-        person_and_prop (list[PeopleAndPropsSchema]): List of people and props to validate.
+        video_segment_list_dict (dict): Dictionary representing the video segments list to validate.
     Returns:
         str: "success" if validation passes, otherwise an error message.
     """
 
     res = ""
-    # print(
-    #     f"Checking script with {len(video_segment_list_in.video_segments)} segments and"
-    #     f" {len(video_segment_list_in.people_and_props)} people/props."
-    # )
 
-    # video_segment_list = video_segment_list_in.video_segments
-    # person_and_prop = video_segment_list_in.people_and_props
+    video_segment_list_in = VideoSegmentsList.model_validate_json(
+        video_segment_list_dict
+    )
+
+    print(
+        f"Checking script with {len(video_segment_list_in.video_segments)} segments and"
+        f" {len(video_segment_list_in.people_and_props)} people/props."
+    )
+
+    video_segment_list = video_segment_list_in.video_segments
+    person_and_prop = video_segment_list_in.people_and_props
 
     # for segment_i, segment in enumerate(video_segment_list):
     #     diff1 = list(set(list(segment.keys())) ^ set([ "start_image_prompt",  "video_prompt", "people_and_props", "start_image_people_and_props_names", "narrator_script", "timestamp"]))
