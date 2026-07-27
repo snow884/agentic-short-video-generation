@@ -47,9 +47,12 @@ def main(video_id):
 
         # image = session.query(Image).filter(Image.id == segment.Image_id).first()
 
-        print(f"Segment ID: {segment.id}, Path: {segment.sound_file_path}")
+        print(
+            f"Segment ID: {segment.id}, Audio Path: {segment.audio_file_path}, Video"
+            f" Path: {segment.video_file_path}"
+        )
 
-        sound = AudioSegment.from_file(segment.sound_file_path)
+        sound = AudioSegment.from_file(segment.audio_file_path)
 
         duration = sound.duration_seconds
 
