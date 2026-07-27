@@ -45,6 +45,29 @@ def check_script(video_segment_list_dict: dict) -> str:
 
     Args:
         video_segment_list_dict (dict): Dictionary representing the video segments list to validate.
+        Example structure of video_segment_list_dict:
+        {
+            "video_segments": [
+                {
+                    "start_image_prompt": "A beautiful sunrise over the mountains",
+                    "video_prompt": "Time-lapse of the sunrise",
+                    "people_and_props": ["person1", "prop1"],
+                    "start_image_people_and_props_names": "person1, prop1",
+                    "narrator_script": "The sun rises over the mountains.",
+                    "timestamp": 0
+                }
+            ],
+            "people_and_props": [
+                {
+                    "name": "person1",
+                    "prompt": "A person standing on a mountain peak"
+                },
+                {
+                    "name": "prop1",
+                    "prompt": "A telescope"
+                }
+            ]
+        }
     Returns:
         str: "success" if validation passes, otherwise an error message.
     """
