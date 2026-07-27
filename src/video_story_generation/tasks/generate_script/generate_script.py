@@ -46,6 +46,28 @@ def check_script(video_segment_list_in: dict) -> str:
     Args:
         video_segment_list_in (dict): Video segments list to validate.
 
+        Structure of video_segment_list_in:
+        {
+            "video_segments": [
+                {
+                    "start_image_prompt": str,
+                    "video_prompt": str,
+                    "people_and_props": list,
+                    "start_image_people_and_props_names": str,
+                    "narrator_script": str,
+                    "timestamp": int
+                },
+                ...
+            ],
+            "people_and_props": [
+                {
+                    "name": str,
+                    "prompt": str
+                },
+                ...
+            ]
+        }
+
     Returns:
         str: "success" if validation passes, otherwise an error message.
     """
