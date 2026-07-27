@@ -39,14 +39,14 @@ def generate_audio_file_get_duration(text, file_path="temp_audio_file.wav"):
     return duration
 
 
-def check_script(video_segment_list_in: dict) -> str:
+def check_script(video_script: dict) -> str:
     """
-    Validates the video segments list to ensure it meets the required criteria.
+    Validates the video script to ensure it meets the required criteria.
 
     Args:
-        video_segment_list_in (dict): Video segments list to validate.
+        video_script (dict): Video script structure.
 
-        Structure of video_segment_list_in:
+        Structure of video_script:
         {
             "video_segments": [
                 {
@@ -73,6 +73,8 @@ def check_script(video_segment_list_in: dict) -> str:
     """
 
     res = ""
+
+    video_segment_list_in = video_script
 
     print(
         f"Checking script with {len(video_segment_list_in['video_segments'])} segments"
