@@ -2,10 +2,10 @@ from pathlib import Path
 
 import soundfile as sf
 from prefect import task
+from run_comfy_graph import generate_audio_from_prompt
 
 from research_agent import run_agent_sync
 from sql_utils import get_db
-from video_story_generation.audio_utils import generate_audio_from_prompt
 from video_story_generation.tables import (
     PeopleAndProps,
     Videos,
