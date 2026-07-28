@@ -57,4 +57,4 @@ Every video segment contains the keys:
 
 # Output Format Requirements
 Return the answer in pure JSON format. Matching the exact output JSON output format including the json nesting. 
-Do not include any text before or after the JSON output. Only return the JSON structure containing the script. Do not include any explanations or reasoning in the final answer, only return the JSON.
+Do not include any text before or after the JSON output. DO not include any markdown such as ``` . Only return the JSON structure containing the script. Do not include any explanations or reasoning in the final answer, only return the JSON.
