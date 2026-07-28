@@ -1,5 +1,6 @@
 import asyncio
 import json
+import re
 
 import nest_asyncio
 from deepagents import create_deep_agent
@@ -12,6 +13,44 @@ from pathlib import Path
 from deepagents.backends.filesystem import FilesystemBackend
 from langchain_ollama import ChatOllama
 from prefect.logging import get_run_logger
+
+
+def _extract_json_payload(message: str) -> str:
+    """Extract the first valid JSON payload from an LLM response string."""
+
+    message = message.strip()
+
+    # Prefer fenced JSON blocks if present.
+    fenced_blocks = re.findall(r"```(?:json)?\s*(.*?)```", message, flags=re.DOTALL)
+    for block in fenced_blocks:
+        block = block.strip()
+        if not block:
+            continue
+        try:
+            json.loads(block)
+            return block
+        except json.JSONDecodeError:
+            continue
+
+    # Fast path for pure JSON output.
+    try:
+        json.loads(message)
+        return message
+    except json.JSONDecodeError:
+        pass
+
+    # Fallback: find the first decodable object/array within mixed text.
+    decoder = json.JSONDecoder()
+    for idx, char in enumerate(message):
+        if char not in "[{":
+            continue
+        try:
+            _, end = decoder.raw_decode(message[idx:])
+            return message[idx : idx + end]
+        except json.JSONDecodeError:
+            continue
+
+    raise json.JSONDecodeError("No JSON payload found in model response", message, 0)
 
 
 async def run_agent(
@@ -296,11 +335,16 @@ async def run_agent(
         return result["structured_response"]
 
     str_message = result["messages"][-1].content
-    json_start = str_message.replace("```json", "").replace("```", "")
+    if isinstance(str_message, list):
+        str_message = "\n".join(
+            chunk.get("text", "") if isinstance(chunk, dict) else str(chunk)
+            for chunk in str_message
+        )
+    else:
+        str_message = str(str_message)
 
-    print("Raw response: ", json_start)
-
-    dict_start = json.loads(json_start)
+    json_payload = _extract_json_payload(str_message)
+    dict_start = json.loads(json_payload)
 
     typed_response = ReturnClass(**dict_start)
 
