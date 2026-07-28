@@ -5,6 +5,7 @@ from prefect import task
 
 from research_agent import run_agent_sync
 from sql_utils import get_db
+from video_story_generation.audio_utils import generate_audio_from_prompt
 from video_story_generation.tables import (
     PeopleAndProps,
     Videos,
@@ -23,18 +24,18 @@ def generate_audio_file_get_duration(text, file_path="temp_audio_file.wav"):
 
     duration = 0
 
-    # generate_audio_from_prompt(
-    #     text,
-    #     output_file_path=file_path,
-    # )
+    generate_audio_from_prompt(
+        text,
+        output_file_path=file_path,
+    )
 
     # duration = (
     #     text.count(" ") / 2.0
     # )  # Approximate duration based on word count (assuming 2 words per second)
 
-    duration = (
-        text.count(" ") / 2.0
-    )  # Approximate duration based on word count (assuming 2 words per second)
+    # duration = (
+    #     text.count(" ") / 2.0
+    # )  # Approximate duration based on word count (assuming 2 words per second)
 
     info = sf.info(file_path)
     duration = duration + info.duration
