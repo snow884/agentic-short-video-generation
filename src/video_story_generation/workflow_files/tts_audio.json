@@ -16,6 +16,7 @@
     "inputs": {
       "language": "English",
       "device": "cpu",
+      "speed": 1.5,
       "exaggeration": 0.5,
       "temperature": 0.8,
       "cfg_weight": 0.5,
