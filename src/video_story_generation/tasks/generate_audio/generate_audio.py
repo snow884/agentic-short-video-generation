@@ -30,7 +30,7 @@ def main(video_id):
         audio_path = f"data/audio/segment_{video_id}_{segment.id}.wav"
 
         generate_audio_from_prompt(
-            prompt=segment.video_prompt,
+            prompt=segment.narrator_script,
             output_file_path=audio_path,
         )
 
