@@ -52,8 +52,8 @@ def main_flow():
     load_dotenv()
 
     video_id = create_new_video_id(
-        video_title="Hansel and Gretel",
-        prompt="Generate a short video about the story of Hansel and Gretel.",
+        video_title="Snow White",
+        prompt="Generate a short video about the story of Snow White",
     )
 
     # generate_script_main(video_id=video_id)
