@@ -6,7 +6,9 @@ import tempfile
 import uuid
 from pathlib import Path
 
+import librosa
 import requests
+import soundfile as sf
 import websocket  # pip install websocket-client
 
 try:
@@ -543,15 +545,29 @@ def generate_audio_from_prompt(
     # Node 15 (PreviewAudio) stores downloadable audio metadata in history.
     output_node_id = "15"
 
+    output_file_path_temp = output_file_path.replace(
+        ".wav", "_long_version.wav"
+    )  # Temporary file for initial download
+
     run_comfyui_workflow(
         workflow_file=workflow_file,
-        output_file_path=output_file_path,
+        output_file_path=output_file_path_temp,
         prompt_modifications=prompt_modifications,
         output_node_id=output_node_id,
         input_image_path=None,
         input_image_node_id=None,
         input_image_mappings=None,
     )
+
+    # 1. Load the WAV file (returns audio data and sample rate)
+    audio_data, sample_rate = librosa.load(output_file_path_temp, sr=None)
+
+    # 2. Speed up the audio (e.g., 1.5x faster)
+    # Use a factor > 1.0 to speed up, < 1.0 to slow down
+    sped_up_audio = librosa.effects.time_stretch(audio_data, rate=2.0)
+
+    # 3. Save the modified audio
+    sf.write(output_file_path, sped_up_audio, sample_rate)
 
 
 if __name__ == "__main__":

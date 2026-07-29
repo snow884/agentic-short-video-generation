@@ -37,3 +37,5 @@ usaddress
 orpheus_tts
 sqlalchemy 
 orpheus-speech
+librosa
+soundfile
