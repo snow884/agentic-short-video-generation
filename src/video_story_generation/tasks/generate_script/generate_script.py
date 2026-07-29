@@ -1,6 +1,8 @@
 from pathlib import Path
 
+import soundfile as sf
 from prefect import task
+from run_comfy_graph import generate_audio_from_prompt
 
 from research_agent import run_agent_sync
 from sql_utils import get_db
@@ -22,21 +24,21 @@ def generate_audio_file_get_duration(text, file_path="temp_audio_file.wav"):
 
     duration = 0
 
-    # generate_audio_from_prompt(
-    #     text,
-    #     output_file_path=file_path,
-    # )
-
-    duration = (
-        text.count(" ") / 2.0
-    )  # Approximate duration based on word count (assuming 2 words per second)
+    generate_audio_from_prompt(
+        text,
+        output_file_path=file_path,
+    )
 
     # duration = (
     #     text.count(" ") / 2.0
     # )  # Approximate duration based on word count (assuming 2 words per second)
 
-    # info = sf.info(file_path)
-    # duration = duration + info.duration
+    duration = (
+        text.count(" ") / 2.0
+    )  # Approximate duration based on word count (assuming 2 words per second)
+
+    info = sf.info(file_path)
+    duration = duration + info.duration
 
     return duration
 
