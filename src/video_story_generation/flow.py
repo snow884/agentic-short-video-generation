@@ -57,25 +57,25 @@ def main_flow():
             "title": "Hansel and Gretel",
             "prompt": "Generate a short video about the story of Hansel and Gretel",
         },
-        {
-            "title": "Little Red Riding Hood",
-            "prompt": (
-                "Generate a short video about the story of Little Red Riding Hood"
-            ),
-        },
-        {
-            "title": "3 little pigs as wolf",
-            "prompt": (
-                "Generate a short video about the story of the Three Little Pigs from"
-                " the wolf's perspective"
-            ),
-        },
-        {
-            "title": "The Ant and the Grasshopper",
-            "prompt": (
-                "Generate a short video about the story of the Ant and the Grasshopper"
-            ),
-        },
+        # {
+        #     "title": "Little Red Riding Hood",
+        #     "prompt": (
+        #         "Generate a short video about the story of Little Red Riding Hood"
+        #     ),
+        # },
+        # {
+        #     "title": "3 little pigs as wolf",
+        #     "prompt": (
+        #         "Generate a short video about the story of the Three Little Pigs from"
+        #         " the wolf's perspective"
+        #     ),
+        # },
+        # {
+        #     "title": "The Ant and the Grasshopper",
+        #     "prompt": (
+        #         "Generate a short video about the story of the Ant and the Grasshopper"
+        #     ),
+        # },
     ]
 
     for video_idea in video_ideas:

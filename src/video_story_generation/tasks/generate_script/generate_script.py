@@ -1,8 +1,6 @@
 from pathlib import Path
 
-import soundfile as sf
 from prefect import task
-from run_comfy_graph import generate_audio_from_prompt
 
 from research_agent import run_agent_sync
 from sql_utils import get_db
@@ -16,7 +14,7 @@ from video_story_generation.tables import (
 # from kokoro import KPipeline
 
 
-VIDEO_LENGTH = 35  # seconds
+VIDEO_LENGTH = 40  # seconds
 SEGMENT_LENGTH = 5  # seconds
 
 
@@ -24,21 +22,21 @@ def generate_audio_file_get_duration(text, file_path="temp_audio_file.wav"):
 
     duration = 0
 
-    generate_audio_from_prompt(
-        text,
-        output_file_path=file_path,
-    )
+    # generate_audio_from_prompt(
+    #     text,
+    #     output_file_path=file_path,
+    # )
+
+    duration = (
+        text.count(" ") / 2.0
+    )  # Approximate duration based on word count (assuming 2 words per second)
 
     # duration = (
     #     text.count(" ") / 2.0
     # )  # Approximate duration based on word count (assuming 2 words per second)
 
-    # duration = (
-    #     text.count(" ") / 2.0
-    # )  # Approximate duration based on word count (assuming 2 words per second)
-
-    info = sf.info(file_path)
-    duration = duration + info.duration
+    # info = sf.info(file_path)
+    # duration = duration + info.duration
 
     return duration
 
