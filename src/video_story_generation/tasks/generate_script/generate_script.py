@@ -33,9 +33,9 @@ def generate_audio_file_get_duration(text, file_path="temp_audio_file.wav"):
     #     text.count(" ") / 2.0
     # )  # Approximate duration based on word count (assuming 2 words per second)
 
-    duration = (
-        text.count(" ") / 2.0
-    )  # Approximate duration based on word count (assuming 2 words per second)
+    # duration = (
+    #     text.count(" ") / 2.0
+    # )  # Approximate duration based on word count (assuming 2 words per second)
 
     info = sf.info(file_path)
     duration = duration + info.duration
