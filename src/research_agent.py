@@ -257,7 +257,7 @@ async def run_agent(
         model="qwen3.6:27b-q4_K_M ",  # os.environ["RESEARCH_AGENT_MODEL"],
         reasoning=True,
         temperature=0,  # Balanced for creativity and accuracy
-        # num_predict=2048,  # Limit max tokens to prevent runaway generation
+        num_predict=2048,  # Limit max tokens to prevent runaway generation
         # Context Management
         # num_ctx=8192,  # Adjust based on your memory needs (Default 262k is VRAM heavy)
         # Advanced Settings
