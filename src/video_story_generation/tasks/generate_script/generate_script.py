@@ -22,7 +22,7 @@ SEGMENT_LENGTH = 5  # seconds
 
 def generate_audio_file_get_duration(text, file_path="temp_audio_file.wav"):
 
-    duration = 0
+    # duration = 0
 
     generate_audio_from_prompt(
         text,
