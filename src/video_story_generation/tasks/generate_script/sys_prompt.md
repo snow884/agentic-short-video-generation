@@ -22,7 +22,6 @@ contains a list of any props and people present in your video
 
   ### prompt
   Prompt to generate an image of the person or the object. Should be 40-120 words. Has to be descriptive and has to include full body. Do not include background of objects that a person is carrying - those will be added later.
-  Structure this prompt into a descriptive paragraph covering five core elements: the main subject and action, the detailed environment or context, composition and camera framing (such as lens focal length or depth of field), lighting and atmospheric conditions, and the artistic medium or film style
 
 ## video_segments 
 contains a list of video segments. Every video segment represents a 5 second video generated 
@@ -35,15 +34,12 @@ Every video segment contains the keys:
   Prompt that will used to generate the starting image of the video segment.
   The prompt will be fed to Qwen 2.5 image edit model together with all images of objects from start_image_people_and_props_names . The resulting image will be used as a start frame for video generation.
   Describe the position people and objects are in before the actions described in video_prompt. Focus on detailed descriptions. Do not describe any actions. 
-  State clearly which image provides the core subject (e.g., character, garment, or product), which provides the secondary elements, and which defines the target background or environment. For instance, rather than describing a scene generically, write: "The person 1 is wearing the jacket from person 2, standing in the urban alleyway shown in prompt 3." When using fewer than three images, explicitly tell the model which image to modify and which image to extract attributes from (e.g., "Take the mug from image 1 and place it on the wooden desk in image 2").  
-  Additionally, govern the interaction, style, and identity retention across your inputs to ensure a seamless final composition. Direct the model on how subject attributes, lighting, and environmental physics should interact, using clear action verbs to establish spatial placement, scale, and integration. 
   
   ### start_image_people_and_props_names
   comma separated list of people or props present in the scene (max 3). Has to be one of the names from people_and_props
 
   ### video_prompt
   Prompt that will be fed into the model Wan2.2-I2V-A14B-HighNoise-Q5_K_M together with images for the first frame and the last frame to generate the video segment. The video should skip detailed description of characters as those will come from the image. Focus on describing actions and motion.
-  Your text prompt's primary job is to describe motion, physics, and camera behavior, rather than repeating every visual detail already present in your source image. Structure your text into a sequential narrative: lead with the primary subject action (using progressive verbs like slowly turns, smiles, walks forward), specify environmental or secondary motion (e.g., wind blowing through hair, rain falling, steam rising), and explicitly state the camera movement (such as static shot, slow push-in, or smooth pan right). Focus on concrete spatial anchors and temporal pacing—for example: "The character from the image slowly looks up toward the sky, her hair swaying gently in a light breeze. The camera performs a steady, slow push-in toward her eyes, maintaining soft lighting and natural physical movement throughout." 
 
   ### narrator_script
   Script that will be spoken by the narrator for this specific segment.
