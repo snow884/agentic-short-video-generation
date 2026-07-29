@@ -52,27 +52,56 @@ def main_flow():
 
     load_dotenv()
 
-    video_id = create_new_video_id(
-        video_title="Snow White",
-        prompt="Generate a short video about the story of Snow White",
-    )
+    video_ideas = [
+        {
+            "title": "Hansel and Gretel",
+            "prompt": "Generate a short video about the story of Hansel and Gretel",
+        },
+        {
+            "title": "Little Red Riding Hood",
+            "prompt": (
+                "Generate a short video about the story of Little Red Riding Hood"
+            ),
+        },
+        {
+            "title": "3 little pigs as wolf",
+            "prompt": (
+                "Generate a short video about the story of the Three Little Pigs from"
+                " the wolf's perspective"
+            ),
+        },
+        {
+            "title": "The Ant and the Grasshopper",
+            "prompt": (
+                "Generate a short video about the story of the Ant and the Grasshopper"
+            ),
+        },
+    ]
 
-    generate_script_main(video_id=video_id)
+    for video_idea in video_ideas:
+        video_id = create_new_video_id(
+            video_title=video_idea["title"],
+            prompt=video_idea["prompt"],
+        )
 
-    logger.info("Waiting 10s to clear model from memory...")
+        generate_script_main(video_id=video_id)
 
-    ollama.generate(model="qwen3.6:27b", keep_alive=0)
-    time.sleep(10)  # Wait for a few seconds to ensure the model is cleared from memory
+        logger.info("Waiting 10s to clear model from memory...")
 
-    generate_people_and_prop_images_main(video_id=video_id)
+        ollama.generate(model="qwen3.6:27b", keep_alive=0)
+        time.sleep(
+            10
+        )  # Wait for a few seconds to ensure the model is cleared from memory
 
-    generate_start_stop_images_main(video_id=video_id)
+        generate_people_and_prop_images_main(video_id=video_id)
 
-    generate_video_segments_main(video_id=video_id)
+        generate_start_stop_images_main(video_id=video_id)
 
-    generate_audio_main(video_id=video_id)
+        generate_video_segments_main(video_id=video_id)
 
-    generate_video_main(video_id=video_id)
+        generate_audio_main(video_id=video_id)
+
+        generate_video_main(video_id=video_id)
 
 
 if __name__ == "__main__":
