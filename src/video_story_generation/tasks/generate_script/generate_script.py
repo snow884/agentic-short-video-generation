@@ -465,7 +465,7 @@ def check_start_image_prompt_props(
     print(f"LLM Prompt for checking start image prompt props: {llm_prompt}")
 
     res = ollama.chat(
-        model="qwen3.6:27b",
+        model="gemma4:e4b",
         messages=[{"role": "user", "content": llm_prompt}],
         format="json"  # Forces JSON response
         # ": 64 * 1024},  # Adjust based on your memory needs (Default 262k is VRAM heavy)
