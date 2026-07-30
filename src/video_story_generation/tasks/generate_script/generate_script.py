@@ -18,7 +18,7 @@ from video_story_generation.tables import (
 # from kokoro import KPipeline
 
 
-VIDEO_LENGTH = 40  # seconds
+VIDEO_LENGTH = 60  # seconds
 SEGMENT_LENGTH = 5  # seconds
 
 

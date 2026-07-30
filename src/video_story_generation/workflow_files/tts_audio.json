@@ -16,7 +16,6 @@
     "inputs": {
       "language": "English",
       "device": "cpu",
-      "speed": 1.5,
       "exaggeration": 0.5,
       "temperature": 0.8,
       "cfg_weight": 0.5,
@@ -69,10 +68,10 @@
   },
   "51": {
     "inputs": {
-      "voice_name": "voices_examples/David_Attenborough CC3.wav",
-      "reference_text": "The first one who physical contact was with a female with her twins and she put a hand on the top of my head.",
+      "voice_name": "voices_examples/higgs_audio/belinda.wav",
+      "reference_text": "Twas the night before my birthday. Hooray! It's almost here! It may not be a holiday, but it's the best day of the year.",
       "trim_start": 0,
-      "trim_end": 10.27,
+      "trim_end": 10.17,
       "customized": false
     },
     "class_type": "CharacterVoicesNode",
