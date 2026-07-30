@@ -564,7 +564,7 @@ def generate_audio_from_prompt(
 
     # 2. Speed up the audio (e.g., 1.5x faster)
     # Use a factor > 1.0 to speed up, < 1.0 to slow down
-    sped_up_audio = librosa.effects.time_stretch(audio_data, rate=1.6)
+    sped_up_audio = librosa.effects.time_stretch(audio_data, rate=1.4)
 
     # 3. Save the modified audio
     sf.write(output_file_path, sped_up_audio, sample_rate)
