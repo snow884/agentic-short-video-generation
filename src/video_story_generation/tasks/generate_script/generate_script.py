@@ -403,10 +403,10 @@ def check_start_image_to_prompt_consistency(
         model="gemma4:e4b",
         messages=[{"role": "user", "content": llm_prompt}],
         format="json",  # Forces JSON response
-        options={
-            "temperature": 0,  # Zero variance for speed and determinism
-            "num_predict": 350,  # Stops inference early to prevent runaway generation
-        },
+        # options={
+        #     "temperature": 0,  # Zero variance for speed and determinism
+        #     "num_predict": 350,  # Stops inference early to prevent runaway generation
+        # },
     )
     print(res)
     try:
@@ -477,10 +477,10 @@ def check_start_image_prompt_props(
         model="gemma4:e4b",
         messages=[{"role": "user", "content": llm_prompt}],
         format="json",  # Forces JSON response
-        options={
-            "temperature": 0,  # Zero variance for speed and determinism
-            # "num_predict": 350,  # Stops inference early to prevent runaway generation
-        },
+        # options={
+        #     "temperature": 0,  # Zero variance for speed and determinism
+        #     # "num_predict": 350,  # Stops inference early to prevent runaway generation
+        # },
         # ": 64 * 1024},  # Adjust based on your memory needs (Default 262k is VRAM heavy)
     )
     print(res)
