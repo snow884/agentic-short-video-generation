@@ -400,9 +400,13 @@ def check_start_image_to_prompt_consistency(
     """
 
     res = ollama.chat(
-        model="gemma4:e4b",
+        model="qwen3.6:27b",
         messages=[{"role": "user", "content": llm_prompt}],
         format="json",  # Forces JSON response
+        options={
+            "temperature": 0,  # Zero variance for speed and determinism
+            "num_predict": 350,  # Stops inference early to prevent runaway generation
+        },
     )
 
     content_json = json.loads(res["message"]["content"])
@@ -465,9 +469,13 @@ def check_start_image_prompt_props(
     print(f"LLM Prompt for checking start image prompt props: {llm_prompt}")
 
     res = ollama.chat(
-        model="gemma4:e4b",
+        model="qwen3.6:27b",
         messages=[{"role": "user", "content": llm_prompt}],
-        format="json"  # Forces JSON response
+        format="json",  # Forces JSON response
+        options={
+            "temperature": 0,  # Zero variance for speed and determinism
+            "num_predict": 350,  # Stops inference early to prevent runaway generation
+        },
         # ": 64 * 1024},  # Adjust based on your memory needs (Default 262k is VRAM heavy)
     )
     content_json = json.loads(res["message"]["content"])
