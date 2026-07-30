@@ -1,11 +1,13 @@
+import json
 from pathlib import Path
 
+import ollama
 import soundfile as sf
 from prefect import task
-from run_comfy_graph import generate_audio_from_prompt
 
 from research_agent import run_agent_sync
 from sql_utils import get_db
+from video_story_generation.run_comfy_graph import generate_audio_from_prompt
 from video_story_generation.tables import (
     PeopleAndProps,
     Videos,
@@ -328,10 +330,171 @@ def check_script(video_script: dict) -> str:
             print(error_text)
             res += error_text + "\n"
 
+    check_start_image_prompt_props_res = check_start_image_prompt_props(
+        video_segment_list=video_segment_list, people_and_props=person_and_prop
+    )
+
+    if "success" not in check_start_image_prompt_props_res:
+        res += check_start_image_prompt_props_res + "\n"
+
+    for segment_i, segment in enumerate(video_segment_list):
+        check_start_image_prompt_props_res = check_start_image_to_prompt_consistency(
+            start_image_prompt=segment["start_image_prompt"],
+            video_prompt=segment["video_prompt"],
+        )
+
+        if "success" not in check_start_image_prompt_props_res:
+            res += f"Segment {segment_i}: " + check_start_image_prompt_props_res + "\n"
+
     if res == "":
         return "success"
 
     return res
+
+
+def check_start_image_to_prompt_consistency(
+    start_image_prompt: str, video_prompt: str
+) -> str:
+
+    """
+    Validates that the start image prompt and video prompt are consistent with each other.
+
+    Args:
+        start_image_prompt (str): The prompt for the start image.
+        video_prompt (str): The prompt for the video.
+
+    Returns:
+        str: "success" if validation passes, otherwise an error message.
+    """
+
+    llm_prompt = f"""
+    I am designing a video story. I have a start image prompt and a video prompt. The start image prompt describes the initial scene, while the video prompt describes the subsequent action. I want to ensure that the start image prompt is referring to the same objects, characters, and props as the video prompt.
+    
+    Start image prompt can describe objects and props that are not present in the video prompt, but the video prompt should not introduce any new objects, characters, or props that are not already present in the start image prompt.
+    
+    I want to ensure that the start image prompt is referring to the same objects, characters, and props as the video prompt.
+    
+    Make sure that all objects are referred to in the same way in both prompts. For example, if the start image prompt refers to "young boy Hansel" and the video prompt refers to "Hansel", 
+    this is a non-matching reference and include it in your output under non_matching_objects_or_persons. 
+    If the start image prompt refers to "wooden cage" and the video prompt refers to "cage", 
+    this is a non-matching reference and include it in your output under non_matching_objects_or_persons. 
+    If the start image prompt refers to "Wicked Witch" and the video prompt refers to "Wicked Witch", 
+    this is a matching reference and should NOT be included in your output under non_matching_objects_or_persons.
+    
+    Return JSON with the following structure:
+    {{
+        "non_matching_objects_or_persons": [
+            {{
+                "name": str,
+                "reason": str
+            }},
+            ...
+        ]
+    }}
+    Only return the JSON object. Do not include any additional text or explanations. If all props are present, return an empty list for "non_matching_objects_or_persons".
+    
+    Start Image Prompt: {start_image_prompt}
+    
+    Video Prompt: {video_prompt}
+    
+    """
+
+    res = ollama.chat(
+        model="qwen3.6:27b",
+        messages=[{"role": "user", "content": llm_prompt}],
+        format="json",  # Forces JSON response
+    )
+
+    content_json = json.loads(res["message"]["content"])
+
+    if "non_matching_objects_or_persons" not in content_json.keys():
+        return "success"
+
+    if not content_json["non_matching_objects_or_persons"]:
+        return "success"
+
+    else:
+        non_matching_list = content_json["non_matching_objects_or_persons"]
+        error_messages = []
+        for item in non_matching_list:
+            error_messages.append(
+                f"'{item['name']}' is mentioned in video prompt but missing for start"
+                f" image prompt, reason: {item['reason']}."
+            )
+        return "\n".join(error_messages)
+
+
+def check_start_image_prompt_props(
+    video_segment_list: list[dict], people_and_props: list[dict]
+) -> str:
+    """
+    Look for all items in the start_image_prompt for references to objects that appear more than once and should be
+    props. Then compare those objects to the list of people_and_props to ensure that they are included. If any are missing, return an error message.
+
+    Args:
+        video_segment_list (list[dict]): A list of video segments, each containing a start image prompt and a video prompt.
+        people_and_props (list[dict]): A list of people and props associated with the video segments.
+
+    Returns:
+        str: "success" if validation passes, otherwise an error message.
+    """
+    start_image_prompts = "\n ".join(
+        [
+            "Segment " + str(i) + ": " + s["start_image_prompt"]
+            for i, s in enumerate(video_segment_list)
+        ]
+    )
+
+    llm_prompt = f"""
+    I am designing a video script. Look for all items in the start_image_prompt for references to objects that appear more than once and should be 
+    props. Then compare those objects to the list of people_and_props to ensure that they are included. If any are missing, return an error message.
+    
+    Return JSON with the following structure:
+    {{
+        "missing_props": [
+            {{
+                "prop_name": str,
+                "segment_index": int,
+                "reason": str
+            }},
+            ...
+        ]
+    }}
+    Only return the JSON object. Do not include any additional text or explanations. If all props are present, return an empty list for "missing_props".
+    
+    Start Image Prompts: 
+    {start_image_prompts}
+
+    Props: 
+    {', '.join([p['name'] for p in people_and_props])}
+    
+    """
+    print(f"LLM Prompt for checking start image prompt props: {llm_prompt}")
+
+    res = ollama.chat(
+        model="qwen3.6:27b",
+        messages=[{"role": "user", "content": llm_prompt}],
+        format="json"  # Forces JSON response
+        # ": 64 * 1024},  # Adjust based on your memory needs (Default 262k is VRAM heavy)
+    )
+    content_json = json.loads(res["message"]["content"])
+
+    if "missing_props" not in content_json.keys():
+        return "success"
+
+    if not content_json["missing_props"]:
+        return "success"
+
+    else:
+        missing_props_list = content_json["missing_props"]
+        error_messages = []
+        for missing_prop in missing_props_list:
+            error_messages.append(
+                f"Error: Prop '{missing_prop['prop_name']}' is missing from the list of"
+                f" people_and_props for segment {missing_prop['segment_index']},"
+                f" reason: {missing_prop['reason']}."
+            )
+        return "\n".join(error_messages)
 
 
 def add_video_segments_to_db(video_segments_list: VideoSegmentsList, session, video_id):
@@ -397,3 +560,250 @@ def main(video_id):
 
     # generate_audio_file_get_duration("This is a test script to check the duration of the generated audio file.", file_path="test_audio_file.wav")
     return Video_Segments_List
+
+
+if __name__ == "__main__":
+
+    print(
+        check_script(
+            {
+                "people_and_props": [
+                    {
+                        "name": "Young Boy Hansel",
+                        "prompt": (
+                            "A young boy around 8 years old dressed in a simple"
+                            " medieval peasant costume with a brown tunic and leather"
+                            " belt, standing against a flat black background. The"
+                            " character has light brown hair and wears simple wooden"
+                            " sandals. Photorealistic style with natural lighting that"
+                            " highlights the texture of the fabric and the youthful"
+                            " features of the child."
+                        ),
+                    },
+                    {
+                        "name": "Young Girl Gretel",
+                        "prompt": (
+                            "A young girl around 7 years old dressed in a simple"
+                            " medieval peasant costume with a blue dress and white"
+                            " apron, standing against a flat black background. The"
+                            " character has blonde hair tied with a red ribbon and"
+                            " wears simple cloth shoes. Photorealistic style with"
+                            " natural lighting that highlights the texture of the"
+                            " fabric and the innocent features of the child."
+                        ),
+                    },
+                    # {
+                    #     "name": "Wicked Witch Character",
+                    #     "prompt": "An elderly woman dressed as a wicked witch costume with a pointed black hat, dark purple robe, and crooked wooden staff. The character has wrinkled skin, wild gray hair, and wears heavy boots. Standing against a flat black background. Photorealistic style with dramatic lighting that emphasizes the sinister expression and textured costume details."
+                    # },
+                    # {
+                    #     "name": "Gingerbread Candy House",
+                    #     "prompt": "A whimsical gingerbread house made entirely of colorful candies, cookies, and icing decorations. The structure features chocolate shingles, gumdrop windows, lollipop door handles, and candy cane pillars. Standing against a flat black background. Photorealistic style with bright lighting that makes the sweets appear glossy and appetizing."
+                    # },
+                    # {
+                    #     "name": "Dark Forest Setting",
+                    #     "prompt": "A dense, mysterious forest scene with tall twisted trees, thick fog on the ground, and dappled sunlight filtering through the canopy. The path is covered with fallen leaves and mushrooms grow among the roots. Standing against a flat black background. Photorealistic style with moody lighting that creates an eerie atmosphere."
+                    # },
+                    # {
+                    #     "name": "Wooden Cage Prop",
+                    #     "prompt": "A rustic wooden cage made of rough-hewn logs with iron reinforcements, standing against a flat black background. The cage has bars spaced closely together and shows signs of age and wear. Photorealistic style with dramatic side lighting that emphasizes the texture of the wood and metal."
+                    # }
+                ],
+                "video_segments": [
+                    {
+                        "narrator_script": (
+                            "Lost deep in the dark forest, young Hansel and Gretel"
+                            " wandered alone after being abandoned by their cruel"
+                            " stepmother who wanted to get rid of them."
+                        ),
+                        "start_image_people_and_props_names": (
+                            "Young Boy Hansel,Young Girl Gretel,Dark Forest Setting"
+                        ),
+                        "start_image_prompt": (
+                            "The Young Boy Hansel and Young Girl Gretel are standing"
+                            " together in the Dark Forest Setting, looking lost and"
+                            " frightened. The two small children appear tiny surrounded"
+                            " by towering twisted trees with fog swirling around their"
+                            " feet. Hansel holds a small bundle of sticks while Gretel"
+                            " clutches his arm tightly."
+                        ),
+                        "timestamp": 0,
+                        "video_prompt": (
+                            "The camera slowly pushes in toward the two frightened"
+                            " children as they look around nervously in all directions."
+                            " Hansel drops breadcrumbs from his pocket onto the forest"
+                            " floor while Gretel clutches his arm tighter. The fog"
+                            " swirls gently around them and leaves rustle in the wind"
+                            " creating an eerie atmosphere."
+                        ),
+                    },
+                    {
+                        "narrator_script": (
+                            "But their hunger led them to discover something magical -"
+                            " a wonderful house made entirely of sweets and treats that"
+                            " filled their empty bellies."
+                        ),
+                        "start_image_people_and_props_names": (
+                            "Young Boy Hansel,Young Girl Gretel,Gingerbread Candy House"
+                        ),
+                        "start_image_prompt": (
+                            "The Young Boy Hansel and Young Girl Gretel stand before"
+                            " the Gingerbread Candy House with wide eyes full of"
+                            " wonder. The magical house sparkles with colorful candies,"
+                            " gumdrop windows, and lollipop decorations that catch the"
+                            " light beautifully."
+                        ),
+                        "timestamp": 5,
+                        "video_prompt": (
+                            "The children slowly approach the candy house with hesitant"
+                            " steps, reaching out to touch the sweet decorations on the"
+                            " walls. Gretel picks up a dropped candy from the ground"
+                            " while Hansel examines the gumdrop windows with amazement"
+                            " as their stomachs growl loudly."
+                        ),
+                    },
+                    {
+                        "narrator_script": (
+                            "But the house belonged to a wicked witch who wanted to eat"
+                            " them! She imprisoned Hansel and made poor Gretel her"
+                            " helpless servant."
+                        ),
+                        "start_image_people_and_props_names": (
+                            "Wicked Witch Character,Young Boy Hansel,Young Girl Gretel"
+                        ),
+                        "start_image_prompt": (
+                            "The Wicked Witch Character stands menacingly before the"
+                            " Young Boy Hansel and Young Girl Gretel at the door of the"
+                            " Gingerbread Candy House. The children look terrified as"
+                            " the witch reaches for them with her gnarled hands."
+                        ),
+                        "timestamp": 10,
+                        "video_prompt": (
+                            "The wicked witch grabs Hansel forcefully and throws him"
+                            " into the Wooden Cage Prop while forcing Gretel to become"
+                            " her servant in the kitchen. The witch cackles evilly, her"
+                            " staff casting dark shadows across the room as she locks"
+                            " the cage door."
+                        ),
+                    },
+                    {
+                        "narrator_script": (
+                            "The evil witch kept checking if Hansel was fat enough to"
+                            " eat, but clever Hansel tricked her by holding up a bone"
+                            " instead of his finger."
+                        ),
+                        "start_image_people_and_props_names": (
+                            "Young Boy Hansel,Wicked Witch Character,Wooden Cage Prop"
+                        ),
+                        "start_image_prompt": (
+                            "The Young Boy Hansel sits inside the Wooden Cage Prop"
+                            " looking sad and trapped while the Wicked Witch Character"
+                            " peeks through the bars checking if he has grown fat"
+                            " enough."
+                        ),
+                        "timestamp": 15,
+                        "video_prompt": (
+                            "The witch repeatedly reaches through the cage bars to feel"
+                            " Hansel's thin finger, checking if he has grown fat enough"
+                            " to eat. Hansel cleverly holds up a small bone instead of"
+                            " his finger each time, tricking the blind witch."
+                        ),
+                    },
+                    {
+                        "narrator_script": (
+                            "But clever Gretel outsmarted her! When the blind witch"
+                            " asked her to check the oven, she pushed the evil"
+                            " sorceress inside instead!"
+                        ),
+                        "start_image_people_and_props_names": (
+                            "Wicked Witch Character,Young Girl Gretel"
+                        ),
+                        "start_image_prompt": (
+                            "The Wicked Witch Character stands before a large stone"
+                            " oven while the Young Girl Gretel stands nearby pretending"
+                            " to be confused about how to check if it is hot enough."
+                        ),
+                        "timestamp": 20,
+                        "video_prompt": (
+                            "The witch demonstrates how to peek into the oven, leaning"
+                            " forward with her poor eyesight. Instead of checking,"
+                            " Gretel suddenly pushes the witch forcefully into the"
+                            " flames! The witch falls backward screaming as the heavy"
+                            " oven door slams shut behind her."
+                        ),
+                    },
+                    {
+                        "narrator_script": (
+                            "Free at last! The brave siblings escaped with the witch's"
+                            " precious treasures and began their journey home through"
+                            " the enchanted forest."
+                        ),
+                        "start_image_people_and_props_names": (
+                            "Young Boy Hansel,Young Girl Gretel"
+                        ),
+                        "start_image_prompt": (
+                            "The Young Boy Hansel and Young Girl Gretel stand together"
+                            " outside the Gingerbread Candy House with the Wooden Cage"
+                            " Prop now open. The children look relieved and free as"
+                            " they gather treasures from the witch's house."
+                        ),
+                        "timestamp": 25,
+                        "video_prompt": (
+                            "The freed siblings run joyfully out of the candy house,"
+                            " collecting bags of gold coins and jewels from the witch's"
+                            " treasure chest. They laugh and dance together,"
+                            " celebrating their freedom as the camera pulls back to"
+                            " show them escaping into the forest."
+                        ),
+                    },
+                    {
+                        "narrator_script": (
+                            "They followed the breadcrumbs home, running through the"
+                            " once-scary forest that now felt bright and welcoming"
+                            " under the warm afternoon sun."
+                        ),
+                        "start_image_people_and_props_names": (
+                            "Young Boy Hansel,Young Girl Gretel,Dark Forest Setting"
+                        ),
+                        "start_image_prompt": (
+                            "The Young Boy Hansel and Young Girl Gretel run happily"
+                            " along a sunlit path in the Dark Forest Setting, carrying"
+                            " bags of treasure. The forest appears brighter and less"
+                            " menacing now."
+                        ),
+                        "timestamp": 30,
+                        "video_prompt": (
+                            "The children run happily through the forest path, laughing"
+                            " and dancing with their treasure bags bouncing on their"
+                            " backs. The camera follows them as they emerge from the"
+                            " dark trees into warm golden sunlight, finally safe and"
+                            " free from danger."
+                        ),
+                    },
+                    {
+                        "narrator_script": (
+                            "And so Hansel and Gretel found their way home to their"
+                            " loving father, who had missed them terribly. They lived"
+                            " happily ever after together."
+                        ),
+                        "start_image_people_and_props_names": (
+                            "Young Boy Hansel,Young Girl Gretel"
+                        ),
+                        "start_image_prompt": (
+                            "The Young Boy Hansel and Young Girl Gretel embrace their"
+                            " loving father in a simple wooden cottage. The children"
+                            " look happy and safe as they reunite with their family."
+                        ),
+                        "timestamp": 35,
+                        "video_prompt": (
+                            "The children run into their father's arms, hugging him"
+                            " tightly as tears of joy flow down their faces. The camera"
+                            " slowly pulls back showing the warm cottage interior with"
+                            " a fire burning, ending on this heartwarming family"
+                            " reunion scene."
+                        ),
+                    },
+                ],
+            }
+        )
+    )
