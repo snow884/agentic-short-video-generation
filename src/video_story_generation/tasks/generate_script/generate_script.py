@@ -392,6 +392,11 @@ def check_start_image_to_prompt_consistency(
         ]
     }}
     Only return the JSON object. Do not include any additional text or explanations. If all props are present, return an empty list for "non_matching_objects_or_persons".
+
+    If there are no non-matching objects or persons, return:
+    {{
+        "non_matching_objects_or_persons": []
+    }}
     
     Start Image Prompt: {start_image_prompt}
     
@@ -463,6 +468,9 @@ def check_start_image_prompt_props(
         {{ "prop_name": "<string>", "segment_index": <int>, "reason": "<string>" }}
     ]
     }}
+    
+    If you find no missing props, return:
+    {{ "missing_props": [] }}
 
     segments:
     {start_image_prompts}
