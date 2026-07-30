@@ -446,26 +446,19 @@ def check_start_image_prompt_props(
     )
 
     llm_prompt = f"""
-    I am designing a video script. Look for all items in the start_image_prompt for references to objects that appear more than once and should be 
-    props. Then compare those objects to the list of people_and_props to ensure that they are included. If any are missing, return an error message.
-    
-    Return JSON with the following structure:
+    Task: Find objects referenced in 2 or more segments that are missing from `props_list`.
+
+    Return JSON format:
     {{
-        "missing_props": [
-            {{
-                "prop_name": str,
-                "segment_index": int,
-                "reason": str
-            }},
-            ...
-        ]
+    "missing_props": [
+        {{ "prop_name": "<string>", "segment_index": <int>, "reason": "<string>" }}
+    ]
     }}
-    Only return the JSON object. Do not include any additional text or explanations. If all props are present, return an empty list for "missing_props".
-    
-    Start Image Prompts: 
+
+    segments:
     {start_image_prompts}
 
-    Props: 
+    props_list:
     {', '.join([p['name'] for p in people_and_props])}
     
     """
