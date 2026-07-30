@@ -400,7 +400,7 @@ def check_start_image_to_prompt_consistency(
     """
 
     res = ollama.chat(
-        model="qwen3.6:27b",
+        model="gemma4:e4b",
         messages=[{"role": "user", "content": llm_prompt}],
         format="json",  # Forces JSON response
     )
