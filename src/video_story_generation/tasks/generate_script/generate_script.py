@@ -408,8 +408,13 @@ def check_start_image_to_prompt_consistency(
             "num_predict": 350,  # Stops inference early to prevent runaway generation
         },
     )
-
-    content_json = json.loads(res["message"]["content"])
+    print(res)
+    try:
+        content_json = json.loads(res["message"]["content"])
+    except json.JSONDecodeError as e:
+        print(f"Error decoding JSON: {e}")
+        print(f"Response content: {res['message']['content']}")
+        return "Error: Failed to decode JSON from LLM response."
 
     if "non_matching_objects_or_persons" not in content_json.keys():
         return "success"
@@ -474,11 +479,17 @@ def check_start_image_prompt_props(
         format="json",  # Forces JSON response
         options={
             "temperature": 0,  # Zero variance for speed and determinism
-            "num_predict": 350,  # Stops inference early to prevent runaway generation
+            # "num_predict": 350,  # Stops inference early to prevent runaway generation
         },
         # ": 64 * 1024},  # Adjust based on your memory needs (Default 262k is VRAM heavy)
     )
-    content_json = json.loads(res["message"]["content"])
+    print(res)
+    try:
+        content_json = json.loads(res["message"]["content"])
+    except json.JSONDecodeError as e:
+        print(f"Error decoding JSON: {e}")
+        print(f"Response content: {res['message']['content']}")
+        return "Error: Failed to decode JSON from LLM response."
 
     if "missing_props" not in content_json.keys():
         return "success"
