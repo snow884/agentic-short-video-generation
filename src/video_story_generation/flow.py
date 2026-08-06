@@ -55,7 +55,7 @@ def main_flow():
     video_ideas = [
         {
             "title": "Hansel and Gretel",
-            "prompt": "Generate a short video about the story of Hansel and Gretel",
+            "prompt": "Generate a video about the story of Hansel and Gretel, brothers grim version",
         },
         {
             "title": "Little Red Riding Hood",
