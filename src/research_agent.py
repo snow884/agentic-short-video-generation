@@ -259,8 +259,8 @@ async def run_agent(
         temperature=0,  # Balanced for creativity and accuracy
         # num_predict=2048,  # Limit max tokens to prevent runaway generation
         # Context Management
-        # num_ctx=64
-        # * 1024,  # Adjust based on your memory needs (Default 262k is VRAM heavy)
+        num_ctx=64
+        * 1024,  # Adjust based on your memory needs (Default 262k is VRAM heavy)
         # Advanced Settings
         # top_p=0.95,
         # repeat_penalty=1.1,
