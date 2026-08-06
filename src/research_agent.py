@@ -254,13 +254,13 @@ async def run_agent(
     # browser_tools.append(PlaywrightUploadFileTool(async_browser=toolkit.async_browser))
 
     model = ChatOllama(
-        model="qwen3.6:27b",  # os.environ["RESEARCH_AGENT_MODEL"],
+        model="qwen3.6:27b-q4_K_M",  # os.environ["RESEARCH_AGENT_MODEL"],
         reasoning=True,
         temperature=0,  # Balanced for creativity and accuracy
         # num_predict=2048,  # Limit max tokens to prevent runaway generation
         # Context Management
-        # num_ctx=64
-        # * 1024,  # Adjust based on your memory needs (Default 262k is VRAM heavy)
+        num_ctx=64
+        * 1024,  # Adjust based on your memory needs (Default 262k is VRAM heavy)
         # Advanced Settings
         # top_p=0.95,
         # repeat_penalty=1.1,
