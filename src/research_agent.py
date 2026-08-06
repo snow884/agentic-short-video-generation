@@ -1,5 +1,6 @@
 import asyncio
 import json
+import os
 import re
 
 import nest_asyncio
@@ -14,6 +15,32 @@ from deepagents.backends.filesystem import FilesystemBackend
 from langchain.agents.structured_output import ToolStrategy
 from langchain_ollama import ChatOllama
 from prefect.logging import get_run_logger
+
+# Default runtime settings tuned for 2x RTX 5070 (12GB each).
+DEFAULT_OLLAMA_CONTEXT_TOKENS = 16 * 1024
+DEFAULT_OLLAMA_KEEP_ALIVE = "20m"
+
+
+def _dual_gpu_ollama_runtime_defaults() -> dict:
+    """Builds Ollama runtime options optimized for dual 12GB GPUs.
+
+    All values can be overridden via environment variables.
+    """
+
+    os.environ.setdefault("CUDA_VISIBLE_DEVICES", "0,1")
+    os.environ.setdefault("OLLAMA_SCHED_SPREAD", "1")
+
+    num_ctx = int(
+        os.getenv("RESEARCH_AGENT_NUM_CTX", str(DEFAULT_OLLAMA_CONTEXT_TOKENS))
+    )
+    num_predict = int(os.getenv("RESEARCH_AGENT_NUM_PREDICT", "2048"))
+    keep_alive = os.getenv("RESEARCH_AGENT_KEEP_ALIVE", DEFAULT_OLLAMA_KEEP_ALIVE)
+
+    return {
+        "num_ctx": num_ctx,
+        "num_predict": num_predict,
+        "keep_alive": keep_alive,
+    }
 
 
 def _extract_json_payload(message: str) -> str:
@@ -253,17 +280,15 @@ async def run_agent(
 
     # browser_tools.append(PlaywrightUploadFileTool(async_browser=toolkit.async_browser))
 
+    ollama_runtime = _dual_gpu_ollama_runtime_defaults()
+
     model = ChatOllama(
-        model="qwen3.6:27b-q4_K_M",  # os.environ["RESEARCH_AGENT_MODEL"],
+        model=os.getenv("RESEARCH_AGENT_MODEL", "qwen3.6:27b-q4_K_M"),
         reasoning=True,
-        temperature=0,  # Balanced for creativity and accuracy
-        # num_predict=2048,  # Limit max tokens to prevent runaway generation
-        # Context Management
-        num_ctx=64
-        * 1024,  # Adjust based on your memory needs (Default 262k is VRAM heavy)
-        # Advanced Settings
-        # top_p=0.95,
-        # repeat_penalty=1.1,
+        temperature=0,
+        num_predict=ollama_runtime["num_predict"],
+        num_ctx=ollama_runtime["num_ctx"],
+        keep_alive=ollama_runtime["keep_alive"],
     )
     # model = model.with_structured_output(ReturnClass)
 
