@@ -55,7 +55,10 @@ def main_flow():
     video_ideas = [
         {
             "title": "Hansel and Gretel",
-            "prompt": "Generate a video about the story of Hansel and Gretel, brothers grim version",
+            "prompt": (
+                "Generate a video about the story of Hansel and Gretel, brothers grim"
+                " version"
+            ),
         },
         {
             "title": "Little Red Riding Hood",
@@ -88,7 +91,7 @@ def main_flow():
 
         logger.info("Waiting 10s to clear model from memory...")
 
-        ollama.generate(model="qwen3.6:27b-q4_K_M ", keep_alive=0)
+        ollama.generate(model="qwen3.6:27b-q4_K_M", keep_alive=0)
         time.sleep(
             10
         )  # Wait for a few seconds to ensure the model is cleared from memory

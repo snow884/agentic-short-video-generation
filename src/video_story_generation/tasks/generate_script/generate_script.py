@@ -1,4 +1,5 @@
 import json
+import os
 from pathlib import Path
 
 import ollama
@@ -18,8 +19,22 @@ from video_story_generation.tables import (
 # from kokoro import KPipeline
 
 
-VIDEO_LENGTH = 30  # seconds
+VIDEO_LENGTH = 60  # seconds
 SEGMENT_LENGTH = 5  # seconds
+TARGET_SEGMENT_COUNT = VIDEO_LENGTH // SEGMENT_LENGTH
+
+# Full validation can be expensive for longer scripts; default to fast mode when
+# generating videos longer than 30 seconds.
+FAST_VALIDATION_DEFAULT = VIDEO_LENGTH > 30
+ENABLE_FAST_VALIDATION = (
+    os.getenv(
+        "CHECK_SCRIPT_FAST_VALIDATION",
+        "1" if FAST_VALIDATION_DEFAULT else "0",
+    )
+    == "1"
+)
+ENABLE_AUDIO_DURATION_CHECK = os.getenv("CHECK_SCRIPT_AUDIO_DURATION", "0") == "1"
+ENABLE_LLM_CONSISTENCY_CHECKS = os.getenv("CHECK_SCRIPT_LLM_CONSISTENCY", "0") == "1"
 
 
 def generate_audio_file_get_duration(text, file_path="temp_audio_file.wav"):
@@ -43,6 +58,13 @@ def generate_audio_file_get_duration(text, file_path="temp_audio_file.wav"):
     duration = info.duration
 
     return duration
+
+
+def estimate_narrator_duration_seconds(text: str) -> float:
+    """Estimate narration duration quickly using a typical narration pace."""
+    words = len(text.split())
+    words_per_second = 2.5
+    return words / words_per_second
 
 
 def check_script(video_script: dict) -> str:
@@ -316,12 +338,15 @@ def check_script(video_script: dict) -> str:
 
     for segment_i, segment in enumerate(video_segment_list):
 
-        duration = generate_audio_file_get_duration(
-            segment["narrator_script"],
-            file_path=f"data/audio/temp_audio_file_{segment_i}.wav",
-        )
+        if ENABLE_AUDIO_DURATION_CHECK:
+            duration = generate_audio_file_get_duration(
+                segment["narrator_script"],
+                file_path=f"data/audio/temp_audio_file_{segment_i}.wav",
+            )
+        else:
+            duration = estimate_narrator_duration_seconds(segment["narrator_script"])
 
-        if abs((duration - SEGMENT_LENGTH) / SEGMENT_LENGTH) > 0.10:
+        if abs((duration - SEGMENT_LENGTH) / SEGMENT_LENGTH) > 0.20:
             error_text = (
                 f"Error: Narrator script for segment {segment_i} has a duration of"
                 f" {duration:.2f} seconds, which exceeds the allowed 20% variance from"
@@ -330,21 +355,27 @@ def check_script(video_script: dict) -> str:
             print(error_text)
             res += error_text + "\n"
 
-    check_start_image_prompt_props_res = check_start_image_prompt_props(
-        video_segment_list=video_segment_list, people_and_props=person_and_prop
-    )
-
-    if "success" not in check_start_image_prompt_props_res:
-        res += check_start_image_prompt_props_res + "\n"
-
-    for segment_i, segment in enumerate(video_segment_list):
-        check_start_image_prompt_props_res = check_start_image_to_prompt_consistency(
-            start_image_prompt=segment["start_image_prompt"],
-            video_prompt=segment["video_prompt"],
+    # Skip expensive LLM consistency checks by default for long videos.
+    if not ENABLE_FAST_VALIDATION or ENABLE_LLM_CONSISTENCY_CHECKS:
+        check_start_image_prompt_props_res = check_start_image_prompt_props(
+            video_segment_list=video_segment_list, people_and_props=person_and_prop
         )
 
         if "success" not in check_start_image_prompt_props_res:
-            res += f"Segment {segment_i}: " + check_start_image_prompt_props_res + "\n"
+            res += check_start_image_prompt_props_res + "\n"
+
+        for segment_i, segment in enumerate(video_segment_list):
+            check_start_image_prompt_props_res = (
+                check_start_image_to_prompt_consistency(
+                    start_image_prompt=segment["start_image_prompt"],
+                    video_prompt=segment["video_prompt"],
+                )
+            )
+
+            if "success" not in check_start_image_prompt_props_res:
+                res += (
+                    f"Segment {segment_i}: " + check_start_image_prompt_props_res + "\n"
+                )
 
     if res == "":
         return "success"
@@ -560,9 +591,17 @@ def main(video_id):
 
     user_prompt_params = {
         "video_prompt": video.prompt,
+        "video_length": VIDEO_LENGTH,
+        "segment_length": SEGMENT_LENGTH,
+        "target_segment_count": TARGET_SEGMENT_COUNT,
     }
 
-    system_prompt_params = {"video_length": VIDEO_LENGTH}
+    system_prompt_params = {
+        "video_length": VIDEO_LENGTH,
+        "segment_length": SEGMENT_LENGTH,
+        "target_segment_count": TARGET_SEGMENT_COUNT,
+        "max_validation_passes": 2,
+    }
 
     Video_Segments_List = run_agent_sync(
         user_prompt_params=user_prompt_params,

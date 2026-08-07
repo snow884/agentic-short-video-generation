@@ -3,6 +3,7 @@ import json
 import os
 import subprocess
 import tempfile
+import time
 import uuid
 from pathlib import Path
 
@@ -23,6 +24,84 @@ SERVER_ADDRESS = (  # Update if your ComfyUI server is running on a different ad
 )
 CLIENT_ID = str(uuid.uuid4())
 OUTPUT_VIDEO_PATH = "generated_video.mp4"
+
+
+def _request_with_retries(
+    method,
+    url,
+    *,
+    attempts=5,
+    delay_seconds=2.0,
+    retry_statuses=None,
+    **kwargs,
+):
+    """Performs an HTTP request with retry/backoff for transient ComfyUI outages."""
+    if retry_statuses is None:
+        retry_statuses = {502, 503, 504}
+
+    last_exception = None
+    for attempt in range(1, attempts + 1):
+        try:
+            response = requests.request(method, url, **kwargs)
+            if response.status_code in retry_statuses and attempt < attempts:
+                print(
+                    f"⚠️ HTTP {response.status_code} from {url} "
+                    f"(attempt {attempt}/{attempts}); retrying in {delay_seconds}s..."
+                )
+                time.sleep(delay_seconds)
+                continue
+            return response
+        except requests.exceptions.RequestException as exc:
+            last_exception = exc
+            if attempt >= attempts:
+                raise
+            print(
+                f"⚠️ Request failed for {url} (attempt {attempt}/{attempts}): {exc}. "
+                f"Retrying in {delay_seconds}s..."
+            )
+            time.sleep(delay_seconds)
+
+    if last_exception is not None:
+        raise last_exception
+
+    raise RuntimeError(f"Request to {url} failed after {attempts} attempts")
+
+
+def _wait_for_comfyui_ready(server_address):
+    """Waits for ComfyUI HTTP API to become reachable before queueing work."""
+    attempts = int(os.getenv("COMFYUI_READY_ATTEMPTS", "12"))
+    delay_seconds = float(os.getenv("COMFYUI_READY_DELAY_SECONDS", "2"))
+    timeout_seconds = float(os.getenv("COMFYUI_READY_TIMEOUT_SECONDS", "5"))
+    health_urls = [
+        f"http://{server_address}/system_stats",
+        f"http://{server_address}/object_info",
+    ]
+
+    for attempt in range(1, attempts + 1):
+        for health_url in health_urls:
+            try:
+                response = requests.get(health_url, timeout=timeout_seconds)
+                if response.status_code == 200:
+                    print(
+                        f"✅ ComfyUI is reachable at {health_url} "
+                        f"(attempt {attempt}/{attempts})."
+                    )
+                    return
+            except requests.exceptions.RequestException:
+                pass
+
+        if attempt < attempts:
+            print(
+                "⏳ Waiting for ComfyUI API to become reachable "
+                f"(attempt {attempt}/{attempts})..."
+            )
+            time.sleep(delay_seconds)
+
+    raise RuntimeError(
+        "❌ ComfyUI is not reachable. "
+        f"Expected server at http://{server_address}. "
+        "Start ComfyUI and ensure port/address are correct."
+    )
 
 
 def _format_comfy_execution_error(error_data):
@@ -74,6 +153,7 @@ def _extract_history_failure_details(history_entry):
 
 def upload_image_to_comfy(image_path, server_address):
     """Uploads an image to ComfyUI input folder via the /upload/image endpoint."""
+    _wait_for_comfyui_ready(server_address)
     url = f"http://{server_address}/upload/image"
     base_filename = os.path.basename(image_path)
 
@@ -87,7 +167,15 @@ def upload_image_to_comfy(image_path, server_address):
     with open(image_path, "rb") as f:
         files = {"image": (base_filename, f, mime_type)}
         data = {"overwrite": "true"}
-        response = requests.post(url, files=files, data=data)
+        response = _request_with_retries(
+            "POST",
+            url,
+            attempts=5,
+            delay_seconds=1,
+            files=files,
+            data=data,
+            timeout=60,
+        )
 
     if response.status_code == 200:
         result = response.json()
@@ -129,7 +217,14 @@ def run_comfyui_workflow(
         url = f"http://{SERVER_ADDRESS}/free"
         payload = {"unload_models": True, "free_memory": True}
         try:
-            response = requests.post(url, json=payload, timeout=30)
+            response = _request_with_retries(
+                "POST",
+                url,
+                attempts=2,
+                delay_seconds=1,
+                json=payload,
+                timeout=30,
+            )
             if response.status_code == 200:
                 print("🧹 Requested ComfyUI to unload models and free memory.")
             else:
@@ -198,9 +293,18 @@ def run_comfyui_workflow(
 
     def queue_prompt(prompt, client_id):
         """Sends the workflow JSON payload to the ComfyUI queue."""
+        attempts = int(os.getenv("COMFYUI_PROMPT_ATTEMPTS", "8"))
+        delay_seconds = float(os.getenv("COMFYUI_PROMPT_DELAY_SECONDS", "2"))
         p = {"prompt": prompt, "client_id": client_id}
         data = json.dumps(p).encode("utf-8")
-        req = requests.post(f"http://{SERVER_ADDRESS}/prompt", data=data)
+        req = _request_with_retries(
+            "POST",
+            f"http://{SERVER_ADDRESS}/prompt",
+            attempts=attempts,
+            delay_seconds=delay_seconds,
+            data=data,
+            timeout=60,
+        )
         print(f"Prompt queued with status code: {req.status_code}")
         print(f"Response: {req.text}")
         if req.status_code != 200:
@@ -221,7 +325,14 @@ def run_comfyui_workflow(
     def download_file(filename, subfolder, folder_type):
         """Downloads the file from the ComfyUI output directory."""
         params = {"filename": filename, "subfolder": subfolder, "type": folder_type}
-        response = requests.get(f"http://{SERVER_ADDRESS}/view", params=params)
+        response = _request_with_retries(
+            "GET",
+            f"http://{SERVER_ADDRESS}/view",
+            attempts=5,
+            delay_seconds=1,
+            params=params,
+            timeout=60,
+        )
         if response.status_code == 200:
             source_ext = Path(filename).suffix.lower()
             target_ext = Path(output_file_path).suffix.lower()
@@ -267,16 +378,14 @@ def run_comfyui_workflow(
 
     def track_and_download():
         """Connects via WebSockets, tracks execution, and triggers the download."""
-        # Establish WebSocket connection
-        ws = websocket.WebSocket()
-        ws.connect(f"ws://{SERVER_ADDRESS}/ws?clientId={CLIENT_ID}")
-        ws.settimeout(5)
+        ws = None
 
         execution_error_data = None
         prompt_id = None
         history = {}
 
         try:
+            _wait_for_comfyui_ready(SERVER_ADDRESS)
             free_comfyui_memory()
 
             # Queue the workflow execution
@@ -285,15 +394,57 @@ def run_comfyui_workflow(
             prompt_id = prompt_response.get("prompt_id")
             print(f"🎫 Prompt ID Queued: {prompt_id}")
 
+            # Establish WebSocket connection after queueing. If the handshake
+            # fails, continue with /history polling rather than failing hard.
+            ws_url = f"ws://{SERVER_ADDRESS}/ws?clientId={CLIENT_ID}"
+            for attempt in range(1, 4):
+                try:
+                    ws = websocket.WebSocket()
+                    ws.connect(ws_url)
+                    ws.settimeout(5)
+                    print(f"🔌 WebSocket connected (attempt {attempt}/3).")
+                    break
+                except Exception as exc:
+                    ws = None
+                    print(
+                        f"⚠️ WebSocket connection failed (attempt {attempt}/3): {exc}"
+                    )
+                    if attempt < 3:
+                        time.sleep(2)
+
+            if ws is None:
+                print("ℹ️ Proceeding with ComfyUI history polling fallback.")
+
             # Listen to server events
             while True:
-                try:
-                    out = ws.recv()
-                except websocket.WebSocketTimeoutException:
-                    # Some quick workflows may complete before we receive all
-                    # websocket events; poll history as a fallback.
-                    history_poll = requests.get(
-                        f"http://{SERVER_ADDRESS}/history/{prompt_id}"
+                if ws is not None:
+                    try:
+                        out = ws.recv()
+                    except websocket.WebSocketTimeoutException:
+                        out = None
+                    except Exception as exc:
+                        print(
+                            "⚠️ WebSocket disconnected during execution; "
+                            f"switching to history polling ({exc})."
+                        )
+                        try:
+                            ws.close()
+                        except Exception:
+                            pass
+                        ws = None
+                        out = None
+                else:
+                    out = None
+
+                if out is None:
+                    # Some workflows may complete before websocket events are
+                    # received; /history polling is used as a robust fallback.
+                    history_poll = _request_with_retries(
+                        "GET",
+                        f"http://{SERVER_ADDRESS}/history/{prompt_id}",
+                        attempts=3,
+                        delay_seconds=1,
+                        timeout=30,
                     )
                     history_poll_entry = history_poll.json().get(prompt_id)
                     if history_poll_entry:
@@ -310,6 +461,7 @@ def run_comfyui_workflow(
                                 "❌ ComfyUI execution error detected from history poll."
                             )
                             break
+                    time.sleep(1)
                     continue
 
                 if not isinstance(out, str):
@@ -335,7 +487,13 @@ def run_comfyui_workflow(
                     break
 
             # Request historical outputs for this prompt to get the exact filename
-            history_req = requests.get(f"http://{SERVER_ADDRESS}/history/{prompt_id}")
+            history_req = _request_with_retries(
+                "GET",
+                f"http://{SERVER_ADDRESS}/history/{prompt_id}",
+                attempts=5,
+                delay_seconds=1,
+                timeout=30,
+            )
             history_entry = history_req.json().get(prompt_id, {})
             history = history_entry
             outputs = history.get("outputs", {})
@@ -398,7 +556,8 @@ def run_comfyui_workflow(
                     f"history_status: {json.dumps(status, indent=2)}"
                 )
         finally:
-            ws.close()
+            if ws is not None:
+                ws.close()
 
     track_and_download()
 
