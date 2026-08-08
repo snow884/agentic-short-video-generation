@@ -25,7 +25,7 @@ TARGET_SEGMENT_COUNT = VIDEO_LENGTH // SEGMENT_LENGTH
 
 # Full validation can be expensive for longer scripts; default to fast mode when
 # generating videos longer than 30 seconds.
-FAST_VALIDATION_DEFAULT = VIDEO_LENGTH > 30
+FAST_VALIDATION_DEFAULT = VIDEO_LENGTH > 60
 ENABLE_FAST_VALIDATION = (
     os.getenv(
         "CHECK_SCRIPT_FAST_VALIDATION",
@@ -377,6 +377,19 @@ def check_script(video_script: dict) -> str:
                     f"Segment {segment_i}: " + check_start_image_prompt_props_res + "\n"
                 )
 
+    if not ENABLE_FAST_VALIDATION and ENABLE_LLM_CONSISTENCY_CHECKS:
+        for segment_i, segment in enumerate(video_segment_list):
+            check_start_image_video_prompt_consistency_res = (
+                check_start_image_video_prompt_consistency(segment=segment)
+            )
+
+            if "success" not in check_start_image_video_prompt_consistency_res:
+                res += (
+                    f"Segment {segment_i}: "
+                    + check_start_image_video_prompt_consistency_res
+                    + "\n"
+                )
+
     if res == "":
         return "success"
 
@@ -545,6 +558,70 @@ def check_start_image_prompt_props(
                 f" people_and_props for segment {missing_prop['segment_index']},"
                 f" reason: {missing_prop['reason']}."
             )
+        return "\n".join(error_messages)
+
+
+def check_start_image_video_prompt_consistency(segment: dict) -> str:
+    """
+    Look at the start image prompt and video prompt for a segment and ensure that the start image prompt describes objects before action/activity and the video prompt describes same objects/people performing action/activity.
+
+    Args:
+        segment (dict): A video segment containing a start image prompt and a video prompt.
+
+    Returns:
+        str: "success" if validation passes, otherwise an error message.
+    """
+
+    llm_prompt = f"""
+    Task: Verify that the start image prompt describes the initial scene and the video prompt describes the subsequent action. Ensure that all objects, characters, and props mentioned in the video prompt are also present in the start image prompt. Identify and list any inconsistencies or missing references between the two prompts.
+
+    Return JSON format:
+    {{
+    "inconsistencies": [
+        {{ "reason": "<string>" }}
+    ]
+    }}
+    
+    If you find no missing props, return:
+    {{ "inconsistencies": [] }}
+
+    start_image_prompt:
+    {segment['start_image_prompt']}
+    video_prompt:
+    {segment['video_prompt']}
+    
+    """
+    print(f"LLM Prompt for checking start image prompt props: {llm_prompt}")
+
+    res = ollama.chat(
+        model="gemma4:e4b",
+        messages=[{"role": "user", "content": llm_prompt}],
+        format="json",  # Forces JSON response
+        # options={
+        #     "temperature": 0,  # Zero variance for speed and determinism
+        #     # "num_predict": 350,  # Stops inference early to prevent runaway generation
+        # },
+        # ": 64 * 1024},  # Adjust based on your memory needs (Default 262k is VRAM heavy)
+    )
+    print(res)
+    try:
+        content_json = json.loads(res["message"]["content"])
+    except json.JSONDecodeError as e:
+        print(f"Error decoding JSON: {e}")
+        print(f"Response content: {res['message']['content']}")
+        return "Error: Failed to decode JSON from LLM response."
+
+    if "inconsistencies" not in content_json.keys():
+        return "success"
+
+    if not content_json["inconsistencies"]:
+        return "success"
+
+    else:
+        inconsistencies_list = content_json["inconsistencies"]
+        error_messages = []
+        for inconsistency in inconsistencies_list:
+            error_messages.append(f"Error: {inconsistency['reason']}")
         return "\n".join(error_messages)
 
 

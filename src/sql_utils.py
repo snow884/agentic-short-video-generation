@@ -1,12 +1,15 @@
 """Utility helpers for creating and seeding the local SQLite database."""
 
+from pathlib import Path
+
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
 
 from video_story_generation.tables import Base
 
+DATABASE_PATH = Path(__file__).resolve().parents[1] / "data" / "local.db"
 engine = create_engine(
-    "sqlite:///data/local.db", echo=False
+    f"sqlite:///{DATABASE_PATH}", echo=False
 )  # echo=True shows SQL logs
 
 

@@ -179,6 +179,28 @@ def _response_truncated(result) -> bool:
     return metadata.get("done_reason") == "length"
 
 
+def _is_transient_transport_error(exc: Exception) -> bool:
+    """Return True for network/protocol errors that are safe to retry."""
+    error_name = exc.__class__.__name__.lower()
+    error_text = str(exc).lower()
+
+    retry_markers = (
+        "connecterror",
+        "remoteprotocolerror",
+        "server disconnected",
+        "all connection attempts failed",
+        "connection refused",
+        "connection reset",
+        "connection aborted",
+        "read timeout",
+        "connect timeout",
+        "temporarily unavailable",
+        "broken pipe",
+    )
+
+    return any(marker in error_name or marker in error_text for marker in retry_markers)
+
+
 def _create_chat_ollama(model_name: str, ollama_runtime: dict) -> ChatOllama:
     """Creates a ChatOllama model with shared runtime settings."""
     return ChatOllama(
@@ -495,6 +517,7 @@ async def run_agent(
             error_text = str(exc).lower()
             model_missing = "model" in error_text and "not found" in error_text
             can_fallback = configured_model != fallback_model
+            transient_transport = _is_transient_transport_error(exc)
 
             if model_missing and can_fallback:
                 logger.warning(
@@ -506,6 +529,26 @@ async def run_agent(
                 model = _create_chat_ollama(configured_model, ollama_runtime)
                 agent_chain = _build_agent_chain(model)
                 continue
+
+            if transient_transport and attempt < max_attempts:
+                backoff_seconds = min(2 ** (attempt - 1), 8)
+                logger.warning(
+                    "Attempt %s/%s: transient model transport error (%s). "
+                    "Retrying in %ss...",
+                    attempt,
+                    max_attempts,
+                    exc,
+                    backoff_seconds,
+                )
+                await asyncio.sleep(backoff_seconds)
+                agent_chain = _build_agent_chain(model)
+                continue
+
+            if transient_transport:
+                raise RuntimeError(
+                    "Model transport failed repeatedly while calling Ollama. "
+                    "Check Ollama server stability and model memory pressure."
+                ) from exc
 
             raise
 

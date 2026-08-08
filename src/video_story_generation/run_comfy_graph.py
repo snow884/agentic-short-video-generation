@@ -151,6 +151,41 @@ def _extract_history_failure_details(history_entry):
     )
 
 
+def _extract_history_entry(history_payload, prompt_id):
+    """Returns the history entry for a prompt from either a nested or direct payload."""
+    if not isinstance(history_payload, dict):
+        return {}
+
+    if prompt_id in history_payload:
+        return history_payload.get(prompt_id, {})
+
+    if "status" in history_payload or "outputs" in history_payload:
+        return history_payload
+
+    return {}
+
+
+def _select_downloadable_output(outputs, output_node_id):
+    """Selects the output metadata for the requested node or falls back to the first available output."""
+    if not isinstance(outputs, dict):
+        return None, None
+
+    if output_node_id in outputs:
+        node_output = outputs[output_node_id]
+        for key in ("gifs", "videos", "images", "audio", "audios"):
+            items = node_output.get(key) or []
+            if items:
+                return output_node_id, items[0]
+
+    for node_id, node_output in outputs.items():
+        for key in ("gifs", "videos", "images", "audio", "audios"):
+            items = node_output.get(key) or []
+            if items:
+                return node_id, items[0]
+
+    return None, None
+
+
 def upload_image_to_comfy(image_path, server_address):
     """Uploads an image to ComfyUI input folder via the /upload/image endpoint."""
     _wait_for_comfyui_ready(server_address)
@@ -394,6 +429,11 @@ def run_comfyui_workflow(
             prompt_id = prompt_response.get("prompt_id")
             print(f"🎫 Prompt ID Queued: {prompt_id}")
 
+            history_timeout_seconds = float(
+                os.getenv("COMFYUI_HISTORY_TIMEOUT_SECONDS", "180")
+            )
+            history_deadline = time.time() + history_timeout_seconds
+
             # Establish WebSocket connection after queueing. If the handshake
             # fails, continue with /history polling rather than failing hard.
             ws_url = f"ws://{SERVER_ADDRESS}/ws?clientId={CLIENT_ID}"
@@ -417,6 +457,14 @@ def run_comfyui_workflow(
 
             # Listen to server events
             while True:
+                if time.time() >= history_deadline:
+                    raise RuntimeError(
+                        "⏱️ ComfyUI did not report completion or output metadata "
+                        f"within {history_timeout_seconds:.0f}s. This often means "
+                        "the workflow is still queued, is blocked by missing models, "
+                        "or the server is not producing history updates."
+                    )
+
                 if ws is not None:
                     try:
                         out = ws.recv()
@@ -446,9 +494,11 @@ def run_comfyui_workflow(
                         delay_seconds=1,
                         timeout=30,
                     )
-                    history_poll_entry = history_poll.json().get(prompt_id)
-                    if history_poll_entry:
-                        status = history_poll_entry.get("status") or {}
+                    history_entry = _extract_history_entry(
+                        history_poll.json(), prompt_id
+                    )
+                    if history_entry:
+                        status = history_entry.get("status") or {}
                         if status.get("completed") is True:
                             print(
                                 "🏁 Execution complete (history poll). Fetching"
@@ -494,7 +544,7 @@ def run_comfyui_workflow(
                 delay_seconds=1,
                 timeout=30,
             )
-            history_entry = history_req.json().get(prompt_id, {})
+            history_entry = _extract_history_entry(history_req.json(), prompt_id)
             history = history_entry
             outputs = history.get("outputs", {})
 
@@ -518,35 +568,17 @@ def run_comfyui_workflow(
                 )
 
             # Extract file details from the node output metadata
-            file_info = None
-            for node_id, node_output in outputs.items():
-                # Adjust 'gifs' or 'videos' depending on the specific custom node used
-                print(node_output)
-                if (
-                    node_id == output_node_id
-                ):  # Check the specific node ID that generates the video
-
-                    if "gifs" in node_output:
-                        file_info = node_output["gifs"][0]
-                        break
-                    elif "videos" in node_output:
-                        file_info = node_output["videos"][0]
-                        break
-                    elif "images" in node_output:
-                        file_info = node_output["images"][0]
-                        break
-                    elif "audio" in node_output:
-                        file_info = node_output["audio"][0]
-                        break
-                    elif "audios" in node_output:
-                        file_info = node_output["audios"][0]
-                        break
-
+            selected_node_id, file_info = _select_downloadable_output(
+                outputs, output_node_id
+            )
             if file_info:
                 filename = file_info.get("filename")
                 subfolder = file_info.get("subfolder", "")
                 folder_type = file_info.get("type", "output")
-                print(f"📦 Found video file: {filename}. Starting download...")
+                print(
+                    f"📦 Found output from node {selected_node_id}: {filename}."
+                    " Starting download..."
+                )
                 download_file(filename, subfolder, folder_type)
             else:
                 raise RuntimeError(
