@@ -690,6 +690,12 @@ def main(video_id):
     )
     print("Received Video Segments List: ", Video_Segments_List)
 
+    json_output_path = (
+        Path(__file__).parent.resolve() / f"video_segments_list_{video_id}.json"
+    )
+    with open(json_output_path, "w") as f:
+        json.dump(Video_Segments_List.dict(), f, indent=4)
+
     add_video_segments_to_db(
         video_segments_list=Video_Segments_List, session=session, video_id=video_id
     )
