@@ -82,6 +82,7 @@ def main_flow():
     ]
 
     for video_idea in video_ideas:
+
         video_id = create_new_video_id(
             video_title=video_idea["title"],
             prompt=video_idea["prompt"],
@@ -91,7 +92,7 @@ def main_flow():
 
         logger.info("Waiting 10s to clear model from memory...")
 
-        ollama.generate(model="qwen3.6:27b-q4_K_M", keep_alive=0)
+        ollama.generate(model="qwen3.6:27b", keep_alive=0)
         time.sleep(
             10
         )  # Wait for a few seconds to ensure the model is cleared from memory

@@ -21,7 +21,7 @@ from prefect.logging import get_run_logger
 DEFAULT_OLLAMA_CONTEXT_TOKENS = 16 * 1024
 DEFAULT_OLLAMA_KEEP_ALIVE = "20m"
 DEFAULT_OLLAMA_NUM_PREDICT = 4096
-DEFAULT_RESEARCH_AGENT_MODEL = "qwen3.6:27b-q4_K_M"
+DEFAULT_RESEARCH_AGENT_MODEL = "qwen3.6:27b"
 
 
 def _dual_gpu_ollama_runtime_defaults() -> dict:
