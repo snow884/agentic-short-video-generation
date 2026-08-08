@@ -430,7 +430,9 @@ def run_comfyui_workflow(
             print(f"🎫 Prompt ID Queued: {prompt_id}")
 
             history_timeout_seconds = float(
-                os.getenv("COMFYUI_HISTORY_TIMEOUT_SECONDS", "180")
+                os.getenv(
+                    "COMFYUI_HISTORY_TIMEOUT_SECONDS", "3600"
+                )  # 1 hours in seconds
             )
             history_deadline = time.time() + history_timeout_seconds
 
