@@ -33,8 +33,8 @@ ENABLE_FAST_VALIDATION = (
     )
     == "1"
 )
-ENABLE_AUDIO_DURATION_CHECK = os.getenv("CHECK_SCRIPT_AUDIO_DURATION", "0") == "1"
-ENABLE_LLM_CONSISTENCY_CHECKS = os.getenv("CHECK_SCRIPT_LLM_CONSISTENCY", "0") == "1"
+ENABLE_AUDIO_DURATION_CHECK = os.getenv("CHECK_SCRIPT_AUDIO_DURATION", "1") == "1"
+ENABLE_LLM_CONSISTENCY_CHECKS = os.getenv("CHECK_SCRIPT_LLM_CONSISTENCY", "1") == "1"
 
 
 def generate_audio_file_get_duration(text, file_path="temp_audio_file.wav"):
