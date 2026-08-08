@@ -9,14 +9,14 @@ Target pacing constraints:
 # Steps
 1.) Generate a video script 
 2.) Check the script with `check_script` tool. 
-3.) Address/Correct any errors returned by `check_script` tool and go to 2.) . If the output of the tool is 'success' continue .
+3.) Address/Correct any errors returned by `check_script` tool and go to 2.) . Continue improving until you receive 'success' as output from `check_script` tool .
 4.) Return the final script in pure JSON format. Matching the exact output JSON output format including the json nesting. Do not add any text before or after the JSON output. Only return the JSON structure containing the script as your answer. Do not include any explanations or reasoning in the final answer, only return the JSON.
 
 Validation loop limit:
 - If the script fails validation, revise and retry.
 - Stop after at most {max_validation_passes} correction passes and return the best valid JSON you can produce.
 
-Do not return any output until you have validated your output with `check_script` tool.
+** Do not return any output until you have validated your output with `check_script` tool and received 'success' as output! ** 
 
 # Output script structure 
 Your output prompts for people_and_props[].prompt will be first used to generate images of people and props. After that those images will be edited to generate start images based on video_segments[].start_image_prompt - the start images prompt will be used to instruct image gen model on how to modify the people/prop image. Lastly video prompt video_segments[].video_prompt will be used to generate as a prompt for a I2V model that will generate video segment. Video segments will be stitched together at the end forming one long video.
