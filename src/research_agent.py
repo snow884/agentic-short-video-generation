@@ -1,7 +1,5 @@
 import asyncio
 import json
-import logging
-import os
 import re
 
 import nest_asyncio
@@ -16,38 +14,6 @@ from deepagents.backends.filesystem import FilesystemBackend
 from langchain.agents.structured_output import ToolStrategy
 from langchain_ollama import ChatOllama
 from prefect.logging import get_run_logger
-
-# Default runtime settings tuned for 2x RTX 5070 (12GB each).
-DEFAULT_OLLAMA_CONTEXT_TOKENS = 16 * 1024
-DEFAULT_OLLAMA_KEEP_ALIVE = "20m"
-DEFAULT_OLLAMA_NUM_PREDICT = 4096
-DEFAULT_RESEARCH_AGENT_MODEL = "qwen3.6:27b"
-
-
-def _dual_gpu_ollama_runtime_defaults() -> dict:
-    """Builds Ollama runtime options optimized for dual 12GB GPUs.
-
-    All values can be overridden via environment variables.
-    """
-
-    os.environ.setdefault("CUDA_VISIBLE_DEVICES", "0,1")
-    os.environ.setdefault("OLLAMA_SCHED_SPREAD", "1")
-
-    num_ctx = int(
-        os.getenv("RESEARCH_AGENT_NUM_CTX", str(DEFAULT_OLLAMA_CONTEXT_TOKENS))
-    )
-    num_predict = int(
-        os.getenv("RESEARCH_AGENT_NUM_PREDICT", str(DEFAULT_OLLAMA_NUM_PREDICT))
-    )
-    keep_alive = os.getenv("RESEARCH_AGENT_KEEP_ALIVE", DEFAULT_OLLAMA_KEEP_ALIVE)
-    reasoning = os.getenv("RESEARCH_AGENT_REASONING", "0") == "1"
-
-    return {
-        "num_ctx": num_ctx,
-        "num_predict": num_predict,
-        "keep_alive": keep_alive,
-        "reasoning": reasoning,
-    }
 
 
 def _extract_json_payload(message: str) -> str:
@@ -88,131 +54,6 @@ def _extract_json_payload(message: str) -> str:
     raise json.JSONDecodeError("No JSON payload found in model response", message, 0)
 
 
-def _coerce_message_to_text(message_content) -> str:
-    """Normalizes message content into text for JSON extraction."""
-    if isinstance(message_content, list):
-        return "\n".join(
-            chunk.get("text", "") if isinstance(chunk, dict) else str(chunk)
-            for chunk in message_content
-        )
-    return str(message_content)
-
-
-def _extract_typed_response_from_result(result, ReturnClass):
-    """Extracts and validates JSON from any message in the agent result."""
-    messages = result.get("messages") or []
-
-    # 1) Best-effort recovery from tool-call payloads (common when final
-    # assistant content is empty but structured args were produced).
-    check_script_candidates_by_call_id = {}
-    check_script_candidates_in_order = []
-
-    for message in messages:
-        tool_calls = getattr(message, "tool_calls", None) or []
-        for tool_call in tool_calls:
-            if not isinstance(tool_call, dict):
-                continue
-            if tool_call.get("name") != "check_script":
-                continue
-            args = tool_call.get("args") or {}
-            if not isinstance(args, dict):
-                continue
-            candidate = args.get("video_script")
-            if not isinstance(candidate, dict):
-                continue
-
-            call_id = tool_call.get("id")
-            if isinstance(call_id, str) and call_id:
-                check_script_candidates_by_call_id[call_id] = candidate
-            check_script_candidates_in_order.append(candidate)
-
-    # Prefer scripts explicitly acknowledged by the check_script tool as success.
-    for message in messages:
-        tool_call_id = getattr(message, "tool_call_id", None)
-        content = _coerce_message_to_text(getattr(message, "content", "")).strip()
-        if content.lower() != "success":
-            continue
-        if (
-            isinstance(tool_call_id, str)
-            and tool_call_id in check_script_candidates_by_call_id
-        ):
-            return ReturnClass(**check_script_candidates_by_call_id[tool_call_id])
-
-    # Otherwise, use the newest script candidate from check_script args.
-    for candidate in reversed(check_script_candidates_in_order):
-        try:
-            return ReturnClass(**candidate)
-        except (TypeError, ValueError):
-            continue
-
-    # Prefer newest messages first.
-    for message in reversed(messages):
-        content = getattr(message, "content", message)
-        content_text = _coerce_message_to_text(content).strip()
-        if not content_text:
-            continue
-
-        try:
-            json_payload = _extract_json_payload(content_text)
-            payload_dict = json.loads(json_payload)
-            return ReturnClass(**payload_dict)
-        except (json.JSONDecodeError, TypeError, ValueError):
-            continue
-
-    raise json.JSONDecodeError(
-        "No JSON payload found in model response",
-        _coerce_message_to_text(getattr(messages[-1], "content", ""))
-        if messages
-        else "",
-        0,
-    )
-
-
-def _response_truncated(result) -> bool:
-    """Checks whether the model likely stopped due to output token limit."""
-    messages = result.get("messages") or []
-    if not messages:
-        return False
-
-    last_message = messages[-1]
-    metadata = getattr(last_message, "response_metadata", {}) or {}
-    return metadata.get("done_reason") == "length"
-
-
-def _is_transient_transport_error(exc: Exception) -> bool:
-    """Return True for network/protocol errors that are safe to retry."""
-    error_name = exc.__class__.__name__.lower()
-    error_text = str(exc).lower()
-
-    retry_markers = (
-        "connecterror",
-        "remoteprotocolerror",
-        "server disconnected",
-        "all connection attempts failed",
-        "connection refused",
-        "connection reset",
-        "connection aborted",
-        "read timeout",
-        "connect timeout",
-        "temporarily unavailable",
-        "broken pipe",
-    )
-
-    return any(marker in error_name or marker in error_text for marker in retry_markers)
-
-
-def _create_chat_ollama(model_name: str, ollama_runtime: dict) -> ChatOllama:
-    """Creates a ChatOllama model with shared runtime settings."""
-    return ChatOllama(
-        model=model_name,
-        reasoning=ollama_runtime["reasoning"],
-        temperature=0,
-        num_predict=ollama_runtime["num_predict"],
-        num_ctx=ollama_runtime["num_ctx"],
-        keep_alive=ollama_runtime["keep_alive"],
-    )
-
-
 async def run_agent(
     user_prompt_params: dict = {
         "town_name": "Batavia",
@@ -226,13 +67,7 @@ async def run_agent(
     extra_cookie_file=None,
 ):
 
-    try:
-        logger = get_run_logger()
-    except Exception as exc:
-        if "no active flow or task run context" in str(exc).lower():
-            logger = logging.getLogger(__name__)
-        else:
-            raise
+    logger = get_run_logger()
 
     # tavity_tools = [
     #     TavilySearch(
@@ -418,14 +253,18 @@ async def run_agent(
 
     # browser_tools.append(PlaywrightUploadFileTool(async_browser=toolkit.async_browser))
 
-    ollama_runtime = _dual_gpu_ollama_runtime_defaults()
-
-    configured_model = os.getenv("RESEARCH_AGENT_MODEL", DEFAULT_RESEARCH_AGENT_MODEL)
-    fallback_model = os.getenv(
-        "RESEARCH_AGENT_FALLBACK_MODEL", DEFAULT_RESEARCH_AGENT_MODEL
+    model = ChatOllama(
+        model="qwen3.6:27b",  # os.environ["RESEARCH_AGENT_MODEL"],
+        reasoning=True,
+        temperature=0,  # Balanced for creativity and accuracy
+        # num_predict=2048,  # Limit max tokens to prevent runaway generation
+        # Context Management
+        # num_ctx=64
+        # * 1024,  # Adjust based on your memory needs (Default 262k is VRAM heavy)
+        # Advanced Settings
+        # top_p=0.95,
+        # repeat_penalty=1.1,
     )
-
-    model = _create_chat_ollama(configured_model, ollama_runtime)
     # model = model.with_structured_output(ReturnClass)
 
     # model = ChatGoogleGenerativeAI(
@@ -461,118 +300,57 @@ async def run_agent(
 
     parent_dir = Path(__file__).parent.parent.resolve()
 
-    def _build_agent_chain(chat_model):
-        return create_deep_agent(
-            model=chat_model,
-            # tools=browser_tools + tavity_tools + extra_tools,
-            tools=extra_tools,
-            system_prompt=PromptTemplate.from_file(prompt_dir / "sys_prompt.md").format(
-                **system_prompt_params_combined
-            ),
-            response_format=ToolStrategy(ReturnClass),
-            # response_format=ReturnClass,
-            # middleware=[
-            #     ToolRetryMiddleware(
-            #         max_retries=3,
-            #         backoff_factor=2.0,
-            # ctx        initial_delay=1.0,
-            #     ),
-            # ],
-            debug=True,
-            cache=None,
-            backend=FilesystemBackend(root_dir=parent_dir),
-        )
-
-    agent_chain = _build_agent_chain(model)
-    base_user_prompt = PromptTemplate.from_file(prompt_dir / "user_prompt.md").format(
-        **user_prompt_params
+    agent_chain = create_deep_agent(
+        model=model,
+        # tools=browser_tools + tavity_tools + extra_tools,
+        tools=extra_tools,
+        system_prompt=PromptTemplate.from_file(prompt_dir / "sys_prompt.md").format(
+            **system_prompt_params_combined
+        ),
+        response_format=ToolStrategy(ReturnClass),
+        # response_format=ReturnClass,
+        # middleware=[
+        #     ToolRetryMiddleware(
+        #         max_retries=3,
+        #         backoff_factor=2.0,
+        # ctx        initial_delay=1.0,
+        #     ),
+        # ],
+        debug=True,
+        cache=None,
+        backend=FilesystemBackend(root_dir=parent_dir),
     )
-    max_attempts = int(os.getenv("RESEARCH_AGENT_JSON_RETRIES", "3"))
-    last_error = None
-    previous_attempt_was_truncated = False
-
-    for attempt in range(1, max_attempts + 1):
-        messages = [("user", base_user_prompt)]
-        if attempt > 1:
-            retry_instruction = (
-                "Return only one compact valid JSON object that matches the requested"
-                " schema. Do not include markdown, prose, or reasoning. Keep values"
-                " concise to fit within output limits."
-            )
-            if previous_attempt_was_truncated:
-                retry_instruction += (
-                    " Your previous output was truncated; prioritize completing the"
-                    " JSON object."
-                )
-            messages.append(
+    result = await agent_chain.ainvoke(
+        {
+            "messages": [
                 (
                     "user",
-                    retry_instruction,
+                    PromptTemplate.from_file(prompt_dir / "user_prompt.md").format(
+                        **user_prompt_params
+                    ),
                 )
-            )
-
-        try:
-            result = await agent_chain.ainvoke({"messages": messages})
-        except Exception as exc:
-            error_text = str(exc).lower()
-            model_missing = "model" in error_text and "not found" in error_text
-            can_fallback = configured_model != fallback_model
-            transient_transport = _is_transient_transport_error(exc)
-
-            if model_missing and can_fallback:
-                logger.warning(
-                    "Configured model '%s' is unavailable. Falling back to '%s'.",
-                    configured_model,
-                    fallback_model,
-                )
-                configured_model = fallback_model
-                model = _create_chat_ollama(configured_model, ollama_runtime)
-                agent_chain = _build_agent_chain(model)
-                continue
-
-            if transient_transport and attempt < max_attempts:
-                backoff_seconds = min(2 ** (attempt - 1), 8)
-                logger.warning(
-                    "Attempt %s/%s: transient model transport error (%s). "
-                    "Retrying in %ss...",
-                    attempt,
-                    max_attempts,
-                    exc,
-                    backoff_seconds,
-                )
-                await asyncio.sleep(backoff_seconds)
-                agent_chain = _build_agent_chain(model)
-                continue
-
-            if transient_transport:
-                raise RuntimeError(
-                    "Model transport failed repeatedly while calling Ollama. "
-                    "Check Ollama server stability and model memory pressure."
-                ) from exc
-
-            raise
-
-        if "structured_response" in result:
-            return result["structured_response"]
-
-        try:
-            return _extract_typed_response_from_result(result, ReturnClass)
-        except json.JSONDecodeError as exc:
-            last_error = exc
-            previous_attempt_was_truncated = _response_truncated(result)
-            logger.warning(
-                "Attempt %s/%s: failed to extract JSON response (%s)",
-                attempt,
-                max_attempts,
-                exc,
-            )
-
-    if last_error:
-        raise last_error
-
-    raise RuntimeError(
-        "Failed to parse model response and no structured output returned."
+            ]
+        }
     )
+
+    if "structured_response" in result:
+        return result["structured_response"]
+
+    str_message = result["messages"][-1].content
+    if isinstance(str_message, list):
+        str_message = "\n".join(
+            chunk.get("text", "") if isinstance(chunk, dict) else str(chunk)
+            for chunk in str_message
+        )
+    else:
+        str_message = str(str_message)
+
+    json_payload = _extract_json_payload(str_message)
+    dict_start = json.loads(json_payload)
+
+    typed_response = ReturnClass(**dict_start)
+
+    return typed_response
 
 
 def run_agent_sync(

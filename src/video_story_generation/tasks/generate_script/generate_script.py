@@ -391,6 +391,7 @@ def check_script(video_script: dict) -> str:
                 )
 
     if res == "":
+        print("Script validation passed successfully. No errors found.")
         return "success"
 
     return res
