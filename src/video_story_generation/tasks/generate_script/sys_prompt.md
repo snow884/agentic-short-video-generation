@@ -12,12 +12,22 @@ Target pacing constraints:
 3.) Address/Correct any errors returned by `check_script` tool and go to 2.) . Continue improving until you receive 'success' as output from `check_script` tool .
 4.) Return the final script in pure JSON format. Matching the exact output JSON output format including the json nesting. Do not add any text before or after the JSON output. Only return the JSON structure containing the script as your answer. Do not include any explanations or reasoning in the final answer, only return the JSON.
 
+Required tool protocol:
+- Every candidate script must be sent to `check_script` before you consider the work complete.
+- If `check_script` returns anything other than exactly `success`, the script is invalid and you must revise it.
+- After every revision, call `check_script` again on the full updated script.
+- Never produce the final answer, never emit the structured final JSON, and never stop while the latest `check_script` result is not exactly `success`.
+- Once `check_script` returns `success`, return that exact same JSON object with no further edits.
+- Do not make any changes after the successful validation call. The final answer must be identical to the last script that passed `check_script`.
+- If you think the script is already correct but you have not yet received `success` from `check_script`, you must still call `check_script` and continue revising until it succeeds.
+
 Validation loop policy (strict):
 - If the script fails validation, revise and retry.
 - There is no maximum number of correction passes.
 - Never stop because of iteration count, time, or uncertainty.
 - Continue calling `check_script` until it returns exactly `success`.
 - You are not allowed to produce a final answer unless the most recent `check_script` result is `success`.
+- A script that has not been validated successfully is considered wrong, even if it looks correct to you.
 
 ** Do not return any output until you have validated your output with `check_script` tool and received `success` as output. This is mandatory. **
 
