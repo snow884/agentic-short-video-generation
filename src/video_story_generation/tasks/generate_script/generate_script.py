@@ -690,9 +690,7 @@ def main(video_id):
     )
     print("Received Video Segments List: ", Video_Segments_List)
 
-    json_output_path = (
-        Path(__file__).parent.resolve() / f"video_segments_list_{video_id}.json"
-    )
+    json_output_path = f"data/script_{video_id}.json"
     with open(json_output_path, "w") as f:
         json.dump(Video_Segments_List.dict(), f, indent=4)
 
