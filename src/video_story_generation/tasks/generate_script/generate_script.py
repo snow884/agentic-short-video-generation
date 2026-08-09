@@ -450,7 +450,7 @@ def check_start_image_to_prompt_consistency(
     """
 
     res = ollama.chat(
-        model="qwen3.6:27b",
+        model="qwen3.6:27b-q4_K_M",
         messages=[{"role": "user", "content": llm_prompt}],
         format="json",  # Forces JSON response
         # options={
@@ -527,7 +527,7 @@ def check_start_image_prompt_props(
     print(f"LLM Prompt for checking start image prompt props: {llm_prompt}")
 
     res = ollama.chat(
-        model="qwen3.6:27b",
+        model="qwen3.6:27b-q4_K_M",
         messages=[{"role": "user", "content": llm_prompt}],
         format="json",  # Forces JSON response
         # options={
@@ -595,7 +595,7 @@ def check_start_image_video_prompt_consistency(segment: dict) -> str:
     print(f"LLM Prompt for checking start image prompt props: {llm_prompt}")
 
     res = ollama.chat(
-        model="qwen3.6:27b",
+        model="qwen3.6:27b-q4_K_M",
         messages=[{"role": "user", "content": llm_prompt}],
         format="json",  # Forces JSON response
         # options={
