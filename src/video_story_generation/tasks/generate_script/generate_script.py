@@ -25,11 +25,11 @@ TARGET_SEGMENT_COUNT = VIDEO_LENGTH // SEGMENT_LENGTH
 
 # Full validation can be expensive for longer scripts; default to fast mode when
 # generating videos longer than 30 seconds.
-FAST_VALIDATION_DEFAULT = VIDEO_LENGTH > 30
+FAST_VALIDATION_DEFAULT = VIDEO_LENGTH > 60
 ENABLE_FAST_VALIDATION = (
     os.getenv(
         "CHECK_SCRIPT_FAST_VALIDATION",
-        "1" if FAST_VALIDATION_DEFAULT else "0",
+        "1" if FAST_VALIDATION_DEFAULT else "1",
     )
     == "1"
 )
