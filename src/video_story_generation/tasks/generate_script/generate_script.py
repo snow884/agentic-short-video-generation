@@ -29,26 +29,12 @@ FAST_VALIDATION_DEFAULT = VIDEO_LENGTH > 60
 ENABLE_FAST_VALIDATION = (
     os.getenv(
         "CHECK_SCRIPT_FAST_VALIDATION",
-        "1" if FAST_VALIDATION_DEFAULT else "1",
+        "1" if FAST_VALIDATION_DEFAULT else "0",
     )
     == "1"
 )
-ENABLE_AUDIO_DURATION_CHECK = os.getenv("CHECK_SCRIPT_AUDIO_DURATION", "0") == "1"
-ENABLE_LLM_CONSISTENCY_CHECKS = os.getenv("CHECK_SCRIPT_LLM_CONSISTENCY", "0") == "1"
-
-VALIDATION_MODEL = os.getenv("CHECK_SCRIPT_VALIDATION_MODEL", "qwen3.6:8b-q4_K_M")
-VALIDATION_NUM_CTX = int(os.getenv("CHECK_SCRIPT_VALIDATION_NUM_CTX", "4096"))
-VALIDATION_NUM_PREDICT = int(os.getenv("CHECK_SCRIPT_VALIDATION_NUM_PREDICT", "768"))
-
-
-def _validation_ollama_options() -> dict:
-    """Lower-VRAM options for validator LLM calls."""
-
-    return {
-        "temperature": 0,
-        "num_ctx": VALIDATION_NUM_CTX,
-        "num_predict": VALIDATION_NUM_PREDICT,
-    }
+ENABLE_AUDIO_DURATION_CHECK = os.getenv("CHECK_SCRIPT_AUDIO_DURATION", "1") == "1"
+ENABLE_LLM_CONSISTENCY_CHECKS = os.getenv("CHECK_SCRIPT_LLM_CONSISTENCY", "1") == "1"
 
 
 def generate_audio_file_get_duration(text, file_path="temp_audio_file.wav"):
@@ -500,10 +486,13 @@ def check_start_image_to_prompt_consistency(
     """
 
     res = ollama.chat(
-        model=VALIDATION_MODEL,
+        model="qwen3.6:27b",
         messages=[{"role": "user", "content": llm_prompt}],
         format="json",  # Forces JSON response
-        options=_validation_ollama_options(),
+        # options={
+        #     "temperature": 0,  # Zero variance for speed and determinism
+        #     "num_predict": 350,  # Stops inference early to prevent runaway generation
+        # },
     )
     print(res)
     try:
@@ -574,10 +563,14 @@ def check_start_image_prompt_props(
     print(f"LLM Prompt for checking start image prompt props: {llm_prompt}")
 
     res = ollama.chat(
-        model=VALIDATION_MODEL,
+        model="qwen3.6:27b",
         messages=[{"role": "user", "content": llm_prompt}],
         format="json",  # Forces JSON response
-        options=_validation_ollama_options(),
+        # options={
+        #     "temperature": 0,  # Zero variance for speed and determinism
+        #     # "num_predict": 350,  # Stops inference early to prevent runaway generation
+        # },
+        # ": 64 * 1024},  # Adjust based on your memory needs (Default 262k is VRAM heavy)
     )
     print(res)
     try:
@@ -638,10 +631,14 @@ def check_start_image_video_prompt_consistency(segment: dict) -> str:
     print(f"LLM Prompt for checking start image prompt props: {llm_prompt}")
 
     res = ollama.chat(
-        model=VALIDATION_MODEL,
+        model="qwen3.6:27b",
         messages=[{"role": "user", "content": llm_prompt}],
         format="json",  # Forces JSON response
-        options=_validation_ollama_options(),
+        # options={
+        #     "temperature": 0,  # Zero variance for speed and determinism
+        #     # "num_predict": 350,  # Stops inference early to prevent runaway generation
+        # },
+        # ": 64 * 1024},  # Adjust based on your memory needs (Default 262k is VRAM heavy)
     )
     print(res)
     try:

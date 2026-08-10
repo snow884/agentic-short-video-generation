@@ -1,6 +1,5 @@
 import asyncio
 import json
-import os
 import re
 
 import nest_asyncio
@@ -15,30 +14,6 @@ from deepagents.backends.filesystem import FilesystemBackend
 from langchain.agents.structured_output import ToolStrategy
 from langchain_ollama import ChatOllama
 from prefect.logging import get_run_logger
-
-DEFAULT_RESEARCH_AGENT_MODEL = "qwen3.6:27b-q4_K_M"
-DEFAULT_OLLAMA_NUM_CTX = 8 * 1024
-DEFAULT_OLLAMA_NUM_PREDICT = 1536
-DEFAULT_OLLAMA_KEEP_ALIVE = "10m"
-
-
-def _dual_gpu_ollama_runtime_defaults() -> dict:
-    """Build Ollama settings tuned for dual 12GB RTX 5070 GPUs."""
-
-    os.environ.setdefault("CUDA_VISIBLE_DEVICES", "0,1")
-    os.environ.setdefault("OLLAMA_SCHED_SPREAD", "1")
-
-    return {
-        "model": os.getenv("RESEARCH_AGENT_MODEL", DEFAULT_RESEARCH_AGENT_MODEL),
-        "reasoning": os.getenv("RESEARCH_AGENT_REASONING", "0") == "1",
-        "num_ctx": int(
-            os.getenv("RESEARCH_AGENT_NUM_CTX", str(DEFAULT_OLLAMA_NUM_CTX))
-        ),
-        "num_predict": int(
-            os.getenv("RESEARCH_AGENT_NUM_PREDICT", str(DEFAULT_OLLAMA_NUM_PREDICT))
-        ),
-        "keep_alive": os.getenv("RESEARCH_AGENT_KEEP_ALIVE", DEFAULT_OLLAMA_KEEP_ALIVE),
-    }
 
 
 def _extract_json_payload(message: str) -> str:
@@ -278,14 +253,17 @@ async def run_agent(
 
     # browser_tools.append(PlaywrightUploadFileTool(async_browser=toolkit.async_browser))
 
-    runtime = _dual_gpu_ollama_runtime_defaults()
     model = ChatOllama(
-        model=runtime["model"],
-        reasoning=runtime["reasoning"],
-        temperature=0,
-        num_predict=runtime["num_predict"],
-        num_ctx=runtime["num_ctx"],
-        keep_alive=runtime["keep_alive"],
+        model="qwen3.6:27b",  # os.environ["RESEARCH_AGENT_MODEL"],
+        reasoning=True,
+        temperature=0,  # Balanced for creativity and accuracy
+        # num_predict=2048,  # Limit max tokens to prevent runaway generation
+        # Context Management
+        # num_ctx=64
+        # * 1024,  # Adjust based on your memory needs (Default 262k is VRAM heavy)
+        # Advanced Settings
+        # top_p=0.95,
+        # repeat_penalty=1.1,
     )
     # model = model.with_structured_output(ReturnClass)
 
