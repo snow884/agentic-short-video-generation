@@ -543,6 +543,8 @@ def check_start_image_prompt_props(
     llm_prompt = f"""
     Task: Find objects referenced in 2 or more segments that are missing from `props_list`.
 
+    For example, if the text for segment 1 mentions a "wooden cage" and the text for segment 2 also mentions a "wooden cage", then the "wooden cage" should be included in the list of people_and_props. If it is not, return it in the missing_props JSON output.
+
     Return JSON format:
     {{
     "missing_props": [
@@ -602,6 +604,13 @@ def check_start_image_video_prompt_consistency(segment: dict) -> str:
     """
     Look at the start image prompt and video prompt for a segment and ensure that the start image prompt describes objects before action/activity and the video prompt describes same objects/people performing action/activity.
 
+    For example:
+
+    If the image prompt describes "a young boy sitting at a table" and the video prompt describes "the young boy stands up and walks to the door", then this is consistent.
+    If the image prompt describes "a young boy sitting at a table" and the video prompt describes "the young boy is still sitting at the table", then this is also consistent.
+    If the image prompt describes "a young boy sitting at a table" and the video prompt describes "a young girl walks into the room", then this is inconsistent because the young girl is not mentioned in the start image prompt.
+    If the image prompt describes "a young boy sitting at a table" and the video prompt describes "the young boy runs a marathon", then this is inconsistent because the young boy is not performing an action that is consistent with the start image prompt.
+
     Args:
         segment (dict): A video segment containing a start image prompt and a video prompt.
 
@@ -611,7 +620,14 @@ def check_start_image_video_prompt_consistency(segment: dict) -> str:
 
     llm_prompt = f"""
     Task: Verify that the start image prompt describes the initial scene and the video prompt describes the subsequent action. Ensure that all objects, characters, and props mentioned in the video prompt are also present in the start image prompt. Identify and list any inconsistencies or missing references between the two prompts.
-
+    
+    For example: 
+    
+    If the image prompt describes "a young boy sitting at a table" and the video prompt describes "the young boy stands up and walks to the door", then this is consistent. 
+    If the image prompt describes "a young boy sitting at a table" and the video prompt describes "the young boy is still sitting at the table", then this is also consistent.
+    If the image prompt describes "a young boy sitting at a table" and the video prompt describes "a young girl walks into the room", then this is inconsistent because the young girl is not mentioned in the start image prompt.
+    If the image prompt describes "a young boy sitting at a table" and the video prompt describes "the young boy runs a marathon", then this is inconsistent because the young boy is not performing an action that is consistent with the start image prompt.
+    
     Return JSON format:
     {{
     "inconsistencies": [
