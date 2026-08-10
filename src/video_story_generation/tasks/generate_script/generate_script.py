@@ -336,6 +336,42 @@ def check_script(video_script: dict) -> str:
                 print(error_text)
                 res += error_text + "\n"
 
+            for p in person_and_prop:
+                if segment["start_image_prompt"].find(p["name"].lower()) != -1:
+                    if p["name"].lower() not in [
+                        name.lower()
+                        for name in segment["start_image_people_and_props_names"].split(
+                            ","
+                        )
+                    ]:
+                        error_text = (
+                            f"Error: Segment {segment_i} has a person or prop"
+                            f" '{p['name']}' that is mentioned in the start image"
+                            " prompt but not listed in"
+                            " start_image_people_and_props_names. Please ensure all"
+                            " people and props mentioned in the prompt are included in"
+                            " the list."
+                        )
+                        print(error_text)
+                        res += error_text + "\n"
+
+                if segment["video_prompt"].find(p["name"].lower()) != -1:
+                    if p["name"].lower() not in [
+                        name.lower()
+                        for name in segment["start_image_people_and_props_names"].split(
+                            ","
+                        )
+                    ]:
+                        error_text = (
+                            f"Error: Segment {segment_i} has a person or prop"
+                            f" '{p['name']}' that is mentioned in the video prompt but"
+                            " not listed in start_image_people_and_props_names. Please"
+                            " ensure all people and props mentioned in the prompt are"
+                            " included in the list."
+                        )
+                        print(error_text)
+                        res += error_text + "\n"
+
     for segment_i, segment in enumerate(video_segment_list):
 
         if ENABLE_AUDIO_DURATION_CHECK:
@@ -708,240 +744,294 @@ if __name__ == "__main__":
     print(
         check_script(
             {
-                "people_and_props": [
-                    {
-                        "name": "Young Boy Hansel",
-                        "prompt": (
-                            "A young boy around 8 years old dressed in a simple"
-                            " medieval peasant costume with a brown tunic and leather"
-                            " belt, standing against a flat black background. The"
-                            " character has light brown hair and wears simple wooden"
-                            " sandals. Photorealistic style with natural lighting that"
-                            " highlights the texture of the fabric and the youthful"
-                            " features of the child."
-                        ),
-                    },
-                    {
-                        "name": "Young Girl Gretel",
-                        "prompt": (
-                            "A young girl around 7 years old dressed in a simple"
-                            " medieval peasant costume with a blue dress and white"
-                            " apron, standing against a flat black background. The"
-                            " character has blonde hair tied with a red ribbon and"
-                            " wears simple cloth shoes. Photorealistic style with"
-                            " natural lighting that highlights the texture of the"
-                            " fabric and the innocent features of the child."
-                        ),
-                    },
-                    # {
-                    #     "name": "Wicked Witch Character",
-                    #     "prompt": "An elderly woman dressed as a wicked witch costume with a pointed black hat, dark purple robe, and crooked wooden staff. The character has wrinkled skin, wild gray hair, and wears heavy boots. Standing against a flat black background. Photorealistic style with dramatic lighting that emphasizes the sinister expression and textured costume details."
-                    # },
-                    # {
-                    #     "name": "Gingerbread Candy House",
-                    #     "prompt": "A whimsical gingerbread house made entirely of colorful candies, cookies, and icing decorations. The structure features chocolate shingles, gumdrop windows, lollipop door handles, and candy cane pillars. Standing against a flat black background. Photorealistic style with bright lighting that makes the sweets appear glossy and appetizing."
-                    # },
-                    # {
-                    #     "name": "Dark Forest Setting",
-                    #     "prompt": "A dense, mysterious forest scene with tall twisted trees, thick fog on the ground, and dappled sunlight filtering through the canopy. The path is covered with fallen leaves and mushrooms grow among the roots. Standing against a flat black background. Photorealistic style with moody lighting that creates an eerie atmosphere."
-                    # },
-                    # {
-                    #     "name": "Wooden Cage Prop",
-                    #     "prompt": "A rustic wooden cage made of rough-hewn logs with iron reinforcements, standing against a flat black background. The cage has bars spaced closely together and shows signs of age and wear. Photorealistic style with dramatic side lighting that emphasizes the texture of the wood and metal."
-                    # }
-                ],
                 "video_segments": [
                     {
-                        "narrator_script": (
-                            "Lost deep in the dark forest, young Hansel and Gretel"
-                            " wandered alone after being abandoned by their cruel"
-                            " stepmother who wanted to get rid of them."
-                        ),
-                        "start_image_people_and_props_names": (
-                            "Young Boy Hansel,Young Girl Gretel,Dark Forest Setting"
+                        "video_prompt": (
+                            "The camera slowly pushes in toward Young Hansel and Young"
+                            " Gretel's anxious faces throughout the shot. Young Hansel"
+                            " looks around nervously scanning the dark forest while"
+                            " Young Gretel keeps her arms wrapped tightly around"
+                            " herself. Leaves rustle gently in the cold wind as"
+                            " darkness gradually falls over the forest clearing"
+                            " surrounding them."
                         ),
                         "start_image_prompt": (
-                            "The Young Boy Hansel and Young Girl Gretel are standing"
-                            " together in the Dark Forest Setting, looking lost and"
-                            " frightened. The two small children appear tiny surrounded"
-                            " by towering twisted trees with fog swirling around their"
-                            " feet. Hansel holds a small bundle of sticks while Gretel"
-                            " clutches his arm tightly."
+                            "Young Hansel and Young Gretel standing together side by"
+                            " side in a dark forest clearing at dusk. Young Hansel is"
+                            " positioned on the left holding a small cloth bundle"
+                            " against his chest with both hands, while Young Gretel"
+                            " stands on the right looking worried with her arms wrapped"
+                            " around herself. The core subjects are Young Hansel and"
+                            " Young Gretel from their respective images. The"
+                            " environment around them is a dense medieval forest with"
+                            " tall ancient trees and dim atmospheric lighting filtering"
+                            " through the canopy above."
+                        ),
+                        "start_image_people_and_props_names": (
+                            "Young Hansel,Young Gretel"
                         ),
                         "timestamp": 0,
-                        "video_prompt": (
-                            "The camera slowly pushes in toward the two frightened"
-                            " children as they look around nervously in all directions."
-                            " Hansel drops breadcrumbs from his pocket onto the forest"
-                            " floor while Gretel clutches his arm tighter. The fog"
-                            " swirls gently around them and leaves rustle in the wind"
-                            " creating an eerie atmosphere."
+                        "narrator_script": (
+                            "A woodcutter abandoned his children in the dark forest."
                         ),
                     },
                     {
-                        "narrator_script": (
-                            "But their hunger led them to discover something magical -"
-                            " a wonderful house made entirely of sweets and treats that"
-                            " filled their empty bellies."
-                        ),
-                        "start_image_people_and_props_names": (
-                            "Young Boy Hansel,Young Girl Gretel,Gingerbread Candy House"
+                        "video_prompt": (
+                            "Young Hansel slowly bends down at the waist and drops"
+                            " small white breadcrumbs along the narrow forest path"
+                            " behind him as he walks forward step by step. The camera"
+                            " follows Young Hansel from behind maintaining a medium"
+                            " distance, then smoothly pans left to show the small white"
+                            " breadcrumbs disappearing deeper into the dense trees"
+                            " ahead."
                         ),
                         "start_image_prompt": (
-                            "The Young Boy Hansel and Young Girl Gretel stand before"
-                            " the Gingerbread Candy House with wide eyes full of"
-                            " wonder. The magical house sparkles with colorful candies,"
-                            " gumdrop windows, and lollipop decorations that catch the"
-                            " light beautifully."
+                            "Young Hansel standing alone on a narrow forest path,"
+                            " looking down at his hand holding small white breadcrumbs"
+                            " ready to drop them. The core subject is Young Hansel from"
+                            " his image positioned center frame. The environment shows"
+                            " a narrow dirt path winding through dense trees with"
+                            " dappled sunlight filtering through the canopy above"
+                            " creating patches of light and shadow on the forest floor"
+                            " around him."
                         ),
+                        "start_image_people_and_props_names": "Young Hansel",
                         "timestamp": 5,
-                        "video_prompt": (
-                            "The children slowly approach the candy house with hesitant"
-                            " steps, reaching out to touch the sweet decorations on the"
-                            " walls. Gretel picks up a dropped candy from the ground"
-                            " while Hansel examines the gumdrop windows with amazement"
-                            " as their stomachs growl loudly."
+                        "narrator_script": (
+                            "Clever Hansel dropped breadcrumbs along the path to mark"
+                            " their way home."
                         ),
                     },
                     {
-                        "narrator_script": (
-                            "But the house belonged to a wicked witch who wanted to eat"
-                            " them! She imprisoned Hansel and made poor Gretel her"
-                            " helpless servant."
-                        ),
-                        "start_image_people_and_props_names": (
-                            "Wicked Witch Character,Young Boy Hansel,Young Girl Gretel"
+                        "video_prompt": (
+                            "Young Gretel shivers visibly and hugs herself tightly as"
+                            " owls hoot softly in the distance. The fireflies begin to"
+                            " glow brighter, floating gently upward through the dark"
+                            " forest around her. The camera slowly tilts up toward the"
+                            " moonlit canopy above where the owls sit perched on their"
+                            " branches."
                         ),
                         "start_image_prompt": (
-                            "The Wicked Witch Character stands menacingly before the"
-                            " Young Boy Hansel and Young Girl Gretel at the door of the"
-                            " Gingerbread Candy House. The children look terrified as"
-                            " the witch reaches for them with her gnarled hands."
+                            "Young Gretel sitting alone on a mossy log in the dark"
+                            " forest at night, looking frightened with her knees pulled"
+                            " up. The core subject is Young Gretel from her image"
+                            " positioned slightly off center. Moonlight filters through"
+                            " the tall trees creating eerie shadows around her."
+                            " Fireflies float gently near the ground and owls perch"
+                            " silently on branches above watching from the darkness."
                         ),
+                        "start_image_people_and_props_names": "Young Gretel",
                         "timestamp": 10,
-                        "video_prompt": (
-                            "The wicked witch grabs Hansel forcefully and throws him"
-                            " into the Wooden Cage Prop while forcing Gretel to become"
-                            " her servant in the kitchen. The witch cackles evilly, her"
-                            " staff casting dark shadows across the room as she locks"
-                            " the cage door."
+                        "narrator_script": (
+                            "Hungry birds ate every single crumb, leaving them lost."
                         ),
                     },
                     {
-                        "narrator_script": (
-                            "The evil witch kept checking if Hansel was fat enough to"
-                            " eat, but clever Hansel tricked her by holding up a bone"
-                            " instead of his finger."
-                        ),
-                        "start_image_people_and_props_names": (
-                            "Young Boy Hansel,Wicked Witch Character,Wooden Cage Prop"
+                        "video_prompt": (
+                            "Young Hansel and Young Gretel slowly walk forward toward"
+                            " the Gingerbread House, their eyes wide with wonder as"
+                            " they approach. Warm golden light emanates from the candy"
+                            " windows of the Gingerbread House. The camera tracks"
+                            " backward smoothly, keeping Young Hansel, Young Gretel,"
+                            " and the Gingerbread House all visible in frame"
+                            " throughout."
                         ),
                         "start_image_prompt": (
-                            "The Young Boy Hansel sits inside the Wooden Cage Prop"
-                            " looking sad and trapped while the Wicked Witch Character"
-                            " peeks through the bars checking if he has grown fat"
-                            " enough."
+                            "Young Hansel and Young Gretel standing at the edge of a"
+                            " forest clearing, looking amazed at the Gingerbread House"
+                            " positioned in front of them. The core subjects are Young"
+                            " Hansel and Young Gretel from their images standing side"
+                            " by side on the left side of frame. The Gingerbread House"
+                            " from its image occupies the right side of frame with its"
+                            " candy decorations clearly visible."
+                        ),
+                        "start_image_people_and_props_names": (
+                            "Young Hansel,Young Gretel,Gingerbread House"
                         ),
                         "timestamp": 15,
-                        "video_prompt": (
-                            "The witch repeatedly reaches through the cage bars to feel"
-                            " Hansel's thin finger, checking if he has grown fat enough"
-                            " to eat. Hansel cleverly holds up a small bone instead of"
-                            " his finger each time, tricking the blind witch."
+                        "narrator_script": (
+                            "Through the trees they spotted a magical gingerbread"
+                            " house."
                         ),
                     },
                     {
-                        "narrator_script": (
-                            "But clever Gretel outsmarted her! When the blind witch"
-                            " asked her to check the oven, she pushed the evil"
-                            " sorceress inside instead!"
-                        ),
-                        "start_image_people_and_props_names": (
-                            "Wicked Witch Character,Young Girl Gretel"
+                        "video_prompt": (
+                            "The Wicked Witch slowly turns toward Young Hansel and"
+                            " Young Gretel with a sinister smile spreading across her"
+                            " face, her eyes gleaming in the dim light. She gestures"
+                            " invitingly toward the Wooden Cottage interior behind her"
+                            " with one hand. The camera slowly pushes in on the Wicked"
+                            " Witch's face as her expression becomes more menacing and"
+                            " threatening."
                         ),
                         "start_image_prompt": (
-                            "The Wicked Witch Character stands before a large stone"
-                            " oven while the Young Girl Gretel stands nearby pretending"
-                            " to be confused about how to check if it is hot enough."
+                            "The Wicked Witch standing at the doorway of the Wooden"
+                            " Cottage, arms spread wide in a welcoming gesture. Young"
+                            " Hansel and Young Gretel stand before her looking hesitant"
+                            " and uncertain. The core subject is the Wicked Witch from"
+                            " her image positioned center frame with her arms"
+                            " outstretched. Young Hansel and Young Gretel from their"
+                            " images stand together to the left side of frame."
+                        ),
+                        "start_image_people_and_props_names": (
+                            "Wicked Witch,Young Hansel,Young Gretel"
                         ),
                         "timestamp": 20,
-                        "video_prompt": (
-                            "The witch demonstrates how to peek into the oven, leaning"
-                            " forward with her poor eyesight. Instead of checking,"
-                            " Gretel suddenly pushes the witch forcefully into the"
-                            " flames! The witch falls backward screaming as the heavy"
-                            " oven door slams shut behind her."
+                        "narrator_script": (
+                            "A wicked witch lived there, luring children into her trap."
                         ),
                     },
                     {
-                        "narrator_script": (
-                            "Free at last! The brave siblings escaped with the witch's"
-                            " precious treasures and began their journey home through"
-                            " the enchanted forest."
-                        ),
-                        "start_image_people_and_props_names": (
-                            "Young Boy Hansel,Young Girl Gretel"
+                        "video_prompt": (
+                            "The Wicked Witch slowly reaches toward Young Gretel with"
+                            " both hands extended. Young Gretel suddenly shoves the"
+                            " Wicked Witch backward with force using both arms, sending"
+                            " the Wicked Witch stumbling into the open oven behind her."
+                            " The camera shakes slightly with the impact of the shove,"
+                            " then holds steady on Young Gretel's determined face."
                         ),
                         "start_image_prompt": (
-                            "The Young Boy Hansel and Young Girl Gretel stand together"
-                            " outside the Gingerbread Candy House with the Wooden Cage"
-                            " Prop now open. The children look relieved and free as"
-                            " they gather treasures from the witch's house."
+                            "Young Gretel standing near a large stone oven inside the"
+                            " Wooden Cottage interior. The Wicked Witch stands behind"
+                            " Young Gretel reaching forward with both hands. The core"
+                            " subjects are Young Gretel and the Wicked Witch from their"
+                            " images. Young Gretel is positioned in front of the open"
+                            " oven while the Wicked Witch looms behind her."
+                        ),
+                        "start_image_people_and_props_names": (
+                            "Young Gretel,Wicked Witch"
                         ),
                         "timestamp": 25,
-                        "video_prompt": (
-                            "The freed siblings run joyfully out of the candy house,"
-                            " collecting bags of gold coins and jewels from the witch's"
-                            " treasure chest. They laugh and dance together,"
-                            " celebrating their freedom as the camera pulls back to"
-                            " show them escaping into the forest."
+                        "narrator_script": (
+                            "Gretel outsmarted the witch, shoving her into the oven."
                         ),
                     },
                     {
-                        "narrator_script": (
-                            "They followed the breadcrumbs home, running through the"
-                            " once-scary forest that now felt bright and welcoming"
-                            " under the warm afternoon sun."
-                        ),
-                        "start_image_people_and_props_names": (
-                            "Young Boy Hansel,Young Girl Gretel,Dark Forest Setting"
+                        "video_prompt": (
+                            "Young Hansel and Young Gretel run joyfully away from the"
+                            " Gingerbread House, bouncing slightly with excitement as"
+                            " they move forward while carrying their small treasure"
+                            " bags filled with gold coins. They look back once over"
+                            " their shoulders with triumphant smiles before continuing"
+                            " forward together. The camera pans right smoothly"
+                            " following Young Hansel and Young Gretel's movement"
+                            " through the sunlit forest path ahead of them."
                         ),
                         "start_image_prompt": (
-                            "The Young Boy Hansel and Young Girl Gretel run happily"
-                            " along a sunlit path in the Dark Forest Setting, carrying"
-                            " bags of treasure. The forest appears brighter and less"
-                            " menacing now."
+                            "Young Hansel and Young Gretel running out of the"
+                            " Gingerbread House carrying small treasure bags filled"
+                            " with gold coins. The core subjects are Young Hansel and"
+                            " Young Gretel from their images positioned side by side in"
+                            " center frame on a sunlit forest path. Sunlight streams"
+                            " through the forest trees behind them creating a warm"
+                            " golden glow."
+                        ),
+                        "start_image_people_and_props_names": (
+                            "Young Hansel,Young Gretel"
                         ),
                         "timestamp": 30,
-                        "video_prompt": (
-                            "The children run happily through the forest path, laughing"
-                            " and dancing with their treasure bags bouncing on their"
-                            " backs. The camera follows them as they emerge from the"
-                            " dark trees into warm golden sunlight, finally safe and"
-                            " free from danger."
+                        "narrator_script": (
+                            "Free at last, they gathered treasures and ran home"
+                            " together."
                         ),
                     },
                     {
-                        "narrator_script": (
-                            "And so Hansel and Gretel found their way home to their"
-                            " loving father, who had missed them terribly. They lived"
-                            " happily ever after together."
-                        ),
-                        "start_image_people_and_props_names": (
-                            "Young Boy Hansel,Young Girl Gretel"
+                        "video_prompt": (
+                            "Young Hansel and Young Gretel smile broadly as they"
+                            " embrace tightly together in the warm light. Warm"
+                            " firelight flickers across Young Hansel and Young Gretel's"
+                            " faces creating dancing shadows on the walls. The camera"
+                            " slowly pushes in on their happy reunion, ending on a"
+                            " close-up of Young Hansel and Young Gretel's relieved"
+                            " expressions."
                         ),
                         "start_image_prompt": (
-                            "The Young Boy Hansel and Young Girl Gretel embrace their"
-                            " loving father in a simple wooden cottage. The children"
-                            " look happy and safe as they reunite with their family."
+                            "Young Hansel and Young Gretel standing together inside the"
+                            " Wooden Cottage interior, embracing each other with joyful"
+                            " expressions on their faces. The core subjects are Young"
+                            " Hansel and Young Gretel from their images positioned"
+                            " center frame. Warm firelight illuminates the simple"
+                            " wooden cottage around them casting a golden glow."
+                        ),
+                        "start_image_people_and_props_names": (
+                            "Young Hansel,Young Gretel"
                         ),
                         "timestamp": 35,
-                        "video_prompt": (
-                            "The children run into their father's arms, hugging him"
-                            " tightly as tears of joy flow down their faces. The camera"
-                            " slowly pulls back showing the warm cottage interior with"
-                            " a fire burning, ending on this heartwarming family"
-                            " reunion scene."
+                        "narrator_script": (
+                            "Reunited with their father, they lived happily ever after."
+                        ),
+                    },
+                ],
+                "people_and_props": [
+                    {
+                        "name": "Young Hansel",
+                        "prompt": (
+                            "A young boy around 8 years old dressed in a tattered"
+                            " medieval peasant costume with a rough brown tunic and"
+                            " patched trousers, standing against a flat black"
+                            " background. His light brown hair is slightly messy, his"
+                            " blue eyes wide and innocent. The composition is a full"
+                            " body shot captured with a 50mm lens at eye level. Soft"
+                            " diffused lighting illuminates his face naturally."
+                            " Photorealistic digital illustration style reminiscent of"
+                            " classic fairy tale book illustrations."
+                        ),
+                    },
+                    {
+                        "name": "Young Gretel",
+                        "prompt": (
+                            "A young girl around 6 years old dressed in a simple"
+                            " medieval peasant costume with a faded blue dress and"
+                            " white apron, standing against a flat black background."
+                            " Her golden blonde hair is tied with a red ribbon, her"
+                            " green eyes bright and curious. The composition is a full"
+                            " body shot captured with a 50mm lens at eye level. Soft"
+                            " diffused lighting illuminates her face naturally."
+                            " Photorealistic digital illustration style reminiscent of"
+                            " classic fairy tale book illustrations."
+                        ),
+                    },
+                    {
+                        "name": "Wicked Witch",
+                        "prompt": (
+                            "An elderly woman dressed as a wicked witch costume with a"
+                            " tattered black robe, pointed hat, and crooked wooden"
+                            " staff, standing against a flat black background. Her"
+                            " wrinkled face has sharp features, bushy gray eyebrows,"
+                            " and a sinister expression. The composition is a full body"
+                            " shot captured with a 50mm lens at eye level. Dramatic"
+                            " side lighting creates deep shadows emphasizing her"
+                            " menacing appearance. Photorealistic digital illustration"
+                            " style reminiscent of classic fairy tale book"
+                            " illustrations."
+                        ),
+                    },
+                    {
+                        "name": "Gingerbread House",
+                        "prompt": (
+                            "A whimsical gingerbread house structure made entirely of"
+                            " cookies, candy, and icing decorations, standing against a"
+                            " flat black background. The roof is covered with chocolate"
+                            " shingles, windows are made of clear sugar glass, and"
+                            " colorful candies decorate the walls. The composition"
+                            " shows the full structure captured with a 35mm lens from a"
+                            " slightly low angle. Warm golden lighting highlights the"
+                            " sugary textures. Photorealistic digital illustration"
+                            " style reminiscent of classic fairy tale book"
+                            " illustrations."
+                        ),
+                    },
+                    {
+                        "name": "Wooden Cottage",
+                        "prompt": (
+                            "A simple rustic wooden cottage interior with stone"
+                            " fireplace, wooden beams on the ceiling, and warm"
+                            " firelight casting golden glow throughout the room,"
+                            " standing against a flat black background. The composition"
+                            " shows the full interior space captured with a 35mm lens"
+                            " from eye level. Warm amber lighting creates cozy"
+                            " atmosphere. Photorealistic digital illustration style"
+                            " reminiscent of classic fairy tale book illustrations."
                         ),
                     },
                 ],
