@@ -15,7 +15,7 @@ Before providing your final response to the user, you MUST pass your proposed ou
 # STEPS:
 1 - generate script
 2 - validate script with `check_script`
-3 - improve script with `check_script` until you get `success` as response 
+3 - improve script until you get `success` as response from `check_script` 
 
 # Output script structure 
 Your output prompts for people_and_props[].prompt will be first used to generate images of people and props. After that those images will be edited to generate start images based on video_segments[].start_image_prompt - the start images prompt will be used to instruct image gen model on how to modify the people/prop image. Lastly video prompt video_segments[].video_prompt will be used to generate as a prompt for a I2V model that will generate video segment. Video segments will be stitched together at the end forming one long video.
