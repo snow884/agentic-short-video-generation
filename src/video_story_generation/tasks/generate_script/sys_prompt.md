@@ -80,7 +80,7 @@ Every video segment contains the keys:
   ### video_prompt
   Prompt that will be fed into the model Wan2.2-I2V-A14B-HighNoise-Q5_K_M together with images for the first frame and the last frame to generate the video segment. The video should skip detailed description of characters as those will come from the image. Focus on describing actions and motion.
 
-  The Ideal Prompt is 80–120 Words.
+  The Ideal Prompt is 20–80 Words.
   Target a concise, highly specific layout. Structure your text into three core layers:  
 
   [Main Action / Motion] + [Camera Physics & Direction] + [Atmosphere & Environmental Physics]
