@@ -461,6 +461,8 @@ def check_start_image_to_prompt_consistency(
     this is a non-matching reference and include it in your output under non_matching_objects_or_persons. 
     If the start image prompt refers to "Wicked Witch" and the video prompt refers to "Wicked Witch", 
     this is a matching reference and should NOT be included in your output under non_matching_objects_or_persons.
+    If the start image prompt refers to "Hansel and Gretel" and the video prompt refers to "children", 
+    this is a non-matching reference and should be included in your output under non_matching_objects_or_persons as the match needs to be exact.
     
     Return JSON with the following structure:
     {{
