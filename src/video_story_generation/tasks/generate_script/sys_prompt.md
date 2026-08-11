@@ -75,7 +75,6 @@ Every video segment contains the keys:
   Example (Pose Change): "Change the girl's pose so she is sitting on a window sill hugging her knees, looking out to a rainy city street. Keep her facial features, hair color, and clothing identical to the original image."
   Example (Clothing Change): "Change the subject's denim jacket into a black leather biker jacket. Preserve fabric folds, stitch lines, zipper placement, and lighting."
   
-  CRITICAL INTERACTION & POSE RULE:
   To prevent video generation motion failure, the start image MUST pre-position characters and objects in the immediate starting pose or pre-contact position for the action described in video_prompt.
   - If a character interacts with an object (e.g., knocking on a door, holding a mug), the start image MUST show the hand already in direct physical contact or within inches of the object.
   - If a gesture occurs (e.g., rubbing hands, waving), the limbs MUST already be drawn outside of clothing/pockets and in keyframe placement. Never ask video_prompt to synthesize hidden appendages out of pockets or off-screen space.
@@ -91,7 +90,6 @@ Every video segment contains the keys:
 
   [Main Action / Motion] + [Camera Physics & Direction] + [Atmosphere & Environmental Physics]
 
-  MOTION & COMPLEXITY CONSTRAINTS:
   - LIMIT TO 1 CORE ACTION PER 5-SECOND SEGMENT. Do not chain sequential steps (e.g., avoid "knocks then steps back then turns").
   - Simplify precise hand-object interactions into broad physical dynamics, environmental physics (dust, wind, fabric movement), or subtle micro-gestures (shivering, leaning, breathing).
   - Use continuous motion verbs rather than multi-stage sequences.
