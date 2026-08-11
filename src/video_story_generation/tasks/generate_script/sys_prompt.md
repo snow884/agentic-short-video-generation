@@ -25,7 +25,31 @@ contains a list of any props and people present in your video
 
   ### prompt
   Prompt to generate an image of the person or the object. Should be 40-120 words. Has to be descriptive and has to include full body. Do not include background of objects that a person is carrying - those will be added later.
-  Structure this prompt into a descriptive paragraph covering five core elements: the main subject and action, the detailed environment or context, composition and camera framing (such as lens focal length or depth of field), lighting and atmospheric conditions, and the artistic medium or film style
+  Structure your prompt in natural prose covering these 4 elements:
+  
+  [Main Subject & Activity] + [Composition & Framing] + [Lighting & Color Palette] + [Aesthetic Style / Medium]
+  
+  #### Layer 1: Natural Subject Description
+  Describe what is happening as if telling a story. Be explicit about subject positioning, gestures, and details.
+  Avoid: 1girl, solo, standing, cyberpunk city, neon lights, red hair
+  Use: A woman with bright red hair stands in the middle of a rain-slicked cyberpunk alleyway, wearing an oversized faded leather jacket.
+  
+  #### Layer 2: Camera & Composition
+  FLUX obeys camera direction with high fidelity. State the angle, focal length, and depth of field.
+  Key terms: Eye-level shot, Wide cinematic angle, Extreme close-up macro, 35mm photography, Shallow depth of field with creamy bokeh background.
+  
+  #### Layer 3: Text Rendering (FLUX Strength)
+  FLUX.1 excels at embedding readable text inside images. Enclose any desired text in double quotes and specify its physical surface.
+  Example: Holding a glowing neon sign that reads "NEO TOKYO" in bold, bright cyan lettering.
+  
+  #### Layer 4: Environment & Photography Style
+  Mention film stock, lighting direction, or artistic medium instead of quality buzzwords.
+  Photography: Shot on 35mm film, subtle grain, harsh midday sun creating sharp shadows, volumetric haze.
+  Illustration: A digital concept art illustration with textured brushstrokes, ink outlines, and a limited gouache color palette.
+  
+  #### Example full
+  "A close-up portrait of an elderly watchmaker with deep wrinkles and gray stubble, looking through a jeweler's loupe at an intricate open watch movement. Studio lighting with a soft key light on his face and dark shadows behind him. Shot on an 85mm lens, shallow depth of field, sharp focus on the metallic watch gears, realistic skin texture."
+
 
 ## video_segments 
 contains a list of video segments. Every video segment represents a 5 second video generated 
@@ -37,16 +61,49 @@ Every video segment contains the keys:
   ### start_image_prompt 
   Prompt that will used to generate the starting image of the video segment.
   The prompt will be fed to Qwen 2.5 image edit model together with all images of objects from start_image_people_and_props_names . The resulting image will be used as a start frame for video generation.
-  Describe the position people and objects are in before the actions described in video_prompt. Focus on detailed descriptions. Do not describe any actions. 
-  State clearly which image provides the core subject (e.g., character, garment, or product), which provides the secondary elements, and which defines the target background or environment. For instance, rather than describing a scene generically, write: "The person 1 is wearing the jacket from person 2, standing in the urban alleyway shown in prompt 3." When using fewer than three images, explicitly tell the model which image to modify and which image to extract attributes from (e.g., "Take the mug from image 1 and place it on the wooden desk in image 2").  
+  Describe the position people and objects are in before the actions described in video_prompt. 
+
+  Follows a three-part template:
+  [Target Action / Modifier]+[Specific Visual Details]+[Style / Background Anchor Constraint]
+
+  State clearly which image provides the core subject (e.g., character, garment, or product), which provides the secondary elements, and which defines the target background or environment. For instance, rather than describing a scene generically, write: "The person 1 from image a is wearing the jacket from person 2 from image 2, standing in the urban alleyway shown in image 3." When using fewer than three images, explicitly tell the model which image to modify and which image to extract attributes from (e.g., "Take the mug from image 1 and place it on the wooden desk in image 2").  
   Additionally, govern the interaction, style, and identity retention across your inputs to ensure a seamless final composition. Direct the model on how subject attributes, lighting, and environmental physics should interact, using clear action verbs to establish spatial placement, scale, and integration. 
+
+  Lock facial features or identity first, then state the new pose or clothing.  
+
+  Example (Pose Change): "Change the girl's pose so she is sitting on a window sill hugging her knees, looking out to a rainy city street. Keep her facial features, hair color, and clothing identical to the original image."
+  Example (Clothing Change): "Change the subject's denim jacket into a black leather biker jacket. Preserve fabric folds, stitch lines, zipper placement, and lighting."
   
   ### start_image_people_and_props_names
   comma separated list of people or props present in the scene (max 3). Has to be one of the names from people_and_props
 
   ### video_prompt
   Prompt that will be fed into the model Wan2.2-I2V-A14B-HighNoise-Q5_K_M together with images for the first frame and the last frame to generate the video segment. The video should skip detailed description of characters as those will come from the image. Focus on describing actions and motion.
-  Your text prompt's primary job is to describe motion, physics, and camera behavior, rather than repeating every visual detail already present in your source image. Structure your text into a sequential narrative: lead with the primary subject action (using progressive verbs like slowly turns, smiles, walks forward), specify environmental or secondary motion (e.g., wind blowing through hair, rain falling, steam rising), and explicitly state the camera movement (such as static shot, slow push-in, or smooth pan right). Focus on concrete spatial anchors and temporal pacing—for example: "The character from the image slowly looks up toward the sky, her hair swaying gently in a light breeze. The camera performs a steady, slow push-in toward her eyes, maintaining soft lighting and natural physical movement throughout." 
+
+  The Ideal Prompt is 80–120 Words.
+  Target a concise, highly specific layout. Structure your text into three core layers:  
+
+  [Main Action / Motion] + [Camera Physics & Direction] + [Atmosphere & Environmental Physics]
+  
+  #### Layer 1: Subject Motion & Dynamics
+  Describe how the subject in your input image starts moving. Focus on physical mechanics and velocity.
+  Avoid: "A beautiful car driving." (Too vague; high-noise models will default to generic motion).
+  Use: "The red sports car accelerates sharply forward, tires spitting smoke and kicking up loose asphalt."
+
+  #### Layer 2: Precise Camera Direction
+  Wan2.2 follows explicit camera instructions far better than previous versions. State the initial angle and the progression.  
+  Camera Language: Dolly in / out, Pan left / right, Tracking shot, Crane up / down, 360-degree orbit, Subtle handheld glide.  
+  Example: "Cinematic low-angle tracking shot, following closely behind at wheel level as the camera dollies forward."
+
+  #### Layer 3: Atmospheric & Secondary Physics
+  Include dynamic fluid, particle, and environmental effects if needed. 
+  Descriptors: Volumetric steam, drifting embers, lens flare, rain streaks on glass, wind-blown coat, bokeh light reflections.  
+  InstaSD
+  Example: "Neon light mirrors off wet rain-slick pavement, volumetric mist drifting across the background, shallow depth of field."
+
+  #### Full example
+  For the start_image_prompt: "A knight standing in a misty forest." video_prompt would be: 
+  "The knight draws his longsword with a swift, fluid motion, stepping forward into a fighting stance. The camera starts shoulder-height, executing a slow 180-degree orbital arc around him. Dense volumetric fog shifts through the background trees as glowing orange embers float gently through the cool morning air. Cinematic low-contrast color grade, sharp focus on the blade, natural motion blur."
 
   ### narrator_script
   Script that will be spoken by the narrator for this specific segment.
