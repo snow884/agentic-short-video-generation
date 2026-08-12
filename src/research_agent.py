@@ -258,7 +258,7 @@ async def run_agent(
         model=os.getenv("RESEARCH_AGENT_MODEL", "qwen3.6:27b-q4_K_M"),
         reasoning=True,
         temperature=0,
-        num_gpu=1,
+        num_gpu=2,
         num_ctx=4096,
         num_predict=768,
     )
