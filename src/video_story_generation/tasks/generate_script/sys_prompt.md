@@ -93,7 +93,7 @@ Every video segment contains the keys:
   The Ideal Prompt is 20–80 Words.
   Target a concise, highly specific layout. Structure your text into three core layers:  
 
-  [Main Action / Motion] + [Camera Physics & Direction] + [Atmosphere & Environmental Physics]
+  [Main Action / Motion] + [Camera Physics & Direction] 
 
   - LIMIT TO 1 CORE ACTION PER 5-SECOND SEGMENT. Do not chain sequential steps (e.g., avoid "knocks then steps back then turns").
   - Simplify precise hand-object interactions into broad physical dynamics, environmental physics (dust, wind, fabric movement), or subtle micro-gestures (shivering, leaning, breathing).
@@ -108,12 +108,6 @@ Every video segment contains the keys:
   Wan2.2 follows explicit camera instructions far better than previous versions. State the initial angle and the progression.  
   Camera Language: Dolly in / out, Pan left / right, Tracking shot, Crane up / down, 360-degree orbit, Subtle handheld glide.  
   Example: "Cinematic low-angle tracking shot, following closely behind at wheel level as the camera dollies forward."
-
-  #### Layer 3: Atmospheric & Secondary Physics
-  Include dynamic fluid, particle, and environmental effects if needed. 
-  Descriptors: Volumetric steam, drifting embers, lens flare, rain streaks on glass, wind-blown coat, bokeh light reflections.  
-  InstaSD
-  Example: "Neon light mirrors off wet rain-slick pavement, volumetric mist drifting across the background, shallow depth of field."
 
   #### Full example
   For the start_image_prompt: "A knight standing in a misty forest." video_prompt would be: 
