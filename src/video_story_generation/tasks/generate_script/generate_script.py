@@ -1,5 +1,6 @@
 import json
 import os
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 
 import ollama
@@ -35,6 +36,20 @@ ENABLE_FAST_VALIDATION = (
 )
 ENABLE_AUDIO_DURATION_CHECK = os.getenv("CHECK_SCRIPT_AUDIO_DURATION", "1") == "1"
 ENABLE_LLM_CONSISTENCY_CHECKS = os.getenv("CHECK_SCRIPT_LLM_CONSISTENCY", "1") == "1"
+LLM_VALIDATION_MAX_WORKERS = max(
+    1, int(os.getenv("CHECK_SCRIPT_LLM_VALIDATION_WORKERS", "2"))
+)
+
+
+def _validation_chat_options() -> dict:
+    """Runtime-focused options for short JSON validation calls."""
+    return {
+        "temperature": 0,
+        # Use one GPU per request to allow concurrent validation calls.
+        "num_gpu": 1,
+        "num_ctx": 4096,
+        "num_predict": 384,
+    }
 
 
 def generate_audio_file_get_duration(text, file_path="temp_audio_file.wav"):
@@ -400,31 +415,44 @@ def check_script(video_script: dict) -> str:
         if "success" not in check_start_image_prompt_props_res:
             res += check_start_image_prompt_props_res + "\n"
 
-        for segment_i, segment in enumerate(video_segment_list):
-            check_start_image_prompt_props_res = (
-                check_start_image_to_prompt_consistency(
-                    start_image_prompt=segment["start_image_prompt"],
-                    video_prompt=segment["video_prompt"],
-                )
-            )
+        with ThreadPoolExecutor(max_workers=LLM_VALIDATION_MAX_WORKERS) as executor:
+            futures = {
+                executor.submit(
+                    check_start_image_to_prompt_consistency,
+                    segment["start_image_prompt"],
+                    segment["video_prompt"],
+                ): segment_i
+                for segment_i, segment in enumerate(video_segment_list)
+            }
 
-            if "success" not in check_start_image_prompt_props_res:
-                res += (
-                    f"Segment {segment_i}: " + check_start_image_prompt_props_res + "\n"
-                )
+            for future in as_completed(futures):
+                segment_i = futures[future]
+                check_start_image_prompt_props_res = future.result()
+                if "success" not in check_start_image_prompt_props_res:
+                    res += (
+                        f"Segment {segment_i}: "
+                        + check_start_image_prompt_props_res
+                        + "\n"
+                    )
 
     if not ENABLE_FAST_VALIDATION and ENABLE_LLM_CONSISTENCY_CHECKS:
-        for segment_i, segment in enumerate(video_segment_list):
-            check_start_image_video_prompt_consistency_res = (
-                check_start_image_video_prompt_consistency(segment=segment)
-            )
+        with ThreadPoolExecutor(max_workers=LLM_VALIDATION_MAX_WORKERS) as executor:
+            futures = {
+                executor.submit(
+                    check_start_image_video_prompt_consistency, segment
+                ): segment_i
+                for segment_i, segment in enumerate(video_segment_list)
+            }
 
-            if "success" not in check_start_image_video_prompt_consistency_res:
-                res += (
-                    f"Segment {segment_i}: "
-                    + check_start_image_video_prompt_consistency_res
-                    + "\n"
-                )
+            for future in as_completed(futures):
+                segment_i = futures[future]
+                check_start_image_video_prompt_consistency_res = future.result()
+                if "success" not in check_start_image_video_prompt_consistency_res:
+                    res += (
+                        f"Segment {segment_i}: "
+                        + check_start_image_video_prompt_consistency_res
+                        + "\n"
+                    )
 
     if res == "":
         print("Script validation passed successfully. No errors found.")
@@ -493,12 +521,7 @@ def check_start_image_to_prompt_consistency(
         model=os.getenv("RESEARCH_AGENT_MODEL", "qwen3.6:27b-q4_K_M"),
         messages=[{"role": "user", "content": llm_prompt}],
         format="json",
-        options={
-            "temperature": 0,
-            "num_gpu": 2,
-            "num_ctx": 16384,
-            "num_predict": 2048,
-        },
+        options=_validation_chat_options(),
         keep_alive="30m",
     )
     print(res)
@@ -577,12 +600,8 @@ def check_start_image_prompt_props(
         model=os.getenv("RESEARCH_AGENT_MODEL", "qwen3.6:27b-q4_K_M"),
         messages=[{"role": "user", "content": llm_prompt}],
         format="json",
-        options={
-            "temperature": 0,
-            "num_gpu": 2,
-            # "num_ctx": 4096,
-            # "num_predict": 1024,
-        },
+        options=_validation_chat_options(),
+        keep_alive="30m",
     )
     print(res)
     try:
@@ -661,12 +680,8 @@ def check_start_image_video_prompt_consistency(segment: dict) -> str:
         model=os.getenv("RESEARCH_AGENT_MODEL", "qwen3.6:27b-q4_K_M"),
         messages=[{"role": "user", "content": llm_prompt}],
         format="json",
-        options={
-            "temperature": 0,
-            "num_gpu": 2,
-            # "num_ctx": 4096,
-            # "num_predict": 1024,
-        },
+        options=_validation_chat_options(),
+        keep_alive="30m",
     )
     print(res)
     try:
@@ -742,7 +757,6 @@ def main(video_id):
         "video_length": VIDEO_LENGTH,
         "segment_length": SEGMENT_LENGTH,
         "target_segment_count": TARGET_SEGMENT_COUNT,
-        "max_validation_passes": 2,
     }
 
     Video_Segments_List = run_agent_sync(

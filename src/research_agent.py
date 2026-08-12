@@ -12,7 +12,6 @@ import os
 from pathlib import Path
 
 from deepagents.backends.filesystem import FilesystemBackend
-from langchain.agents.structured_output import ToolStrategy
 from langchain_ollama import ChatOllama
 from prefect.logging import get_run_logger
 
@@ -53,6 +52,41 @@ def _extract_json_payload(message: str) -> str:
             continue
 
     raise json.JSONDecodeError("No JSON payload found in model response", message, 0)
+
+
+def _extract_typed_response_from_result(result: dict, ReturnClass):
+    """Extract typed output from deep agent result across common output shapes."""
+
+    if "structured_response" in result and result["structured_response"] is not None:
+        return result["structured_response"]
+
+    messages = result.get("messages", [])
+    if messages:
+        last_message = messages[-1]
+
+        # Prefer tool-call args when available, since these are already structured.
+        tool_calls = getattr(last_message, "tool_calls", None)
+        if tool_calls:
+            first_tool_call = tool_calls[0]
+            if isinstance(first_tool_call, dict):
+                args = first_tool_call.get("args")
+                if isinstance(args, dict):
+                    return ReturnClass(**args)
+
+        str_message = last_message.content
+        if isinstance(str_message, list):
+            str_message = "\n".join(
+                chunk.get("text", "") if isinstance(chunk, dict) else str(chunk)
+                for chunk in str_message
+            )
+        else:
+            str_message = str(str_message)
+
+        json_payload = _extract_json_payload(str_message)
+        dict_start = json.loads(json_payload)
+        return ReturnClass(**dict_start)
+
+    raise ValueError("Agent result did not contain structured_response or messages")
 
 
 async def run_agent(
@@ -256,11 +290,11 @@ async def run_agent(
 
     model = ChatOllama(
         model=os.getenv("RESEARCH_AGENT_MODEL", "qwen3.6:27b-q4_K_M"),
-        reasoning=True,
+        reasoning=os.getenv("RESEARCH_AGENT_REASONING", "0") == "1",
         temperature=0,
         num_gpu=2,
-        num_ctx=16384,
-        num_predict=2048,
+        num_ctx=8192,
+        num_predict=768,
         keep_alive="30m",
     )
     # model = model.with_structured_output(ReturnClass)
@@ -305,8 +339,7 @@ async def run_agent(
         system_prompt=PromptTemplate.from_file(prompt_dir / "sys_prompt.md").format(
             **system_prompt_params_combined
         ),
-        response_format=ToolStrategy(ReturnClass),
-        # response_format=ReturnClass,
+        response_format=ReturnClass,
         # middleware=[
         #     ToolRetryMiddleware(
         #         max_retries=3,
@@ -331,24 +364,7 @@ async def run_agent(
         }
     )
 
-    if "structured_response" in result:
-        return result["structured_response"]
-
-    str_message = result["messages"][-1].content
-    if isinstance(str_message, list):
-        str_message = "\n".join(
-            chunk.get("text", "") if isinstance(chunk, dict) else str(chunk)
-            for chunk in str_message
-        )
-    else:
-        str_message = str(str_message)
-
-    json_payload = _extract_json_payload(str_message)
-    dict_start = json.loads(json_payload)
-
-    typed_response = ReturnClass(**dict_start)
-
-    return typed_response
+    return _extract_typed_response_from_result(result, ReturnClass)
 
 
 def run_agent_sync(
