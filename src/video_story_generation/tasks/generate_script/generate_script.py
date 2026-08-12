@@ -495,7 +495,7 @@ def check_start_image_to_prompt_consistency(
         format="json",
         options={
             "temperature": 0,
-            "num_gpu": 2,
+            # "num_gpu": 2,
             # "num_ctx": 4096,
             # "num_predict": 1024,
         },
