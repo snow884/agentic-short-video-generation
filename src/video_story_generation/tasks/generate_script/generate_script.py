@@ -1,13 +1,16 @@
 import json
 import os
+import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 
+import httpx
 import ollama
 import soundfile as sf
+from langchain_core.prompts import PromptTemplate
+from langchain_ollama import ChatOllama
 from prefect import task
 
-from research_agent import run_agent_sync
 from sql_utils import get_db
 from video_story_generation.run_comfy_graph import generate_audio_from_prompt
 from video_story_generation.tables import (
@@ -25,7 +28,7 @@ SEGMENT_LENGTH = 5  # seconds
 TARGET_SEGMENT_COUNT = VIDEO_LENGTH // SEGMENT_LENGTH
 
 # Full validation can be expensive for longer scripts; default to fast mode when
-# generating videos longer than 30 seconds.
+# generating videos longer than 60 seconds.
 FAST_VALIDATION_DEFAULT = VIDEO_LENGTH > 60
 ENABLE_FAST_VALIDATION = (
     os.getenv(
@@ -34,11 +37,132 @@ ENABLE_FAST_VALIDATION = (
     )
     == "1"
 )
-ENABLE_AUDIO_DURATION_CHECK = os.getenv("CHECK_SCRIPT_AUDIO_DURATION", "1") == "1"
-ENABLE_LLM_CONSISTENCY_CHECKS = os.getenv("CHECK_SCRIPT_LLM_CONSISTENCY", "1") == "1"
+ENABLE_AUDIO_DURATION_CHECK = (
+    os.getenv(
+        "CHECK_SCRIPT_AUDIO_DURATION",
+        "0" if FAST_VALIDATION_DEFAULT else "1",
+    )
+    == "1"
+)
+ENABLE_LLM_CONSISTENCY_CHECKS = (
+    os.getenv(
+        "CHECK_SCRIPT_LLM_CONSISTENCY",
+        "0" if FAST_VALIDATION_DEFAULT else "1",
+    )
+    == "1"
+)
 LLM_VALIDATION_MAX_WORKERS = max(
     1, int(os.getenv("CHECK_SCRIPT_LLM_VALIDATION_WORKERS", "2"))
 )
+SCRIPT_GENERATION_MAX_RETRIES = max(
+    1, int(os.getenv("SCRIPT_GENERATION_CONNECT_RETRIES", "4"))
+)
+SCRIPT_GENERATION_MAX_ATTEMPTS = max(
+    1, int(os.getenv("SCRIPT_GENERATION_MAX_ATTEMPTS", "12"))
+)
+SCRIPT_GENERATION_MAX_RUNTIME_SECONDS = max(
+    60, int(os.getenv("SCRIPT_GENERATION_MAX_RUNTIME_SECONDS", "21600"))
+)
+
+
+def _script_generation_model() -> ChatOllama:
+    return ChatOllama(
+        model=os.getenv("RESEARCH_AGENT_MODEL", "qwen3.6:27b-q4_K_M"),
+        reasoning=os.getenv("RESEARCH_AGENT_REASONING", "0") == "1",
+        temperature=0,
+        num_gpu=2,
+        num_ctx=8192,
+        num_predict=768,
+        keep_alive="30m",
+    )
+
+
+def _to_plain_dict(model_or_dict):
+    if hasattr(model_or_dict, "model_dump"):
+        return model_or_dict.model_dump()
+    if hasattr(model_or_dict, "dict"):
+        return model_or_dict.dict()
+    return model_or_dict
+
+
+def _invoke_structured_with_retries(structured_model, messages):
+    retry_delay_seconds = 1
+
+    for attempt in range(1, SCRIPT_GENERATION_MAX_RETRIES + 1):
+        try:
+            return structured_model.invoke(messages)
+        except httpx.ConnectError:
+            if attempt == SCRIPT_GENERATION_MAX_RETRIES:
+                raise
+            print(
+                "Structured generation connection failed on attempt"
+                f" {attempt}/{SCRIPT_GENERATION_MAX_RETRIES}. Retrying in"
+                f" {retry_delay_seconds}s..."
+            )
+            time.sleep(retry_delay_seconds)
+            retry_delay_seconds *= 2
+
+
+def _generate_script_until_valid(
+    user_prompt_params: dict,
+    system_prompt_params: dict,
+    prompt_dir: Path,
+) -> VideoSegmentsList:
+    system_prompt = PromptTemplate.from_file(prompt_dir / "sys_prompt.md").format(
+        **system_prompt_params
+    )
+    base_user_prompt = PromptTemplate.from_file(prompt_dir / "user_prompt.md").format(
+        **user_prompt_params
+    )
+
+    structured_model = _script_generation_model().with_structured_output(
+        VideoSegmentsList,
+        method="json_schema",
+    )
+
+    validation_feedback = ""
+    attempt = 1
+    start_time = time.monotonic()
+
+    while True:
+        elapsed_seconds = time.monotonic() - start_time
+        if elapsed_seconds >= SCRIPT_GENERATION_MAX_RUNTIME_SECONDS:
+            raise TimeoutError(
+                "Script generation exceeded the max runtime budget of "
+                f"{SCRIPT_GENERATION_MAX_RUNTIME_SECONDS} seconds. "
+                "Validation is still preserved, but generation is now bounded."
+            )
+
+        if attempt > SCRIPT_GENERATION_MAX_ATTEMPTS:
+            raise TimeoutError(
+                "Script generation exceeded the max validation attempts of "
+                f"{SCRIPT_GENERATION_MAX_ATTEMPTS}. "
+                "The workflow remains validation-driven but is capped to avoid "
+                "unbounded runtimes."
+            )
+
+        user_prompt = base_user_prompt
+        if validation_feedback:
+            user_prompt += (
+                "\n\nThe previous draft failed validation. Return a complete"
+                " replacement JSON response that fixes every issue"
+                f" below.\n{validation_feedback}"
+            )
+
+        print(f"Script generation attempt {attempt}")
+        video_segments_list = _invoke_structured_with_retries(
+            structured_model,
+            [
+                ("system", system_prompt),
+                ("human", user_prompt),
+            ],
+        )
+
+        validation_feedback = check_script(_to_plain_dict(video_segments_list))
+        if validation_feedback == "success":
+            return video_segments_list
+
+        attempt += 1
 
 
 def _validation_chat_options() -> dict:
@@ -759,13 +883,10 @@ def main(video_id):
         "target_segment_count": TARGET_SEGMENT_COUNT,
     }
 
-    Video_Segments_List = run_agent_sync(
+    Video_Segments_List = _generate_script_until_valid(
         user_prompt_params=user_prompt_params,
         system_prompt_params=system_prompt_params,
-        # ReturnClass=VideoSegmentsList,
-        ReturnClass=VideoSegmentsList,
         prompt_dir=Path(__file__).parent.resolve(),
-        extra_tools=[check_script],
     )
     print("Received Video Segments List: ", Video_Segments_List)
 
