@@ -8,6 +8,7 @@ from langchain_core.prompts import PromptTemplate
 
 nest_asyncio.apply()
 
+import os
 from pathlib import Path
 
 from deepagents.backends.filesystem import FilesystemBackend
@@ -254,16 +255,12 @@ async def run_agent(
     # browser_tools.append(PlaywrightUploadFileTool(async_browser=toolkit.async_browser))
 
     model = ChatOllama(
-        model="qwen3.6:27b",  # os.environ["RESEARCH_AGENT_MODEL"],
+        model=os.getenv("RESEARCH_AGENT_MODEL", "qwen3.6:27b-q4_K_M"),
         reasoning=True,
-        temperature=0,  # Balanced for creativity and accuracy
-        # num_predict=2048,  # Limit max tokens to prevent runaway generation
-        # Context Management
-        # num_ctx=64
-        # * 1024,  # Adjust based on your memory needs (Default 262k is VRAM heavy)
-        # Advanced Settings
-        # top_p=0.95,
-        # repeat_penalty=1.1,
+        temperature=0,
+        num_gpu=2,
+        num_ctx=8192,
+        num_predict=1024,
     )
     # model = model.with_structured_output(ReturnClass)
 

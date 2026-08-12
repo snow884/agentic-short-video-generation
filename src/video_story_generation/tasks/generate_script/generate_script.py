@@ -453,6 +453,8 @@ def check_start_image_to_prompt_consistency(
     
     Start image prompt can describe objects and props that are not present in the video prompt, but the video prompt should not introduce any new objects, characters, or props that are not already present in the start image prompt.
     
+    Be very strict about matching case, spacing, and plurality. 
+    
     I want to ensure that the start image prompt is referring to the same objects, characters, and props as the video prompt.
     
     Make sure that all objects are referred to in the same way in both prompts. For example, if the start image prompt refers to "young boy Hansel" and the video prompt refers to "Hansel", 
@@ -488,13 +490,15 @@ def check_start_image_to_prompt_consistency(
     """
 
     res = ollama.chat(
-        model="qwen3.6:27b",
+        model=os.getenv("RESEARCH_AGENT_MODEL", "qwen3.6:27b-q4_K_M"),
         messages=[{"role": "user", "content": llm_prompt}],
-        format="json",  # Forces JSON response
-        # options={
-        #     "temperature": 0,  # Zero variance for speed and determinism
-        #     "num_predict": 350,  # Stops inference early to prevent runaway generation
-        # },
+        format="json",
+        options={
+            "temperature": 0,
+            "num_gpu": 2,
+            "num_ctx": 8192,
+            "num_predict": 1024,
+        },
     )
     print(res)
     try:
@@ -527,6 +531,8 @@ def check_start_image_prompt_props(
     """
     Look for all items in the start_image_prompt for references to objects that appear more than once and should be
     props. Then compare those objects to the list of people_and_props to ensure that they are included. If any are missing, return an error message.
+
+    Include more general matches
 
     Args:
         video_segment_list (list[dict]): A list of video segments, each containing a start image prompt and a video prompt.
@@ -567,14 +573,15 @@ def check_start_image_prompt_props(
     print(f"LLM Prompt for checking start image prompt props: {llm_prompt}")
 
     res = ollama.chat(
-        model="qwen3.6:27b",
+        model=os.getenv("RESEARCH_AGENT_MODEL", "qwen3.6:27b-q4_K_M"),
         messages=[{"role": "user", "content": llm_prompt}],
-        format="json",  # Forces JSON response
-        # options={
-        #     "temperature": 0,  # Zero variance for speed and determinism
-        #     # "num_predict": 350,  # Stops inference early to prevent runaway generation
-        # },
-        # ": 64 * 1024},  # Adjust based on your memory needs (Default 262k is VRAM heavy)
+        format="json",
+        options={
+            "temperature": 0,
+            "num_gpu": 2,
+            "num_ctx": 8192,
+            "num_predict": 1024,
+        },
     )
     print(res)
     try:
@@ -650,14 +657,15 @@ def check_start_image_video_prompt_consistency(segment: dict) -> str:
     print(f"LLM Prompt for checking start image prompt props: {llm_prompt}")
 
     res = ollama.chat(
-        model="qwen3.6:27b",
+        model=os.getenv("RESEARCH_AGENT_MODEL", "qwen3.6:27b-q4_K_M"),
         messages=[{"role": "user", "content": llm_prompt}],
-        format="json",  # Forces JSON response
-        # options={
-        #     "temperature": 0,  # Zero variance for speed and determinism
-        #     # "num_predict": 350,  # Stops inference early to prevent runaway generation
-        # },
-        # ": 64 * 1024},  # Adjust based on your memory needs (Default 262k is VRAM heavy)
+        format="json",
+        options={
+            "temperature": 0,
+            "num_gpu": 2,
+            "num_ctx": 8192,
+            "num_predict": 1024,
+        },
     )
     print(res)
     try:
