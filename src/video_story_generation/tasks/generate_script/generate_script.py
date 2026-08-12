@@ -496,8 +496,8 @@ def check_start_image_to_prompt_consistency(
         options={
             "temperature": 0,
             "num_gpu": 2,
-            "num_ctx": 4096,
-            "num_predict": 1024,
+            # "num_ctx": 4096,
+            # "num_predict": 1024,
         },
     )
     print(res)
@@ -579,8 +579,8 @@ def check_start_image_prompt_props(
         options={
             "temperature": 0,
             "num_gpu": 2,
-            "num_ctx": 4096,
-            "num_predict": 1024,
+            # "num_ctx": 4096,
+            # "num_predict": 1024,
         },
     )
     print(res)
@@ -663,8 +663,8 @@ def check_start_image_video_prompt_consistency(segment: dict) -> str:
         options={
             "temperature": 0,
             "num_gpu": 2,
-            "num_ctx": 4096,
-            "num_predict": 1024,
+            # "num_ctx": 4096,
+            # "num_predict": 1024,
         },
     )
     print(res)

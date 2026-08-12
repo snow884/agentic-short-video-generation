@@ -259,8 +259,8 @@ async def run_agent(
         reasoning=True,
         temperature=0,
         num_gpu=2,
-        num_ctx=4096,
-        num_predict=1024,
+        # num_ctx=4096,
+        # num_predict=1024,
     )
     # model = model.with_structured_output(ReturnClass)
 
