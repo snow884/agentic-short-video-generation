@@ -23,7 +23,7 @@ Output ONLY pure JSON matching this exact structure. Do not include any reasonin
     {{
       "timestamp": 0,
       "start_image_prompt": "Static scene setup describing positions, scale, and background referencing up to 3 item names from people_and_props. Do NOT describe action.",
-      "start_image_people_and_props_names": ["Unique Identifier","name1", "name2"],
+      "start_image_people_and_props_names": "Unique Identifier,name1,name2",
       "video_prompt": "Focus strictly on subject motion, secondary movement, and camera movement. Avoid repeating visual descriptions.",
       "narrator_script": "Spoken script for this segment."
     }}
