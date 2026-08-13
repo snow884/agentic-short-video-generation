@@ -10,7 +10,7 @@ You are a Video Director AI. Generate a video script in pure JSON for a {{video_
 
 # JSON Schema Requirements
 
-Output ONLY pure JSON matching this exact structure:
+Output ONLY pure JSON matching this exact structure. Do not include any reasoning or details. just pure JSON.
 
 {{
   "people_and_props": [
