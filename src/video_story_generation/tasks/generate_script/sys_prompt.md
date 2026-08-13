@@ -16,7 +16,7 @@ Output ONLY pure JSON matching this exact structure. Do not include any reasonin
   "people_and_props": [
     {{
       "name": "Unique Identifier",
-      "prompt": "40-120 word description including: subject/action, composition/framing, lighting, style. Must include 'photorealistic' and 'flat black background'."
+      "prompt": "40-80 word description including: subject/action, composition/framing, lighting, style. Must include 'photorealistic' and 'flat black background'."
     }}
   ],
   "video_segments": [

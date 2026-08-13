@@ -260,10 +260,10 @@ def check_script(video_script: dict) -> str:
             print(error_text)
             res += error_text + "\n"
 
-        if len(segment["start_image_prompt"].split(" ")) > 120:
+        if len(segment["start_image_prompt"].split(" ")) > 80:
             error_text = (
                 f"Error: The Start image prompt for segment {segment_i} is too long."
-                " Please shorten the prompt to less than 120 words."
+                " Please shorten the prompt to less than 80 words."
             )
             print(error_text)
             res += error_text + "\n"
