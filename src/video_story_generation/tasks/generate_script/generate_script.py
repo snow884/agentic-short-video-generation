@@ -21,9 +21,11 @@ from sql_utils import get_db
 from video_story_generation.run_comfy_graph import generate_audio_from_prompt
 from video_story_generation.tables import (
     PeopleAndProps,
+    PeopleAndPropsSchema,
     Videos,
     VideoSegments,
     VideoSegmentsList,
+    VideoSegmentsSchema,
 )
 
 # from kokoro import KPipeline
@@ -101,6 +103,15 @@ class InconsistencyItem(BaseModel):
 
 class InconsistenciesResponse(BaseModel):
     inconsistencies: list[InconsistencyItem] = Field(default_factory=list)
+
+
+class StrictGeneratedVideoSegmentsList(BaseModel):
+    """Strict output contract for script generation responses."""
+
+    video_segments: list[VideoSegmentsSchema] = Field(
+        ..., min_length=TARGET_SEGMENT_COUNT, max_length=TARGET_SEGMENT_COUNT
+    )
+    people_and_props: list[PeopleAndPropsSchema] = Field(..., min_length=1)
 
 
 def _extract_json_dict_from_text(raw_text: str) -> dict:
@@ -205,7 +216,7 @@ def _generate_script_until_valid(
     )
 
     structured_model = _script_generation_model().with_structured_output(
-        VideoSegmentsList,
+        StrictGeneratedVideoSegmentsList,
         method="json_schema",
     )
 
@@ -239,13 +250,43 @@ def _generate_script_until_valid(
             )
 
         print(f"Script generation attempt {attempt}")
-        video_segments_list = _invoke_structured_with_retries(
-            structured_model,
-            [
-                ("system", system_prompt),
-                ("human", user_prompt),
-            ],
-        )
+        try:
+            strict_output = _invoke_structured_with_retries(
+                structured_model,
+                [
+                    ("system", system_prompt),
+                    ("human", user_prompt),
+                ],
+            )
+        except Exception as exc:
+            validation_feedback = (
+                "Schema validation failed. Return only JSON with exactly "
+                f"{TARGET_SEGMENT_COUNT} entries in 'video_segments' and at least "
+                "one entry in 'people_and_props'. "
+                f"Error: {type(exc).__name__}: {exc}"
+            )
+            print(
+                "Structured generation failed schema checks on attempt"
+                f" {attempt}: {type(exc).__name__}"
+            )
+            attempt += 1
+            continue
+
+        strict_output_dict = _to_plain_dict(strict_output)
+        video_segments_list = VideoSegmentsList(**strict_output_dict)
+
+        if not video_segments_list.video_segments:
+            validation_feedback = (
+                "Invalid draft: 'video_segments' was empty. Return exactly "
+                f"{TARGET_SEGMENT_COUNT} segments with timestamps starting at 0 and "
+                f"incrementing by {SEGMENT_LENGTH}."
+            )
+            print(
+                "Structured generation returned 0 segments; requesting a complete"
+                " corrected replacement JSON."
+            )
+            attempt += 1
+            continue
 
         validation_feedback = check_script(_to_plain_dict(video_segments_list))
         if validation_feedback == "success":

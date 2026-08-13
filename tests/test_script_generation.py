@@ -174,3 +174,78 @@ def test_check_script_rejects_zero_segment_scripts():
 
     assert "zero video segments" in result.lower()
     assert "exactly" in result.lower()
+
+
+def test_generate_script_retries_when_first_draft_has_zero_segments(monkeypatch):
+    from video_story_generation.tasks.generate_script import generate_script as gs
+
+    class _PromptTemplateStub:
+        @staticmethod
+        def from_file(_path):
+            class _T:
+                @staticmethod
+                def format(**_kwargs):
+                    return "stub prompt"
+
+            return _T()
+
+    class _StructuredModelStub:
+        def __init__(self):
+            self.call_count = 0
+
+        def invoke(self, _messages):
+            self.call_count += 1
+            if self.call_count == 1:
+                return {
+                    "video_segments": [],
+                    "people_and_props": [
+                        {
+                            "name": "Hero",
+                            "prompt": " ".join(["word"] * 45),
+                        }
+                    ],
+                }
+
+            segments = []
+            for idx in range(gs.TARGET_SEGMENT_COUNT):
+                segments.append(
+                    {
+                        "start_image_prompt": " ".join(["image"] * 45),
+                        "video_prompt": " ".join(["motion"] * 25),
+                        "start_image_people_and_props_names": "Hero",
+                        "narrator_script": " ".join(["narration"] * 10),
+                        "timestamp": idx * gs.SEGMENT_LENGTH,
+                    }
+                )
+
+            return {
+                "video_segments": segments,
+                "people_and_props": [
+                    {
+                        "name": "Hero",
+                        "prompt": " ".join(["word"] * 45),
+                    }
+                ],
+            }
+
+    structured_stub = _StructuredModelStub()
+
+    class _ModelStub:
+        def with_structured_output(self, _schema_type, method="json_schema"):
+            assert method == "json_schema"
+            return structured_stub
+
+    monkeypatch.setattr(gs, "PromptTemplate", _PromptTemplateStub)
+    monkeypatch.setattr(gs, "_script_generation_model", lambda: _ModelStub())
+
+    # Avoid hitting expensive validators; this test targets generation retry behavior.
+    monkeypatch.setattr(gs, "check_script", lambda _payload: "success")
+
+    result = gs._generate_script_until_valid(
+        user_prompt_params={},
+        system_prompt_params={},
+        prompt_dir=Path("."),
+    )
+
+    assert structured_stub.call_count == 2
+    assert len(result.video_segments) == gs.TARGET_SEGMENT_COUNT
