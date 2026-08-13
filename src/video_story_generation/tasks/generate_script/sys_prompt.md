@@ -92,7 +92,6 @@ Every video segment contains the keys:
 
 # Video style requirements
 - Include the word 'photorealistic' into every image prompt. 
-- Make all characters humans dressed in a costume - a dog character for example will be "person dressed as a dog"
 - Ensure all image prompts include flat black background
 - Image generation does not support image repeatability - ensure that you are not showing objects and people in more than one segment unless they are listed in people_and_props . If you need to reuse a room or furniture include them in people_and_props .
 - Make sure all character integrations and actions are simple, do not include transformations of characters - for example do not include body transformations
