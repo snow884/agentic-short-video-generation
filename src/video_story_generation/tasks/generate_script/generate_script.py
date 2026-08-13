@@ -454,9 +454,8 @@ def check_script(video_script: dict) -> str:
         > 0.20
     ):
         error_text = (
-            "Error: Video segments exceed the total required video length"
-            f" {VIDEO_LENGTH} s by"
-            f" {(len(video_segment_list) * SEGMENT_LENGTH - VIDEO_LENGTH)/VIDEO_LENGTH * 100:.2f}%."
+            f"Error: There should be exactly {VIDEO_LENGTH // SEGMENT_LENGTH} segments"
+            f" for a 40-second video, each segment being {SEGMENT_LENGTH} seconds long."
         )
         print(error_text)
         res += error_text + "\n"
