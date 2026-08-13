@@ -204,10 +204,10 @@ def check_script(video_script: dict) -> str:
 
     for person_and_prop_item in person_and_prop:
 
-        if len(person_and_prop_item["name"].split(" ")) < 2:
+        if len(person_and_prop_item["name"]) < 1:
             error_text = (
                 f"Error: Person or prop '{person_and_prop_item['name']}' is too short."
-                " Please provide a more detailed name with at least 2 words."
+                " Please provide a more detailed name with at least 1 letter."
             )
             print(error_text)
             res += error_text + "\n"
