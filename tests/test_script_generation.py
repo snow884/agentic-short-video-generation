@@ -25,6 +25,16 @@ _install_stub_module(
     info=lambda *args, **kwargs: types.SimpleNamespace(duration=1.0),
 )
 _install_stub_module("kokoro", KPipeline=lambda *args, **kwargs: None)
+_install_stub_module(
+    "langchain_core",
+)
+_install_stub_module(
+    "langchain_core.prompts",
+    PromptTemplate=type(
+        "PromptTemplate", (), {"from_file": staticmethod(lambda *args, **kwargs: None)}
+    ),
+)
+_install_stub_module("langchain_ollama", ChatOllama=type("ChatOllama", (), {}))
 
 from tables import VideoSegmentsList, VideoSegmentsSchema
 from weekend_short_generation.tasks.video_script_generator import video_script_generator
@@ -155,3 +165,12 @@ def test_check_text_spoken_length_matches_timestamps_reports_short_scene_descrip
     res = video_script_generator.check_text_spoken_length_matches_timestamps(segments)
 
     assert "scene description" in res and "too short" in res
+
+
+def test_check_script_rejects_zero_segment_scripts():
+    from video_story_generation.tasks.generate_script import generate_script as gs
+
+    result = gs.check_script({"video_segments": [], "people_and_props": []})
+
+    assert "zero video segments" in result.lower()
+    assert "exactly" in result.lower()

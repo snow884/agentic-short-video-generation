@@ -398,6 +398,14 @@ def check_script(video_script: dict) -> str:
     video_segment_list = video_segment_list_in["video_segments"]
     person_and_prop = video_segment_list_in["people_and_props"]
 
+    if not video_segment_list:
+        error_text = (
+            "Error: Zero video segments generated. The script must contain exactly "
+            f"{TARGET_SEGMENT_COUNT} segments for a {VIDEO_LENGTH}-second video."
+        )
+        print(error_text)
+        return error_text
+
     for segment_i, segment in enumerate(video_segment_list):
         diff1 = list(
             set(list(segment.keys()))
