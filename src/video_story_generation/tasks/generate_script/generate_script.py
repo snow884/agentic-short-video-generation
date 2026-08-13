@@ -1,15 +1,21 @@
 import json
 import os
+import sys
 import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 
 import httpx
-import ollama
 import soundfile as sf
 from langchain_core.prompts import PromptTemplate
 from langchain_ollama import ChatOllama
 from prefect import task
+from pydantic import BaseModel, Field
+
+SRC_ROOT = Path(__file__).resolve().parents[3]
+if str(SRC_ROOT) not in sys.path:
+    # Allow direct execution via "python src/.../generate_script.py".
+    sys.path.insert(0, str(SRC_ROOT))
 
 from sql_utils import get_db
 from video_story_generation.run_comfy_graph import generate_audio_from_prompt
@@ -63,6 +69,89 @@ SCRIPT_GENERATION_MAX_ATTEMPTS = max(
 SCRIPT_GENERATION_MAX_RUNTIME_SECONDS = max(
     60, int(os.getenv("SCRIPT_GENERATION_MAX_RUNTIME_SECONDS", "21600"))
 )
+VALIDATION_JSON_PARSE_RETRIES = max(
+    1, int(os.getenv("VALIDATION_JSON_PARSE_RETRIES", "3"))
+)
+
+
+class NonMatchingObject(BaseModel):
+    name: str
+    reason: str
+
+
+class NonMatchingObjectsResponse(BaseModel):
+    non_matching_objects_or_persons: list[NonMatchingObject] = Field(
+        default_factory=list
+    )
+
+
+class MissingProp(BaseModel):
+    prop_name: str
+    segment_index: int
+    reason: str
+
+
+class MissingPropsResponse(BaseModel):
+    missing_props: list[MissingProp] = Field(default_factory=list)
+
+
+class InconsistencyItem(BaseModel):
+    reason: str
+
+
+class InconsistenciesResponse(BaseModel):
+    inconsistencies: list[InconsistencyItem] = Field(default_factory=list)
+
+
+def _extract_json_dict_from_text(raw_text: str) -> dict:
+    """Parse JSON object even when the model wraps it in prose or markdown fences."""
+    if not raw_text:
+        raise json.JSONDecodeError("empty response", raw_text, 0)
+
+    # Fast path: pure JSON.
+    try:
+        parsed = json.loads(raw_text)
+        if isinstance(parsed, dict):
+            return parsed
+    except json.JSONDecodeError:
+        pass
+
+    # Common path: JSON inside fenced code block.
+    for delimiter in ("```json", "```"):
+        if delimiter in raw_text:
+            parts = raw_text.split(delimiter)
+            for part in parts:
+                candidate = part.strip().strip("`").strip()
+                if not candidate:
+                    continue
+                try:
+                    parsed = json.loads(candidate)
+                    if isinstance(parsed, dict):
+                        return parsed
+                except json.JSONDecodeError:
+                    continue
+
+    # Fallback: scan for the first balanced JSON object.
+    start = raw_text.find("{")
+    while start != -1:
+        depth = 0
+        for idx in range(start, len(raw_text)):
+            ch = raw_text[idx]
+            if ch == "{":
+                depth += 1
+            elif ch == "}":
+                depth -= 1
+                if depth == 0:
+                    candidate = raw_text[start : idx + 1]
+                    try:
+                        parsed = json.loads(candidate)
+                        if isinstance(parsed, dict):
+                            return parsed
+                    except json.JSONDecodeError:
+                        break
+        start = raw_text.find("{", start + 1)
+
+    raise json.JSONDecodeError("No JSON object found", raw_text, 0)
 
 
 def _script_generation_model() -> ChatOllama:
@@ -174,6 +263,64 @@ def _validation_chat_options() -> dict:
         "num_ctx": 4096,
         "num_predict": 384,
     }
+
+
+def _validation_model() -> ChatOllama:
+    return ChatOllama(
+        model=os.getenv("RESEARCH_AGENT_MODEL", "qwen3.6:27b-q4_K_M"),
+        reasoning=False,
+        keep_alive="30m",
+        **_validation_chat_options(),
+    )
+
+
+def _invoke_validation_prompt_json(
+    llm_prompt: str, schema_type: type[BaseModel], check_name: str
+) -> dict:
+    """Call validation LLM and require schema-valid JSON output."""
+    retry_delay_seconds = 1
+    structured_model = _validation_model().with_structured_output(
+        schema_type,
+        method="json_schema",
+    )
+    strict_prompt = (
+        llm_prompt
+        + "\n\nReturn only a valid JSON object that matches the requested schema."
+    )
+
+    for attempt in range(1, VALIDATION_JSON_PARSE_RETRIES + 1):
+        try:
+            response = structured_model.invoke(
+                [
+                    (
+                        "system",
+                        "You are a validator. Return only JSON that satisfies the"
+                        " schema.",
+                    ),
+                    ("human", strict_prompt),
+                ]
+            )
+            return _to_plain_dict(response)
+        except httpx.ConnectError as exc:
+            if attempt == VALIDATION_JSON_PARSE_RETRIES:
+                raise RuntimeError(
+                    "Validation LLM was unreachable while running "
+                    f"'{check_name}' after {VALIDATION_JSON_PARSE_RETRIES} attempts."
+                ) from exc
+            time.sleep(retry_delay_seconds)
+            retry_delay_seconds *= 2
+            continue
+
+        except Exception as exc:
+            if attempt == VALIDATION_JSON_PARSE_RETRIES:
+                raise RuntimeError(
+                    "Validation LLM failed to return schema-valid JSON for "
+                    f"'{check_name}' after {VALIDATION_JSON_PARSE_RETRIES} attempts."
+                ) from exc
+            time.sleep(retry_delay_seconds)
+            retry_delay_seconds *= 2
+
+    raise RuntimeError(f"Validation LLM failed unexpectedly for '{check_name}'.")
 
 
 def generate_audio_file_get_duration(text, file_path="temp_audio_file.wav"):
@@ -641,20 +788,11 @@ def check_start_image_to_prompt_consistency(
     
     """
 
-    res = ollama.chat(
-        model=os.getenv("RESEARCH_AGENT_MODEL", "qwen3.6:27b-q4_K_M"),
-        messages=[{"role": "user", "content": llm_prompt}],
-        format="json",
-        options=_validation_chat_options(),
-        keep_alive="30m",
+    content_json = _invoke_validation_prompt_json(
+        llm_prompt=llm_prompt,
+        schema_type=NonMatchingObjectsResponse,
+        check_name="start-image to video prompt consistency",
     )
-    print(res)
-    try:
-        content_json = json.loads(res["message"]["content"])
-    except json.JSONDecodeError as e:
-        print(f"Error decoding JSON: {e}")
-        print(f"Response content: {res['message']['content']}")
-        return "Error: Failed to decode JSON from LLM response."
 
     if "non_matching_objects_or_persons" not in content_json.keys():
         return "success"
@@ -718,22 +856,11 @@ def check_start_image_prompt_props(
     {', '.join([p['name'] for p in people_and_props])}
     
     """
-    print(f"LLM Prompt for checking start image prompt props: {llm_prompt}")
-
-    res = ollama.chat(
-        model=os.getenv("RESEARCH_AGENT_MODEL", "qwen3.6:27b-q4_K_M"),
-        messages=[{"role": "user", "content": llm_prompt}],
-        format="json",
-        options=_validation_chat_options(),
-        keep_alive="30m",
+    content_json = _invoke_validation_prompt_json(
+        llm_prompt=llm_prompt,
+        schema_type=MissingPropsResponse,
+        check_name="missing props across segments",
     )
-    print(res)
-    try:
-        content_json = json.loads(res["message"]["content"])
-    except json.JSONDecodeError as e:
-        print(f"Error decoding JSON: {e}")
-        print(f"Response content: {res['message']['content']}")
-        return "Error: Failed to decode JSON from LLM response."
 
     if "missing_props" not in content_json.keys():
         return "success"
@@ -798,22 +925,11 @@ def check_start_image_video_prompt_consistency(segment: dict) -> str:
     {segment['video_prompt']}
     
     """
-    print(f"LLM Prompt for checking start image prompt props: {llm_prompt}")
-
-    res = ollama.chat(
-        model=os.getenv("RESEARCH_AGENT_MODEL", "qwen3.6:27b-q4_K_M"),
-        messages=[{"role": "user", "content": llm_prompt}],
-        format="json",
-        options=_validation_chat_options(),
-        keep_alive="30m",
+    content_json = _invoke_validation_prompt_json(
+        llm_prompt=llm_prompt,
+        schema_type=InconsistenciesResponse,
+        check_name="start-image and video prompt action consistency",
     )
-    print(res)
-    try:
-        content_json = json.loads(res["message"]["content"])
-    except json.JSONDecodeError as e:
-        print(f"Error decoding JSON: {e}")
-        print(f"Response content: {res['message']['content']}")
-        return "Error: Failed to decode JSON from LLM response."
 
     if "inconsistencies" not in content_json.keys():
         return "success"
