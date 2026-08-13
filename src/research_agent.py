@@ -288,13 +288,16 @@ async def run_agent(
 
     # browser_tools.append(PlaywrightUploadFileTool(async_browser=toolkit.async_browser))
 
+    deep_agent_debug = os.getenv("DEEP_AGENT_DEBUG", "0") == "1"
+    research_agent_reasoning = os.getenv("RESEARCH_AGENT_REASONING", "0") == "1"
+
     model = ChatOllama(
         model=os.getenv("RESEARCH_AGENT_MODEL", "qwen3.6:27b-q4_K_M"),
-        reasoning=os.getenv("RESEARCH_AGENT_REASONING", "1") == "1",
+        reasoning=research_agent_reasoning,
         temperature=0,
-        num_gpu=2,
-        num_ctx=8192,
-        num_predict=768,
+        # num_gpu=2,
+        # num_ctx=8192,
+        # num_predict=768,
         keep_alive="30m",
     )
     # model = model.with_structured_output(ReturnClass)
@@ -347,7 +350,7 @@ async def run_agent(
         # ctx        initial_delay=1.0,
         #     ),
         # ],
-        debug=True,
+        debug=deep_agent_debug,
         cache=None,
         backend=FilesystemBackend(root_dir=parent_dir),
     )
