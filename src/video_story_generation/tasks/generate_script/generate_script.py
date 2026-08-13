@@ -453,53 +453,31 @@ def check_start_image_to_prompt_consistency(
     """
 
     llm_prompt = f"""
-    I am designing a video story. I have a start image prompt and a video prompt. The start image prompt describes the initial scene, while the video prompt describes the subsequent action. I want to ensure that the start image prompt is referring to the same objects, characters, and props as the video prompt.
-    
-    Start image prompt can describe objects and props that are not present in the video prompt, but the video prompt should not introduce any new objects, characters, or props that are not already present in the start image prompt.
-    
-    Be very strict about matching case, spacing, and plurality. 
-    
-    I want to ensure that the start image prompt is referring to the same objects, characters, and props as the video prompt.
-    
-    Make sure that all objects are referred to in the same way in both prompts. For example, if the start image prompt refers to "young boy Hansel" and the video prompt refers to "Hansel", 
-    this is a non-matching reference and include it in your output under non_matching_objects_or_persons. 
-    If the start image prompt refers to "wooden cage" and the video prompt refers to "cage", 
-    this is a non-matching reference and include it in your output under non_matching_objects_or_persons. 
-    If the start image prompt refers to "Wicked Witch" and the video prompt refers to "Wicked Witch", 
-    this is a matching reference and should NOT be included in your output under non_matching_objects_or_persons.
-    If the start image prompt refers to "Hansel and Gretel" and the video prompt refers to "children", 
-    this is a non-matching reference and should be included in your output under non_matching_objects_or_persons as the match needs to be exact.
-    
-    Return JSON with the following structure:
-    {{
-        "non_matching_objects_or_persons": [
-            {{
-                "name": str,
-                "reason": str
-            }},
-            ...
-        ]
-    }}
-    Only return the JSON object. Do not include any additional text or explanations. If all props are present, return an empty list for "non_matching_objects_or_persons".
+    Compare these two prompts.
 
-    If there are no non-matching objects or persons, return:
+    Rule: every character, object, or prop named in Video Prompt must already appear in Start Image Prompt. Match strictly; shortened, grouped, or renamed references count as mismatches.
+
+    Return JSON only:
     {{
-        "non_matching_objects_or_persons": []
+      "non_matching_objects_or_persons": [
+        {{"name": "<string>", "reason": "<string>"}}
+      ]
     }}
-    
+
+    Return an empty list when there are no mismatches.
+
     Start Image Prompt: {start_image_prompt}
-    
     Video Prompt: {video_prompt}
-    
     """
 
     res = ollama.chat(
         model=os.getenv("RESEARCH_AGENT_MODEL", "qwen3.6:27b-q4_K_M"),
         messages=[{"role": "user", "content": llm_prompt}],
-        think=True,
+        think=False,
         format="json",
         options={
             "temperature": 0,
+            "num_predict": 160,
         },
     )
     print(res)
@@ -551,39 +529,38 @@ def check_start_image_prompt_props(
     )
 
     llm_prompt = f"""
-    Task: Find objects referenced in 2 or more segments that are missing from `props_list`.
+    Find concrete objects or props that appear in 2 or more start-image prompts but are missing from props_list.
 
-    For example, if the text for segment 1 mentions a "wooden cage" and the text for segment 2 also mentions a "wooden cage", then the "wooden cage" should be included in the list of people_and_props. If it is not, return it in the missing_props JSON output.
+    Ignore people. Report only repeated objects/props that should be added to people_and_props.
 
-    Return JSON format:
+    Return JSON only:
     {{
-    "missing_props": [
-        {{ "prop_name": "<string>", "segment_index": <int>, "reason": "<string>" }}
-    ]
+      "missing_props": [
+        {{"prop_name": "<string>", "segment_index": <int>, "reason": "<string>"}}
+      ]
     }}
-    
-    If you find no missing props, return:
-    {{ "missing_props": [] }}
+
+    Return an empty list when nothing is missing.
 
     segments:
     {start_image_prompts}
 
     props_list:
     {', '.join([p['name'] for p in people_and_props])}
-    
     """
-    print(f"LLM Prompt for checking start image prompt props: {llm_prompt}")
+    print(
+        f"Running repeated-prop validation across {len(video_segment_list)} segments."
+    )
 
     res = ollama.chat(
         model=os.environ["RESEARCH_AGENT_MODEL"],
         messages=[{"role": "user", "content": llm_prompt}],
-        format="json",  # Forces JSON response
-        think=True,
+        format="json",
+        think=False,
         options={
-            "temperature": 0,  # Zero variance for speed and determinism
-            #     # "num_predict": 350,  # Stops inference early to prevent runaway generation
+            "temperature": 0,
+            "num_predict": 160,
         },
-        # ": 64 * 1024},  # Adjust based on your memory needs (Default 262k is VRAM heavy)
     )
     print(res)
     try:
@@ -630,44 +607,35 @@ def check_start_image_video_prompt_consistency(segment: dict) -> str:
     """
 
     llm_prompt = f"""
-    Task: Verify that the start image prompt describes the initial scene and the video prompt describes the subsequent action. Ensure that all objects, characters, and props mentioned in the video prompt are also present in the start image prompt. Identify and list any inconsistencies or missing references between the two prompts.
-    
-    For example: 
-    
-    If the image prompt describes "a young boy sitting at a table" and the video prompt describes "the young boy stands up and walks to the door", then this is consistent. 
-    If the image prompt describes "a young boy sitting at a table" and the video prompt describes "the young boy is still sitting at the table", then this is also consistent.
-    If the image prompt describes "a young boy sitting at a table" and the video prompt describes "a young girl walks into the room", then this is inconsistent because the young girl is not mentioned in the start image prompt.
-    If the image prompt describes "a young boy sitting at a table" and the video prompt describes "children walk to the door", then this is inconsistent because the children are not explicitly mentioned in the start image prompt.
-    If the image prompt describes "a young boy sitting at a table" and the video prompt describes "the young boy runs a marathon", then this is inconsistent because the young boy is not performing an action that is consistent with the start image prompt.
-    
-    Return JSON format:
+    Check whether Start Image Prompt is a valid pre-action setup for Video Prompt.
+
+    Mark an inconsistency only when Video Prompt introduces a new entity not present in Start Image Prompt or the described action clearly conflicts with the starting pose/state.
+
+    Return JSON only:
     {{
-    "inconsistencies": [
-        {{ "reason": "<string>" }}
-    ]
+      "inconsistencies": [
+        {{"reason": "<string>"}}
+      ]
     }}
-    
-    If you find no missing props, return:
-    {{ "inconsistencies": [] }}
+
+    Return an empty list when they are consistent.
 
     start_image_prompt:
     {segment['start_image_prompt']}
     video_prompt:
     {segment['video_prompt']}
-    
     """
-    print(f"LLM Prompt for checking start image prompt props: {llm_prompt}")
+    print("Running start-image/video consistency validation.")
 
     res = ollama.chat(
         model=os.environ["RESEARCH_AGENT_MODEL"],
         messages=[{"role": "user", "content": llm_prompt}],
-        format="json",  # Forces JSON response
-        think=True,
+        format="json",
+        think=False,
         options={
-            "temperature": 0,  # Zero variance for speed and determinism
-            #     # "num_predict": 350,  # Stops inference early to prevent runaway generation
+            "temperature": 0,
+            "num_predict": 160,
         },
-        # ": 64 * 1024},  # Adjust based on your memory needs (Default 262k is VRAM heavy)
     )
     print(res)
     try:
