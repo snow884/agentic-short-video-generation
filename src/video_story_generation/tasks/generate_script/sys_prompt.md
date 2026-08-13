@@ -34,27 +34,8 @@ contains a list of any props and people present in your video
   
   [Main Subject & Activity] + [Composition & Framing] + [Lighting & Color Palette] + [Aesthetic Style / Medium]
   
-  
-  #### Layer 1: Natural Subject Description
-  Describe what is happening as if telling a story. Be explicit about subject positioning, gestures, and details.
-  Avoid: 1girl, solo, standing, cyberpunk city, neon lights, red hair
-  Use: A woman with bright red hair stands in the middle of a rain-slicked cyberpunk alleyway, wearing an oversized faded leather jacket.
-  
-  #### Layer 2: Camera & Composition
-  FLUX obeys camera direction with high fidelity. State the angle, focal length, and depth of field.
-  Key terms: Eye-level shot, Wide cinematic angle, Extreme close-up macro, 35mm photography, Shallow depth of field with creamy bokeh background.
-  
-  #### Layer 3: Text Rendering (FLUX Strength)
-  FLUX.1 excels at embedding readable text inside images. Enclose any desired text in double quotes and specify its physical surface.
-  Example: Holding a glowing neon sign that reads "NEO TOKYO" in bold, bright cyan lettering.
-  
-  #### Layer 4: Environment & Photography Style
-  Mention film stock, lighting direction, or artistic medium instead of quality buzzwords.
-  Photography: Shot on 35mm film, subtle grain, harsh midday sun creating sharp shadows, volumetric haze.
-  Illustration: A digital concept art illustration with textured brushstrokes, ink outlines, and a limited gouache color palette.
-  
-  #### Example full
-  "A close-up portrait of an elderly watchmaker with deep wrinkles and gray stubble, looking through a jeweler's loupe at an intricate open watch movement. Studio lighting with a soft key light on his face and dark shadows behind him. Shot on an 85mm lens, shallow depth of field, sharp focus on the metallic watch gears, realistic skin texture."
+  Example:
+  "A close-up portrait of an elderly watchmaker with deep wrinkles and gray stubble, looking through a jeweler's loupe at an intricate open watch movement."
 
 
 ## video_segments 
@@ -71,9 +52,6 @@ Every video segment contains the keys:
 
   Follows a three-part template:
   [Target Action / Modifier]+[Specific Visual Details]+[Style / Background Anchor Constraint]
-
-  State clearly which image provides the core subject (e.g., character, garment, or product), which provides the secondary elements, and which defines the target background or environment. For instance, rather than describing a scene generically, write: "The person 1 from image a is wearing the jacket from person 2 from image 2, standing in the urban alleyway shown in image 3." When using fewer than three images, explicitly tell the model which image to modify and which image to extract attributes from (e.g., "Take the mug from image 1 and place it on the wooden desk in image 2").  
-  Additionally, govern the interaction, style, and identity retention across your inputs to ensure a seamless final composition. Direct the model on how subject attributes, lighting, and environmental physics should interact, using clear action verbs to establish spatial placement, scale, and integration. 
 
   Lock facial features or identity first, then state the new pose or clothing.  
 
@@ -99,17 +77,7 @@ Every video segment contains the keys:
   - Simplify precise hand-object interactions into broad physical dynamics, environmental physics (dust, wind, fabric movement), or subtle micro-gestures (shivering, leaning, breathing).
   - Use continuous motion verbs rather than multi-stage sequences.
   
-  #### Layer 1: Subject Motion & Dynamics
-  Describe how the subject in your input image starts moving. Focus on physical mechanics and velocity.
-  Avoid: "A beautiful car driving." (Too vague; high-noise models will default to generic motion).
-  Use: "The red sports car accelerates sharply forward, tires spitting smoke and kicking up loose asphalt."
-
-  #### Layer 2: Precise Camera Direction
-  Wan2.2 follows explicit camera instructions far better than previous versions. State the initial angle and the progression.  
-  Camera Language: Dolly in / out, Pan left / right, Tracking shot, Crane up / down, 360-degree orbit, Subtle handheld glide.  
-  Example: "Cinematic low-angle tracking shot, following closely behind at wheel level as the camera dollies forward."
-
-  #### Full example
+  Example:
   For the start_image_prompt: "A knight standing in a misty forest." video_prompt would be: 
   "The knight draws his longsword with a swift, fluid motion, stepping forward into a fighting stance. The camera starts shoulder-height, executing a slow 180-degree orbital arc around him. Dense volumetric fog shifts through the background trees as glowing orange embers float gently through the cool morning air. Cinematic low-contrast color grade, sharp focus on the blade, natural motion blur."
 
