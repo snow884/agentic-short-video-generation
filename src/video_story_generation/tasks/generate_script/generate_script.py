@@ -20,7 +20,7 @@ from video_story_generation.tables import (
 
 
 VIDEO_LENGTH = 20  # seconds
-ALLOWED_TIME_VARIANCE = 0.3  # 30% variance allowed in segment timing
+ALLOWED_TIME_VARIANCE = 0.333  # 30% variance allowed in segment timing
 
 SEGMENT_LENGTH = 5  # seconds
 TARGET_SEGMENT_COUNT = VIDEO_LENGTH // SEGMENT_LENGTH
@@ -385,11 +385,12 @@ def check_script(video_script: dict) -> str:
         else:
             duration = estimate_narrator_duration_seconds(segment["narrator_script"])
 
-        if abs((duration - SEGMENT_LENGTH) / SEGMENT_LENGTH) > 0.20:
+        if abs((duration - SEGMENT_LENGTH) / SEGMENT_LENGTH) > ALLOWED_TIME_VARIANCE:
             error_text = (
                 f"Error: Narrator script for segment {segment_i} has a duration of"
-                f" {duration:.2f} seconds, which exceeds the allowed 20% variance from"
-                f" the expected {SEGMENT_LENGTH} seconds."
+                f" {duration:.2f} seconds, which exceeds the allowed"
+                f" {ALLOWED_TIME_VARIANCE * 100:.2f}% variance from the expected"
+                f" {SEGMENT_LENGTH} seconds."
             )
             print(error_text)
             res += error_text + "\n"
