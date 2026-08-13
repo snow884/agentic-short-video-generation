@@ -290,7 +290,7 @@ async def run_agent(
 
     model = ChatOllama(
         model=os.getenv("RESEARCH_AGENT_MODEL", "qwen3.6:27b-q4_K_M"),
-        reasoning=os.getenv("RESEARCH_AGENT_REASONING", "0") == "1",
+        reasoning=os.getenv("RESEARCH_AGENT_REASONING", "1") == "1",
         temperature=0,
         num_gpu=2,
         num_ctx=8192,
