@@ -659,6 +659,7 @@ def check_start_image_video_prompt_consistency(segment: dict) -> str:
         model=os.environ["RESEARCH_AGENT_MODEL"],
         messages=[{"role": "user", "content": llm_prompt}],
         format="json",  # Forces JSON response
+        think=True,
         # options={
         #     "temperature": 0,  # Zero variance for speed and determinism
         #     # "num_predict": 350,  # Stops inference early to prevent runaway generation
