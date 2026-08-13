@@ -500,9 +500,6 @@ def check_start_image_to_prompt_consistency(
         format="json",
         options={
             "temperature": 0,
-            "num_gpu": 2,
-            "num_ctx": 8192,
-            "num_predict": 1024,
         },
     )
     print(res)
@@ -580,18 +577,12 @@ def check_start_image_prompt_props(
     res = ollama.chat(
         model=os.environ["RESEARCH_AGENT_MODEL"],
         messages=[{"role": "user", "content": llm_prompt}],
+        format="json",  # Forces JSON response
         think=True,
-        format="json",
         options={
-            "temperature": 0,
-            "num_gpu": 2,
-            "num_ctx": 8192,
-            "num_predict": 1024,
+            "temperature": 0,  # Zero variance for speed and determinism
+            #     # "num_predict": 350,  # Stops inference early to prevent runaway generation
         },
-        # options={
-        #     "temperature": 0,  # Zero variance for speed and determinism
-        #     # "num_predict": 350,  # Stops inference early to prevent runaway generation
-        # },
         # ": 64 * 1024},  # Adjust based on your memory needs (Default 262k is VRAM heavy)
     )
     print(res)
@@ -670,18 +661,12 @@ def check_start_image_video_prompt_consistency(segment: dict) -> str:
     res = ollama.chat(
         model=os.environ["RESEARCH_AGENT_MODEL"],
         messages=[{"role": "user", "content": llm_prompt}],
+        format="json",  # Forces JSON response
         think=True,
-        format="json",
         options={
-            "temperature": 0,
-            "num_gpu": 2,
-            "num_ctx": 8192,
-            "num_predict": 1024,
+            "temperature": 0,  # Zero variance for speed and determinism
+            #     # "num_predict": 350,  # Stops inference early to prevent runaway generation
         },
-        # options={
-        #     "temperature": 0,  # Zero variance for speed and determinism
-        #     # "num_predict": 350,  # Stops inference early to prevent runaway generation
-        # },
         # ": 64 * 1024},  # Adjust based on your memory needs (Default 262k is VRAM heavy)
     )
     print(res)
