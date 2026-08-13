@@ -12,11 +12,6 @@ Before providing your final response to the user, you MUST pass your proposed ou
 - If the tool returns anything other than 'success', read the feedback, improve your draft, and call `check_script` again.
 - NEVER end your turn until `check_script` returns 'success'.
 
-# STEPS:
-1 - generate script
-2 - validate script with `check_script`
-3 - improve script until you get `success` as response from `check_script` 
-
 # Output script structure 
 Your output prompts for people_and_props[].prompt will be first used to generate images of people and props. After that those images will be edited to generate start images based on video_segments[].start_image_prompt - the start images prompt will be used to instruct image gen model on how to modify the people/prop image. Lastly video prompt video_segments[].video_prompt will be used to generate as a prompt for a I2V model that will generate video segment. Video segments will be stitched together at the end forming one long video.
 
@@ -30,13 +25,7 @@ contains a list of any props and people present in your video
 
   ### prompt
   Prompt to generate an image of the person or the object. Should be 40-120 words. Has to be descriptive and has to include full body. Do not include background of objects that a person is carrying - those will be added later.
-  Structure your prompt in natural prose covering these 4 elements:
-  
-  [Main Subject & Activity] + [Composition & Framing] + [Lighting & Color Palette] + [Aesthetic Style / Medium]
-  
-  Example:
-  "A close-up portrait of an elderly watchmaker with deep wrinkles and gray stubble, looking through a jeweler's loupe at an intricate open watch movement."
-
+  Structure this prompt into a descriptive paragraph covering five core elements: the main subject and action, the detailed environment or context, composition and camera framing (such as lens focal length or depth of field), lighting and atmospheric conditions, and the artistic medium or film style
 
 ## video_segments 
 contains a list of video segments. Every video segment represents a 5 second video generated 
@@ -48,38 +37,16 @@ Every video segment contains the keys:
   ### start_image_prompt 
   Prompt that will used to generate the starting image of the video segment.
   The prompt will be fed to Qwen 2.5 image edit model together with all images of objects from start_image_people_and_props_names . The resulting image will be used as a start frame for video generation.
-  Describe the position people and objects are in before the actions described in video_prompt. 
-
-  Follows a three-part template:
-  [Target Action / Modifier]+[Specific Visual Details]+[Style / Background Anchor Constraint]
-
-  Lock facial features or identity first, then state the new pose or clothing.  
-
-  Example (Pose Change): "Change the girl's pose so she is sitting on a window sill hugging her knees, looking out to a rainy city street. Keep her facial features, hair color, and clothing identical to the original image."
-  Example (Clothing Change): "Change the subject's denim jacket into a black leather biker jacket. Preserve fabric folds, stitch lines, zipper placement, and lighting."
+  Describe the position people and objects are in before the actions described in video_prompt. Focus on detailed descriptions. Do not describe any actions. 
+  State clearly which image provides the core subject (e.g., character, garment, or product), which provides the secondary elements, and which defines the target background or environment. For instance, rather than describing a scene generically, write: "The person 1 is wearing the jacket from person 2, standing in the urban alleyway shown in prompt 3." When using fewer than three images, explicitly tell the model which image to modify and which image to extract attributes from (e.g., "Take the mug from image 1 and place it on the wooden desk in image 2").  
+  Additionally, govern the interaction, style, and identity retention across your inputs to ensure a seamless final composition. Direct the model on how subject attributes, lighting, and environmental physics should interact, using clear action verbs to establish spatial placement, scale, and integration. 
   
-  To prevent video generation motion failure, the start image MUST pre-position characters and objects in the immediate starting pose or pre-contact position for the action described in video_prompt.
-  - If a character interacts with an object (e.g., knocking on a door, holding a mug), the start image MUST show the hand already in direct physical contact or within inches of the object.
-  - If a gesture occurs (e.g., rubbing hands, waving), the limbs MUST already be drawn outside of clothing/pockets and in keyframe placement. Never ask video_prompt to synthesize hidden appendages out of pockets or off-screen space.
-
   ### start_image_people_and_props_names
   comma separated list of people or props present in the scene (max 3). Has to be one of the names from people_and_props
 
   ### video_prompt
   Prompt that will be fed into the model Wan2.2-I2V-A14B-HighNoise-Q5_K_M together with images for the first frame and the last frame to generate the video segment. The video should skip detailed description of characters as those will come from the image. Focus on describing actions and motion.
-
-  The Ideal Prompt is 20–80 Words.
-  Target a concise, highly specific layout. Structure your text into three core layers:  
-
-  [Main Action / Motion] + [Camera Physics & Direction] 
-
-  - LIMIT TO 1 CORE ACTION PER 5-SECOND SEGMENT. Do not chain sequential steps (e.g., avoid "knocks then steps back then turns").
-  - Simplify precise hand-object interactions into broad physical dynamics, environmental physics (dust, wind, fabric movement), or subtle micro-gestures (shivering, leaning, breathing).
-  - Use continuous motion verbs rather than multi-stage sequences.
-  
-  Example:
-  For the start_image_prompt: "A knight standing in a misty forest." video_prompt would be: 
-  "The knight draws his longsword with a swift, fluid motion, stepping forward into a fighting stance. The camera starts shoulder-height, executing a slow 180-degree orbital arc around him. Dense volumetric fog shifts through the background trees as glowing orange embers float gently through the cool morning air. Cinematic low-contrast color grade, sharp focus on the blade, natural motion blur."
+  Your text prompt's primary job is to describe motion, physics, and camera behavior, rather than repeating every visual detail already present in your source image. Structure your text into a sequential narrative: lead with the primary subject action (using progressive verbs like slowly turns, smiles, walks forward), specify environmental or secondary motion (e.g., wind blowing through hair, rain falling, steam rising), and explicitly state the camera movement (such as static shot, slow push-in, or smooth pan right). Focus on concrete spatial anchors and temporal pacing—for example: "The character from the image slowly looks up toward the sky, her hair swaying gently in a light breeze. The camera performs a steady, slow push-in toward her eyes, maintaining soft lighting and natural physical movement throughout." 
 
   ### narrator_script
   Script that will be spoken by the narrator for this specific segment.
@@ -92,6 +59,7 @@ Every video segment contains the keys:
 
 # Video style requirements
 - Include the word 'photorealistic' into every image prompt. 
+- Make all characters humans dressed in a costume - a dog character for example will be "person dressed as a dog"
 - Ensure all image prompts include flat black background
 - Image generation does not support image repeatability - ensure that you are not showing objects and people in more than one segment unless they are listed in people_and_props . If you need to reuse a room or furniture include them in people_and_props .
 - Make sure all character integrations and actions are simple, do not include transformations of characters - for example do not include body transformations
