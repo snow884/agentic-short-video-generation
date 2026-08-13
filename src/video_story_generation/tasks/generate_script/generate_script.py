@@ -1,31 +1,19 @@
 import json
 import os
-import sys
-import time
-from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 
-import httpx
+import ollama
 import soundfile as sf
-from langchain_core.prompts import PromptTemplate
-from langchain_ollama import ChatOllama
 from prefect import task
-from pydantic import BaseModel, Field
 
-SRC_ROOT = Path(__file__).resolve().parents[3]
-if str(SRC_ROOT) not in sys.path:
-    # Allow direct execution via "python src/.../generate_script.py".
-    sys.path.insert(0, str(SRC_ROOT))
-
+from research_agent import run_agent_sync
 from sql_utils import get_db
 from video_story_generation.run_comfy_graph import generate_audio_from_prompt
 from video_story_generation.tables import (
     PeopleAndProps,
-    PeopleAndPropsSchema,
     Videos,
     VideoSegments,
     VideoSegmentsList,
-    VideoSegmentsSchema,
 )
 
 # from kokoro import KPipeline
@@ -36,7 +24,7 @@ SEGMENT_LENGTH = 5  # seconds
 TARGET_SEGMENT_COUNT = VIDEO_LENGTH // SEGMENT_LENGTH
 
 # Full validation can be expensive for longer scripts; default to fast mode when
-# generating videos longer than 60 seconds.
+# generating videos longer than 30 seconds.
 FAST_VALIDATION_DEFAULT = VIDEO_LENGTH > 60
 ENABLE_FAST_VALIDATION = (
     os.getenv(
@@ -45,323 +33,8 @@ ENABLE_FAST_VALIDATION = (
     )
     == "1"
 )
-ENABLE_AUDIO_DURATION_CHECK = (
-    os.getenv(
-        "CHECK_SCRIPT_AUDIO_DURATION",
-        "0" if FAST_VALIDATION_DEFAULT else "1",
-    )
-    == "1"
-)
-ENABLE_LLM_CONSISTENCY_CHECKS = (
-    os.getenv(
-        "CHECK_SCRIPT_LLM_CONSISTENCY",
-        "0" if FAST_VALIDATION_DEFAULT else "1",
-    )
-    == "1"
-)
-LLM_VALIDATION_MAX_WORKERS = max(
-    1, int(os.getenv("CHECK_SCRIPT_LLM_VALIDATION_WORKERS", "2"))
-)
-SCRIPT_GENERATION_MAX_RETRIES = max(
-    1, int(os.getenv("SCRIPT_GENERATION_CONNECT_RETRIES", "4"))
-)
-SCRIPT_GENERATION_MAX_ATTEMPTS = max(
-    1, int(os.getenv("SCRIPT_GENERATION_MAX_ATTEMPTS", "12"))
-)
-SCRIPT_GENERATION_MAX_RUNTIME_SECONDS = max(
-    60, int(os.getenv("SCRIPT_GENERATION_MAX_RUNTIME_SECONDS", "21600"))
-)
-VALIDATION_JSON_PARSE_RETRIES = max(
-    1, int(os.getenv("VALIDATION_JSON_PARSE_RETRIES", "3"))
-)
-
-
-class NonMatchingObject(BaseModel):
-    name: str
-    reason: str
-
-
-class NonMatchingObjectsResponse(BaseModel):
-    non_matching_objects_or_persons: list[NonMatchingObject] = Field(
-        default_factory=list
-    )
-
-
-class MissingProp(BaseModel):
-    prop_name: str
-    segment_index: int
-    reason: str
-
-
-class MissingPropsResponse(BaseModel):
-    missing_props: list[MissingProp] = Field(default_factory=list)
-
-
-class InconsistencyItem(BaseModel):
-    reason: str
-
-
-class InconsistenciesResponse(BaseModel):
-    inconsistencies: list[InconsistencyItem] = Field(default_factory=list)
-
-
-class StrictGeneratedVideoSegmentsList(BaseModel):
-    """Strict output contract for script generation responses."""
-
-    video_segments: list[VideoSegmentsSchema] = Field(
-        ..., min_length=TARGET_SEGMENT_COUNT, max_length=TARGET_SEGMENT_COUNT
-    )
-    people_and_props: list[PeopleAndPropsSchema] = Field(..., min_length=1)
-
-
-def _extract_json_dict_from_text(raw_text: str) -> dict:
-    """Parse JSON object even when the model wraps it in prose or markdown fences."""
-    if not raw_text:
-        raise json.JSONDecodeError("empty response", raw_text, 0)
-
-    # Fast path: pure JSON.
-    try:
-        parsed = json.loads(raw_text)
-        if isinstance(parsed, dict):
-            return parsed
-    except json.JSONDecodeError:
-        pass
-
-    # Common path: JSON inside fenced code block.
-    for delimiter in ("```json", "```"):
-        if delimiter in raw_text:
-            parts = raw_text.split(delimiter)
-            for part in parts:
-                candidate = part.strip().strip("`").strip()
-                if not candidate:
-                    continue
-                try:
-                    parsed = json.loads(candidate)
-                    if isinstance(parsed, dict):
-                        return parsed
-                except json.JSONDecodeError:
-                    continue
-
-    # Fallback: scan for the first balanced JSON object.
-    start = raw_text.find("{")
-    while start != -1:
-        depth = 0
-        for idx in range(start, len(raw_text)):
-            ch = raw_text[idx]
-            if ch == "{":
-                depth += 1
-            elif ch == "}":
-                depth -= 1
-                if depth == 0:
-                    candidate = raw_text[start : idx + 1]
-                    try:
-                        parsed = json.loads(candidate)
-                        if isinstance(parsed, dict):
-                            return parsed
-                    except json.JSONDecodeError:
-                        break
-        start = raw_text.find("{", start + 1)
-
-    raise json.JSONDecodeError("No JSON object found", raw_text, 0)
-
-
-def _script_generation_model() -> ChatOllama:
-    return ChatOllama(
-        model=os.getenv("RESEARCH_AGENT_MODEL", "qwen3.6:27b-q4_K_M"),
-        reasoning=os.getenv("RESEARCH_AGENT_REASONING", "0") == "1",
-        temperature=0,
-        num_gpu=2,
-        num_ctx=8192,
-        num_predict=768,
-        keep_alive="30m",
-    )
-
-
-def _to_plain_dict(model_or_dict):
-    if hasattr(model_or_dict, "model_dump"):
-        return model_or_dict.model_dump()
-    if hasattr(model_or_dict, "dict"):
-        return model_or_dict.dict()
-    return model_or_dict
-
-
-def _invoke_structured_with_retries(structured_model, messages):
-    retry_delay_seconds = 1
-
-    for attempt in range(1, SCRIPT_GENERATION_MAX_RETRIES + 1):
-        try:
-            return structured_model.invoke(messages)
-        except httpx.ConnectError:
-            if attempt == SCRIPT_GENERATION_MAX_RETRIES:
-                raise
-            print(
-                "Structured generation connection failed on attempt"
-                f" {attempt}/{SCRIPT_GENERATION_MAX_RETRIES}. Retrying in"
-                f" {retry_delay_seconds}s..."
-            )
-            time.sleep(retry_delay_seconds)
-            retry_delay_seconds *= 2
-
-
-def _generate_script_until_valid(
-    user_prompt_params: dict,
-    system_prompt_params: dict,
-    prompt_dir: Path,
-) -> VideoSegmentsList:
-    system_prompt = PromptTemplate.from_file(prompt_dir / "sys_prompt.md").format(
-        **system_prompt_params
-    )
-    base_user_prompt = PromptTemplate.from_file(prompt_dir / "user_prompt.md").format(
-        **user_prompt_params
-    )
-
-    structured_model = _script_generation_model().with_structured_output(
-        StrictGeneratedVideoSegmentsList,
-        method="json_schema",
-    )
-
-    validation_feedback = ""
-    attempt = 1
-    start_time = time.monotonic()
-
-    while True:
-        elapsed_seconds = time.monotonic() - start_time
-        if elapsed_seconds >= SCRIPT_GENERATION_MAX_RUNTIME_SECONDS:
-            raise TimeoutError(
-                "Script generation exceeded the max runtime budget of "
-                f"{SCRIPT_GENERATION_MAX_RUNTIME_SECONDS} seconds. "
-                "Validation is still preserved, but generation is now bounded."
-            )
-
-        if attempt > SCRIPT_GENERATION_MAX_ATTEMPTS:
-            raise TimeoutError(
-                "Script generation exceeded the max validation attempts of "
-                f"{SCRIPT_GENERATION_MAX_ATTEMPTS}. "
-                "The workflow remains validation-driven but is capped to avoid "
-                "unbounded runtimes."
-            )
-
-        user_prompt = base_user_prompt
-        if validation_feedback:
-            user_prompt += (
-                "\n\nThe previous draft failed validation. Return a complete"
-                " replacement JSON response that fixes every issue"
-                f" below.\n{validation_feedback}"
-            )
-
-        print(f"Script generation attempt {attempt}")
-        try:
-            strict_output = _invoke_structured_with_retries(
-                structured_model,
-                [
-                    ("system", system_prompt),
-                    ("human", user_prompt),
-                ],
-            )
-        except Exception as exc:
-            validation_feedback = (
-                "Schema validation failed. Return only JSON with exactly "
-                f"{TARGET_SEGMENT_COUNT} entries in 'video_segments' and at least "
-                "one entry in 'people_and_props'. "
-                f"Error: {type(exc).__name__}: {exc}"
-            )
-            print(
-                "Structured generation failed schema checks on attempt"
-                f" {attempt}: {type(exc).__name__}"
-            )
-            attempt += 1
-            continue
-
-        strict_output_dict = _to_plain_dict(strict_output)
-        video_segments_list = VideoSegmentsList(**strict_output_dict)
-
-        if not video_segments_list.video_segments:
-            validation_feedback = (
-                "Invalid draft: 'video_segments' was empty. Return exactly "
-                f"{TARGET_SEGMENT_COUNT} segments with timestamps starting at 0 and "
-                f"incrementing by {SEGMENT_LENGTH}."
-            )
-            print(
-                "Structured generation returned 0 segments; requesting a complete"
-                " corrected replacement JSON."
-            )
-            attempt += 1
-            continue
-
-        validation_feedback = check_script(_to_plain_dict(video_segments_list))
-        if validation_feedback == "success":
-            return video_segments_list
-
-        attempt += 1
-
-
-def _validation_chat_options() -> dict:
-    """Runtime-focused options for short JSON validation calls."""
-    return {
-        "temperature": 0,
-        # Use one GPU per request to allow concurrent validation calls.
-        "num_gpu": 1,
-        "num_ctx": 4096,
-        "num_predict": 384,
-    }
-
-
-def _validation_model() -> ChatOllama:
-    return ChatOllama(
-        model=os.getenv("RESEARCH_AGENT_MODEL", "qwen3.6:27b-q4_K_M"),
-        reasoning=False,
-        keep_alive="30m",
-        **_validation_chat_options(),
-    )
-
-
-def _invoke_validation_prompt_json(
-    llm_prompt: str, schema_type: type[BaseModel], check_name: str
-) -> dict:
-    """Call validation LLM and require schema-valid JSON output."""
-    retry_delay_seconds = 1
-    structured_model = _validation_model().with_structured_output(
-        schema_type,
-        method="json_schema",
-    )
-    strict_prompt = (
-        llm_prompt
-        + "\n\nReturn only a valid JSON object that matches the requested schema."
-    )
-
-    for attempt in range(1, VALIDATION_JSON_PARSE_RETRIES + 1):
-        try:
-            response = structured_model.invoke(
-                [
-                    (
-                        "system",
-                        "You are a validator. Return only JSON that satisfies the"
-                        " schema.",
-                    ),
-                    ("human", strict_prompt),
-                ]
-            )
-            return _to_plain_dict(response)
-        except httpx.ConnectError as exc:
-            if attempt == VALIDATION_JSON_PARSE_RETRIES:
-                raise RuntimeError(
-                    "Validation LLM was unreachable while running "
-                    f"'{check_name}' after {VALIDATION_JSON_PARSE_RETRIES} attempts."
-                ) from exc
-            time.sleep(retry_delay_seconds)
-            retry_delay_seconds *= 2
-            continue
-
-        except Exception as exc:
-            if attempt == VALIDATION_JSON_PARSE_RETRIES:
-                raise RuntimeError(
-                    "Validation LLM failed to return schema-valid JSON for "
-                    f"'{check_name}' after {VALIDATION_JSON_PARSE_RETRIES} attempts."
-                ) from exc
-            time.sleep(retry_delay_seconds)
-            retry_delay_seconds *= 2
-
-    raise RuntimeError(f"Validation LLM failed unexpectedly for '{check_name}'.")
+ENABLE_AUDIO_DURATION_CHECK = os.getenv("CHECK_SCRIPT_AUDIO_DURATION", "1") == "1"
+ENABLE_LLM_CONSISTENCY_CHECKS = os.getenv("CHECK_SCRIPT_LLM_CONSISTENCY", "1") == "1"
 
 
 def generate_audio_file_get_duration(text, file_path="temp_audio_file.wav"):
@@ -439,14 +112,6 @@ def check_script(video_script: dict) -> str:
     video_segment_list = video_segment_list_in["video_segments"]
     person_and_prop = video_segment_list_in["people_and_props"]
 
-    if not video_segment_list:
-        error_text = (
-            "Error: Zero video segments generated. The script must contain exactly "
-            f"{TARGET_SEGMENT_COUNT} segments for a {VIDEO_LENGTH}-second video."
-        )
-        print(error_text)
-        return error_text
-
     for segment_i, segment in enumerate(video_segment_list):
         diff1 = list(
             set(list(segment.keys()))
@@ -503,8 +168,9 @@ def check_script(video_script: dict) -> str:
         > 0.20
     ):
         error_text = (
-            f"Error: There should be exactly {VIDEO_LENGTH // SEGMENT_LENGTH} segments"
-            f" for a 40-second video, each segment being {SEGMENT_LENGTH} seconds long."
+            "Error: Video segments exceed the total required video length"
+            f" {VIDEO_LENGTH} s by"
+            f" {(len(video_segment_list) * SEGMENT_LENGTH - VIDEO_LENGTH)/VIDEO_LENGTH * 100:.2f}%."
         )
         print(error_text)
         res += error_text + "\n"
@@ -535,10 +201,10 @@ def check_script(video_script: dict) -> str:
 
     for person_and_prop_item in person_and_prop:
 
-        if len(person_and_prop_item["name"].split(" ")) < 1:
+        if len(person_and_prop_item["name"].split(" ")) < 2:
             error_text = (
                 f"Error: Person or prop '{person_and_prop_item['name']}' is too short."
-                " Please provide a more detailed name with at least 1 word."
+                " Please provide a more detailed name with at least 2 words."
             )
             print(error_text)
             res += error_text + "\n"
@@ -734,44 +400,31 @@ def check_script(video_script: dict) -> str:
         if "success" not in check_start_image_prompt_props_res:
             res += check_start_image_prompt_props_res + "\n"
 
-        with ThreadPoolExecutor(max_workers=LLM_VALIDATION_MAX_WORKERS) as executor:
-            futures = {
-                executor.submit(
-                    check_start_image_to_prompt_consistency,
-                    segment["start_image_prompt"],
-                    segment["video_prompt"],
-                ): segment_i
-                for segment_i, segment in enumerate(video_segment_list)
-            }
+        for segment_i, segment in enumerate(video_segment_list):
+            check_start_image_prompt_props_res = (
+                check_start_image_to_prompt_consistency(
+                    start_image_prompt=segment["start_image_prompt"],
+                    video_prompt=segment["video_prompt"],
+                )
+            )
 
-            for future in as_completed(futures):
-                segment_i = futures[future]
-                check_start_image_prompt_props_res = future.result()
-                if "success" not in check_start_image_prompt_props_res:
-                    res += (
-                        f"Segment {segment_i}: "
-                        + check_start_image_prompt_props_res
-                        + "\n"
-                    )
+            if "success" not in check_start_image_prompt_props_res:
+                res += (
+                    f"Segment {segment_i}: " + check_start_image_prompt_props_res + "\n"
+                )
 
     if not ENABLE_FAST_VALIDATION and ENABLE_LLM_CONSISTENCY_CHECKS:
-        with ThreadPoolExecutor(max_workers=LLM_VALIDATION_MAX_WORKERS) as executor:
-            futures = {
-                executor.submit(
-                    check_start_image_video_prompt_consistency, segment
-                ): segment_i
-                for segment_i, segment in enumerate(video_segment_list)
-            }
+        for segment_i, segment in enumerate(video_segment_list):
+            check_start_image_video_prompt_consistency_res = (
+                check_start_image_video_prompt_consistency(segment=segment)
+            )
 
-            for future in as_completed(futures):
-                segment_i = futures[future]
-                check_start_image_video_prompt_consistency_res = future.result()
-                if "success" not in check_start_image_video_prompt_consistency_res:
-                    res += (
-                        f"Segment {segment_i}: "
-                        + check_start_image_video_prompt_consistency_res
-                        + "\n"
-                    )
+            if "success" not in check_start_image_video_prompt_consistency_res:
+                res += (
+                    f"Segment {segment_i}: "
+                    + check_start_image_video_prompt_consistency_res
+                    + "\n"
+                )
 
     if res == "":
         print("Script validation passed successfully. No errors found.")
@@ -836,11 +489,24 @@ def check_start_image_to_prompt_consistency(
     
     """
 
-    content_json = _invoke_validation_prompt_json(
-        llm_prompt=llm_prompt,
-        schema_type=NonMatchingObjectsResponse,
-        check_name="start-image to video prompt consistency",
+    res = ollama.chat(
+        model=os.getenv("RESEARCH_AGENT_MODEL", "qwen3.6:27b-q4_K_M"),
+        messages=[{"role": "user", "content": llm_prompt}],
+        format="json",
+        options={
+            "temperature": 0,
+            "num_gpu": 2,
+            "num_ctx": 8192,
+            "num_predict": 1024,
+        },
     )
+    print(res)
+    try:
+        content_json = json.loads(res["message"]["content"])
+    except json.JSONDecodeError as e:
+        print(f"Error decoding JSON: {e}")
+        print(f"Response content: {res['message']['content']}")
+        return "Error: Failed to decode JSON from LLM response."
 
     if "non_matching_objects_or_persons" not in content_json.keys():
         return "success"
@@ -904,11 +570,25 @@ def check_start_image_prompt_props(
     {', '.join([p['name'] for p in people_and_props])}
     
     """
-    content_json = _invoke_validation_prompt_json(
-        llm_prompt=llm_prompt,
-        schema_type=MissingPropsResponse,
-        check_name="missing props across segments",
+    print(f"LLM Prompt for checking start image prompt props: {llm_prompt}")
+
+    res = ollama.chat(
+        model=os.environ["RESEARCH_AGENT_MODEL"],
+        messages=[{"role": "user", "content": llm_prompt}],
+        format="json",  # Forces JSON response
+        # options={
+        #     "temperature": 0,  # Zero variance for speed and determinism
+        #     # "num_predict": 350,  # Stops inference early to prevent runaway generation
+        # },
+        # ": 64 * 1024},  # Adjust based on your memory needs (Default 262k is VRAM heavy)
     )
+    print(res)
+    try:
+        content_json = json.loads(res["message"]["content"])
+    except json.JSONDecodeError as e:
+        print(f"Error decoding JSON: {e}")
+        print(f"Response content: {res['message']['content']}")
+        return "Error: Failed to decode JSON from LLM response."
 
     if "missing_props" not in content_json.keys():
         return "success"
@@ -973,11 +653,25 @@ def check_start_image_video_prompt_consistency(segment: dict) -> str:
     {segment['video_prompt']}
     
     """
-    content_json = _invoke_validation_prompt_json(
-        llm_prompt=llm_prompt,
-        schema_type=InconsistenciesResponse,
-        check_name="start-image and video prompt action consistency",
+    print(f"LLM Prompt for checking start image prompt props: {llm_prompt}")
+
+    res = ollama.chat(
+        model=os.environ["RESEARCH_AGENT_MODEL"],
+        messages=[{"role": "user", "content": llm_prompt}],
+        format="json",  # Forces JSON response
+        # options={
+        #     "temperature": 0,  # Zero variance for speed and determinism
+        #     # "num_predict": 350,  # Stops inference early to prevent runaway generation
+        # },
+        # ": 64 * 1024},  # Adjust based on your memory needs (Default 262k is VRAM heavy)
     )
+    print(res)
+    try:
+        content_json = json.loads(res["message"]["content"])
+    except json.JSONDecodeError as e:
+        print(f"Error decoding JSON: {e}")
+        print(f"Response content: {res['message']['content']}")
+        return "Error: Failed to decode JSON from LLM response."
 
     if "inconsistencies" not in content_json.keys():
         return "success"
@@ -1045,12 +739,16 @@ def main(video_id):
         "video_length": VIDEO_LENGTH,
         "segment_length": SEGMENT_LENGTH,
         "target_segment_count": TARGET_SEGMENT_COUNT,
+        "max_validation_passes": 2,
     }
 
-    Video_Segments_List = _generate_script_until_valid(
+    Video_Segments_List = run_agent_sync(
         user_prompt_params=user_prompt_params,
         system_prompt_params=system_prompt_params,
+        # ReturnClass=VideoSegmentsList,
+        ReturnClass=VideoSegmentsList,
         prompt_dir=Path(__file__).parent.resolve(),
+        extra_tools=[check_script],
     )
     print("Received Video Segments List: ", Video_Segments_List)
 
