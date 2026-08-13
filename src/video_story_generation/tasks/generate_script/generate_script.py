@@ -19,7 +19,7 @@ from video_story_generation.tables import (
 # from kokoro import KPipeline
 
 
-VIDEO_LENGTH = 40  # seconds
+VIDEO_LENGTH = 20  # seconds
 SEGMENT_LENGTH = 5  # seconds
 TARGET_SEGMENT_COUNT = VIDEO_LENGTH // SEGMENT_LENGTH
 
@@ -492,12 +492,13 @@ def check_start_image_to_prompt_consistency(
     res = ollama.chat(
         model=os.getenv("RESEARCH_AGENT_MODEL", "qwen3.6:27b-q4_K_M"),
         messages=[{"role": "user", "content": llm_prompt}],
+        think=True,
         format="json",
         options={
             "temperature": 0,
             "num_gpu": 2,
-            "num_ctx": 8192,
-            "num_predict": 1024,
+            # "num_ctx": 8192,
+            # "num_predict": 1024,
         },
     )
     print(res)
@@ -576,6 +577,7 @@ def check_start_image_prompt_props(
         model=os.environ["RESEARCH_AGENT_MODEL"],
         messages=[{"role": "user", "content": llm_prompt}],
         format="json",  # Forces JSON response
+        think=True,
         # options={
         #     "temperature": 0,  # Zero variance for speed and determinism
         #     # "num_predict": 350,  # Stops inference early to prevent runaway generation
