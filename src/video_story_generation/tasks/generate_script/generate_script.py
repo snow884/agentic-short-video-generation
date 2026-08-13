@@ -20,6 +20,7 @@ from video_story_generation.tables import (
 
 
 VIDEO_LENGTH = 20  # seconds
+
 SEGMENT_LENGTH = 5  # seconds
 TARGET_SEGMENT_COUNT = VIDEO_LENGTH // SEGMENT_LENGTH
 
