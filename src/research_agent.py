@@ -20,6 +20,8 @@ from prefect.logging import get_run_logger
 def _extract_json_payload(message: str) -> str:
     """Extract the first valid JSON payload from an LLM response string."""
 
+    print(f"Extracting JSON payload from message: {message}")
+
     message = message.strip()
 
     # Prefer fenced JSON blocks if present.
