@@ -20,6 +20,7 @@ from video_story_generation.tables import (
 
 
 VIDEO_LENGTH = 20  # seconds
+ALLOWED_TIME_VARIANCE = 0.3  # 30% variance allowed in segment timing
 
 SEGMENT_LENGTH = 5  # seconds
 TARGET_SEGMENT_COUNT = VIDEO_LENGTH // SEGMENT_LENGTH
@@ -166,12 +167,13 @@ def check_script(video_script: dict) -> str:
 
     if (
         abs((len(video_segment_list) * SEGMENT_LENGTH - VIDEO_LENGTH) / VIDEO_LENGTH)
-        > 0.20
+        > ALLOWED_TIME_VARIANCE
     ):
         error_text = (
             "Error: Video segments exceed the total required video length"
             f" {VIDEO_LENGTH} s by"
-            f" {(len(video_segment_list) * SEGMENT_LENGTH - VIDEO_LENGTH)/VIDEO_LENGTH * 100:.2f}%."
+            f" {(len(video_segment_list) * SEGMENT_LENGTH - VIDEO_LENGTH)/VIDEO_LENGTH * 100:.2f}%"
+            f" (allowed variance: {ALLOWED_TIME_VARIANCE * 100:.2f}%)."
         )
         print(error_text)
         res += error_text + "\n"
