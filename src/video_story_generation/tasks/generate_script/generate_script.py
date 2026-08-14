@@ -598,6 +598,7 @@ def check_start_image_video_prompt_consistency(segment: dict) -> str:
     If the image prompt describes "a young boy sitting at a table" and the video prompt describes "the young boy is still sitting at the table", then this is also consistent.
     If the image prompt describes "a young boy sitting at a table" and the video prompt describes "a young girl walks into the room", then this is inconsistent because the young girl is not mentioned in the start image prompt.
     If the image prompt describes "a young boy sitting at a table" and the video prompt describes "the young boy runs a marathon", then this is inconsistent because the young boy is not performing an action that is consistent with the start image prompt.
+    If the image prompt describes "a young boy and a girl sitting at a table" and the video prompt describes "children stand up and walk to the door", then this is inconsistent because the two prompts refer in a different way to the same characters.
 
     Args:
         segment (dict): A video segment containing a start image prompt and a video prompt.
