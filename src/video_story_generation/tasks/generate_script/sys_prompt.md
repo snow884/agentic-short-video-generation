@@ -21,7 +21,7 @@ Output ONLY pure JSON matching this exact structure. Do not include any reasonin
   "video_segments": [
     {{
       "timestamp": 0,
-      "start_image_prompt": "Instructions on how to arrange a static scene - positions, scale, orientation (who they are facing) and background referencing up to 3 item names from people_and_props. Do NOT describe action.",
+      "start_image_prompt": "Instructions on how to arrange a static scene - positions, scale, orientation (who or what they are facing) and background referencing up to 3 item names from people_and_props. Do NOT describe action.",
       "start_image_people_and_props_names": "Unique Name,name1,name2"],
       "video_prompt": "Focus strictly on motion of people and objects from start_image_prompt, and camera movement. Avoid repeating visual descriptions. Include a maximum of one action of one person ro object.",
       "narrator_script": "Spoken script for this segment. Must take {{segment_length}} seconds to speak "
