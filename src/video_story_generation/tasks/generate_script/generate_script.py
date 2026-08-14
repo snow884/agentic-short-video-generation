@@ -509,7 +509,7 @@ def check_start_image_prompt_props(
     video_segment_list: list[dict], people_and_props: list[dict]
 ) -> str:
     """
-    Look for all items in the start_image_prompt for references to objects that appear more than once and should be
+    Look for all items in the start_image_prompt for references to objects or people that appear more than once and should be
     props. Then compare those objects to the list of people_and_props to ensure that they are included. If any are missing, return an error message.
 
     Include more general matches
@@ -529,7 +529,7 @@ def check_start_image_prompt_props(
     )
 
     llm_prompt = f"""
-    Find concrete objects or props that appear in 2 or more start-image prompts but are missing from props_list.
+    Find concrete objects or people that appear in 2 or more start-image prompts but are missing from props_list.
 
     Ignore people. Report only repeated objects/props that should be added to people_and_props.
 
