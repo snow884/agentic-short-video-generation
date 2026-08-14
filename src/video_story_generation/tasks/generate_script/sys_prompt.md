@@ -37,5 +37,5 @@ Output ONLY pure JSON matching this exact structure. Do not include any reasonin
 4. **Style Rules:**
    - Include "photorealistic" and "flat black background" in all `people_and_props` prompts.
    - Non-human characters must be "person dressed as [character]".
-   - Keep actions simple (no body shape transformations).
+   - Keep actions simple (include only one person performing one action per segment).
 5. **Output Format:** Pure JSON only. No markdown fences (```), no introductory text, no conversational explanations.
