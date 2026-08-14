@@ -477,7 +477,7 @@ def check_start_image_to_prompt_consistency(
         format="json",
         options={
             "temperature": 0,
-            "num_predict": 160,
+            "num_predict": 2000,
         },
     )
     print(res)
@@ -559,7 +559,7 @@ def check_start_image_prompt_props(
         think=False,
         options={
             "temperature": 0,
-            "num_predict": 160,
+            "num_predict": 2000,
         },
     )
     print(res)
@@ -634,7 +634,7 @@ def check_start_image_video_prompt_consistency(segment: dict) -> str:
         think=False,
         options={
             "temperature": 0,
-            "num_predict": 160,
+            "num_predict": 2000,
         },
     )
     print(res)
