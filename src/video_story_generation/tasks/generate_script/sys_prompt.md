@@ -35,5 +35,5 @@ Output ONLY pure JSON matching this exact structure. Do not include any reasonin
 3. **Reference Limits:** Max 3 items in `start_image_people_and_props_names` per segment. All names must exist in `people_and_props`.
 4. **Style Rules:**
    - Include "photorealistic" and "flat black background" in all `people_and_props` prompts.
-   - Keep actions simple (include only one person performing one action per segment).
+   - Keep actions in video_prompt simple. Include only one person performing one action per segment.
 5. **Output Format:** Pure JSON only. No markdown fences (```), no introductory text, no conversational explanations.
