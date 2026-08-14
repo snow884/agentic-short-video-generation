@@ -725,7 +725,10 @@ def main(video_id):
     )
     print("Received Video Segments List: ", Video_Segments_List)
 
-    json_output_path = f"data/script_{video_id}.json"
+    # create folder if it doesn't exist
+    os.makedirs("data/data", exist_ok=True)
+
+    json_output_path = f"data/data/script_{video_id}.json"
     with open(json_output_path, "w") as f:
         json.dump(Video_Segments_List.dict(), f, indent=4)
 
