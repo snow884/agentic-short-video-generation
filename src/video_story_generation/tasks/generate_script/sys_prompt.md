@@ -14,17 +14,17 @@ Output ONLY pure JSON matching this exact structure. Do not include any reasonin
 {{
   "people_and_props": [
     {{
-      "name": "Unique Identifier",
-      "prompt": "40-80 word description including: subject/action, composition/framing, lighting, style. Must include 'photorealistic' and 'flat black background'."
+      "name": "Unique Name",
+      "prompt": "40-80 word prompt to generate object or person image. Must include 'photorealistic' and 'flat black background'."
     }}
   ],
   "video_segments": [
     {{
       "timestamp": 0,
       "start_image_prompt": "Static scene setup describing positions, scale, and background referencing up to 3 item names from people_and_props. Do NOT describe action.",
-      "start_image_people_and_props_names": "Unique Identifier,name1,name2"],
-      "video_prompt": "Focus strictly on subject motion, secondary movement, and camera movement. Avoid repeating visual descriptions.",
-      "narrator_script": "Spoken script for this segment."
+      "start_image_people_and_props_names": "Unique Name,name1,name2"],
+      "video_prompt": "Focus strictly on subject motion, secondary movement, and camera movement. Avoid repeating visual descriptions. Do not introduce new people or objects that aren't already in start_image_prompt.",
+      "narrator_script": "Spoken script for this segment. Must take {{segment_length}} seconds to speak "
     }}
   ]
 }}

@@ -529,9 +529,9 @@ def check_start_image_prompt_props(
     )
 
     llm_prompt = f"""
-    Find concrete objects or people that appear in 2 or more start-image prompts but are missing from props_list.
+    Find objects or people that appear in 2 or more start-image prompts but are missing from props_list.
 
-    Ignore people. Report only repeated objects/props that should be added to people_and_props.
+    Report only repeated objects and people that should be added to people_and_props.
 
     Return JSON only:
     {{
@@ -608,9 +608,15 @@ def check_start_image_video_prompt_consistency(segment: dict) -> str:
     """
 
     llm_prompt = f"""
-    Check whether Start Image Prompt is a valid pre-action setup for Video Prompt.
+    Look at the start image prompt and video prompt for a segment and ensure that the start image prompt describes objects before action/activity and the video prompt describes same objects/people performing action/activity.
 
-    Mark an inconsistency only when Video Prompt introduces a new entity not present in Start Image Prompt or the described action clearly conflicts with the starting pose/state.
+    For example:
+
+    If the image prompt describes "a young boy sitting at a table" and the video prompt describes "the young boy stands up and walks to the door", then this is consistent.
+    If the image prompt describes "a young boy sitting at a table" and the video prompt describes "the young boy is still sitting at the table", then this is also consistent.
+    If the image prompt describes "a young boy sitting at a table" and the video prompt describes "a young girl walks into the room", then this is inconsistent because the young girl is not mentioned in the start image prompt.
+    If the image prompt describes "a young boy sitting at a table" and the video prompt describes "the young boy runs a marathon", then this is inconsistent because the young boy is not performing an action that is consistent with the start image prompt.
+    If the image prompt describes "a young boy and a girl sitting at a table" and the video prompt describes "children stand up and walk to the door", then this is inconsistent because the two prompts refer in a different way to the same characters.
 
     Return JSON only:
     {{
