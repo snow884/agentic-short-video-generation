@@ -430,6 +430,15 @@ def check_script(video_script: dict) -> str:
                     + "\n"
                 )
 
+    if not ENABLE_FAST_VALIDATION and ENABLE_LLM_CONSISTENCY_CHECKS:
+        for segment_i, segment in enumerate(video_segment_list):
+            check_video_prompt_simplicity_res = check_video_prompt_simplicity(segment)
+
+            if "success" not in check_video_prompt_simplicity_res:
+                res += (
+                    f"Segment {segment_i}: " + check_video_prompt_simplicity_res + "\n"
+                )
+
     if res == "":
         print("Script validation passed successfully. No errors found.")
         return "success"
@@ -663,6 +672,66 @@ def check_start_image_video_prompt_consistency(segment: dict) -> str:
         error_messages = []
         for inconsistency in inconsistencies_list:
             error_messages.append(f"Error: {inconsistency['reason']}")
+        return "\n".join(error_messages)
+
+
+def check_video_prompt_simplicity(segment: dict) -> str:
+    """
+    Checks whether the video prompt only includes one simple action. It must not include multiple actions following each other, or complex or abstract concepts.
+
+    Args:
+        segment (dict): A video segment containing the video prompt.
+
+    Returns:
+        str: "success" if the video prompt is simple, otherwise an error message.
+    """
+
+    llm_prompt = f"""
+    Check that the video prompt only includes one simple action, and does not include complex or abstract concepts.
+    
+    Return JSON only:
+    {{
+      "explanation": [
+        {{"reason": "<string>"}}
+      ]
+    }}
+
+    Return an empty explanation list when the video prompt is simple.
+
+    video_prompt:
+    {segment['video_prompt']}
+    """
+    print("Running video prompt simplicity validation.")
+
+    res = ollama.chat(
+        model=os.environ["RESEARCH_AGENT_MODEL"],
+        messages=[{"role": "user", "content": llm_prompt}],
+        format="json",
+        think=False,
+        options={
+            "temperature": 0,
+            "num_predict": 2000,
+        },
+    )
+    print(res)
+    try:
+        content_json = json.loads(res["message"]["content"])
+    except json.JSONDecodeError as e:
+        print(f"Error decoding JSON: {e}")
+        print(f"Response content: {res['message']['content']}")
+        return "Error: Failed to decode JSON from LLM response."
+
+    if "explanation" not in content_json.keys():
+        return "success"
+
+    if not content_json["explanation"]:
+        return "success"
+
+    else:
+        explanation_list = content_json["explanation"]
+        error_messages = []
+        for explanation in explanation_list:
+            error_messages.append(f"Error: {explanation['reason']}")
         return "\n".join(error_messages)
 
 
