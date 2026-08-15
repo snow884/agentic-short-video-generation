@@ -31,7 +31,7 @@ def main_flow():
     load_dotenv()
 
     # clear all files in /data/images/ and /data/audio/
-    for folder in ["data/images", "data/audio", "data/video"]:
+    for folder in ["data/images", "data/audio", "data/video", "data/data"]:
         for filename in os.listdir(folder):
             file_path = os.path.join(folder, filename)
             try:
