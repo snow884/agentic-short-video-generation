@@ -697,7 +697,7 @@ def check_video_prompt_simplicity(segment: dict) -> str:
     """
 
     llm_prompt = f"""
-    Check that the video prompt only includes one simple action, and does not include complex or abstract concepts.
+    Check that the video prompt only includes one simple action other than the camera movement, and does not include complex or abstract concepts.
     
     Return JSON only:
     {{
