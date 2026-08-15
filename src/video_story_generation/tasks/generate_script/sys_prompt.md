@@ -21,10 +21,10 @@ Output ONLY pure JSON matching this exact structure. Do not include any reasonin
   "video_segments": [
     {{
       "timestamp": 0,
-      "start_image_prompt": "Instructions on how to arrange a static scene. Preposition people and objects for video_prompt that describes actions. Ensure that every object and person is correctly positioned and facing the correct/person. Reference up to 3 item names from people_and_props. Do NOT describe action.",
+      "start_image_prompt": "40-80 words. Instructions on how to arrange a static scene. Preposition people and objects for video_prompt that describes actions. Ensure that every object and person is correctly positioned and facing the correct/person. Reference up to 3 item names from people_and_props. Do NOT describe action.",
       "start_image_people_and_props_names": "Unique Name,name1,name2",
-      "video_prompt": "Action of one person or object from start_image_prompt and camera movement. Avoid repeating visual descriptions.",
-      "narrator_script": "Spoken script for this segment. Roughly ~10 words. "
+      "video_prompt": "40-80 words. Action of one person or object from start_image_prompt and camera movement. Avoid repeating visual descriptions.",
+      "narrator_script": "~10 words. Spoken script for this segment. "
     }}
   ]
 }}
