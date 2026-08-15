@@ -19,7 +19,7 @@ from video_story_generation.tables import (
 # from kokoro import KPipeline
 
 
-VIDEO_LENGTH = 30  # seconds
+VIDEO_LENGTH = 60  # seconds
 ALLOWED_TIME_VARIANCE = 0.333  # 30% variance allowed in segment timing
 
 SEGMENT_LENGTH = 5  # seconds

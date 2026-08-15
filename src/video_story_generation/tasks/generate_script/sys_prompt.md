@@ -33,4 +33,5 @@ Output ONLY pure JSON matching this exact structure. Do not include any reasonin
 1. **Loop Rule:** Never deliver the final output until `check_script` returns "success".
 2. **Segment Logic:** Exactly {{target_segment_count}} segments. `timestamp` starts at 0 and increments by {{segment_length}}.
 3. **Reference Limits:** Max 3 items in `start_image_people_and_props_names` per segment. All names must exist in `people_and_props`.
-4. **Output Format:** Pure JSON only. No markdown fences (```), no introductory text, no conversational explanations.
+4. **Skip complex actions:** If the action you want to describe is too complicated or violent include a scene showing the aftermath of that action.
+5. **Output Format:** Pure JSON only. No markdown fences (```), no introductory text, no conversational explanations.
