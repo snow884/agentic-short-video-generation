@@ -640,7 +640,7 @@ def check_start_image_video_prompt_consistency(segment: dict) -> str:
     Return JSON only:
     {{
       "inconsistencies": [
-        {{"reason": "<string>"}}
+        {{"reason_and_fix": "<string>"}}
       ]
     }}
 
@@ -681,13 +681,13 @@ def check_start_image_video_prompt_consistency(segment: dict) -> str:
         inconsistencies_list = content_json["inconsistencies"]
         error_messages = []
         for inconsistency in inconsistencies_list:
-            error_messages.append(f"Error: {inconsistency['reason']}")
+            error_messages.append(f"Error: {inconsistency['reason_and_fix']}")
         return "\n".join(error_messages)
 
 
 def check_video_prompt_simplicity(segment: dict) -> str:
     """
-    Checks whether the video prompt only includes one simple action. It must not include multiple actions following each other, or complex or abstract concepts.
+    Checks whether the video prompt only includes one action by one person or one group of people. It must not include multiple actions following each other, or complex or abstract concepts.
 
     Args:
         segment (dict): A video segment containing the video prompt.
@@ -702,7 +702,7 @@ def check_video_prompt_simplicity(segment: dict) -> str:
     Return JSON only:
     {{
       "explanation": [
-        {{"reason": "<string>"}}
+        {{"reason_and_fix": "<string>"}}
       ]
     }}
 
@@ -741,7 +741,7 @@ def check_video_prompt_simplicity(segment: dict) -> str:
         explanation_list = content_json["explanation"]
         error_messages = []
         for explanation in explanation_list:
-            error_messages.append(f"Error: {explanation['reason']}")
+            error_messages.append(f"Error: {explanation['reason_and_fix']}")
         return "\n".join(error_messages)
 
 

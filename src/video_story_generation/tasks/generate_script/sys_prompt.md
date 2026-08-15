@@ -24,7 +24,7 @@ Output ONLY pure JSON matching this exact structure. Do not include any reasonin
       "start_image_prompt": "Instructions on how to arrange a static scene. Preposition people and objects for video_prompt that describes actions. Ensure that every object and person is correctly positioned and facing the correct/person. Reference up to 3 item names from people_and_props. Do NOT describe action.",
       "start_image_people_and_props_names": "Unique Name,name1,name2",
       "video_prompt": "Focus strictly on motion of one person or object from start_image_prompt and camera movement. Avoid repeating visual descriptions.",
-      "narrator_script": "Spoken script for this segment. Roughly ~13 words. "
+      "narrator_script": "Spoken script for this segment. Roughly ~10 words. "
     }}
   ]
 }}
