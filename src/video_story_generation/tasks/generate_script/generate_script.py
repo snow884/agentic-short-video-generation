@@ -139,11 +139,21 @@ def check_script(video_script: dict) -> str:
             res += error_text + "\n"
 
     for person_and_prop_i, person_and_prop_item in enumerate(person_and_prop):
-        diff1 = list(set(list(person_and_prop_item.keys())) ^ set(["name", "prompt"]))
-        if diff1 != []:
+        try:
+            diff1 = list(
+                set(list(person_and_prop_item.keys())) ^ set(["name", "prompt"])
+            )
+            if diff1 != []:
+                error_text = (
+                    f"Error: Person/Prop {person_and_prop_i} has invalid keys. Key diff"
+                    f" = {diff1} Expected keys are: {{'name', 'prompt'}}"
+                )
+                print(error_text)
+                res += error_text + "\n"
+        except Exception as e:
             error_text = (
-                f"Error: Person/Prop {person_and_prop_i} has invalid keys. Key diff ="
-                f" {diff1} Expected keys are: {{'name', 'prompt'}}"
+                f"Error: Person/Prop {person_and_prop_i} has invalid structure."
+                f" Exception: {e}"
             )
             print(error_text)
             res += error_text + "\n"
