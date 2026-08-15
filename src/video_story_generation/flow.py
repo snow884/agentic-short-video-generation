@@ -57,29 +57,25 @@ def main_flow():
         {
             "title": "Hansel and Gretel",
             "prompt": (
-                "Generate a video about the story of Hansel and Gretel, brothers grim"
-                " version"
+                "Generate a video about the story of Hansel and Gretel, with bad ending"
+                " where the witch wins and fattens the children."
             ),
         },
-        # {
-        #     "title": "Little Red Riding Hood",
-        #     "prompt": (
-        #         "Generate a short video about the story of Little Red Riding Hood"
-        #     ),
-        # },
-        # {
-        #     "title": "3 little pigs as wolf",
-        #     "prompt": (
-        #         "Generate a short video about the story of the Three Little Pigs from"
-        #         " the wolf's perspective"
-        #     ),
-        # },
-        # {
-        #     "title": "The Ant and the Grasshopper",
-        #     "prompt": (
-        #         "Generate a short video about the story of the Ant and the Grasshopper"
-        #     ),
-        # },
+        {
+            "title": "Little Red Riding Hood",
+            "prompt": (
+                "Generate a short video about the story of Little Red Riding Hood, with"
+                " bad ending where the wolf wins and eats the grandmother and Little"
+                " Red Riding Hood."
+            ),
+        },
+        {
+            "title": "The Gingerbread Man",
+            "prompt": (
+                "Generate a short video about the story of The Gingerbread Man, with"
+                " bad ending where the fox wins and eats the gingerbread man."
+            ),
+        },
     ]
 
     for video_idea in video_ideas:
