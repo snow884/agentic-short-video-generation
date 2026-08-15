@@ -58,7 +58,7 @@ def main_flow():
             "title": "Hansel and Gretel",
             "prompt": (
                 "Generate a video about the story of Hansel and Gretel, with bad ending"
-                " where the witch wins and fattens the children."
+                " where the witch wins."
             ),
         },
         {
