@@ -22,7 +22,7 @@ Output ONLY pure JSON matching this exact structure. Do not include any reasonin
     {{
       "timestamp": 0,
       "start_image_people_and_props_names": "Unique Name,name1,name2",
-      "start_image_prompt": "40-80 words. Instructions on how to arrange a static scene from objects and people in start_image_people_and_props_names. Ensure that every object and person is correctly positioned, in a correct pose and facing the correct person. Reference up to 3 item names from people_and_props. Do NOT describe action.",
+      "start_image_prompt": "40-80 words. A static scene from objects and people in start_image_people_and_props_names. Ensure that every object and person is correctly positioned, in a correct pose and facing the correct person. Reference up to 3 item names from people_and_props. Do NOT describe action.",
       "video_prompt": "40-80 words. Simple physical motion of one person or object from start_image_people_and_props_names and camera movement. Avoid repeating visual descriptions.",
       "narrator_script": "~10 words. Spoken script for this segment. "
     }}
