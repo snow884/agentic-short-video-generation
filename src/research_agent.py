@@ -347,8 +347,12 @@ async def run_agent(
 
     json_payload = _extract_json_payload(str_message)
     dict_start = json.loads(json_payload)
-
-    typed_response = ReturnClass(**dict_start)
+    try:
+        typed_response = ReturnClass(**dict_start)
+    except Exception as e:
+        logger.error(f"Failed to parse response into {ReturnClass}: {e}")
+        logger.error(f"Raw response: {str_message}")
+        raise e
 
     return typed_response
 
