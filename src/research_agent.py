@@ -261,7 +261,8 @@ async def run_agent(
         reasoning=True,
         temperature=0,
         # num_gpu=2,
-        # num_ctx=8192,
+        num_ctx=16384,
+        num_predict=4096,
         # num_predict=1024,
         # keep_alive="30m",
     )
