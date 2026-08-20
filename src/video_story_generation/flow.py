@@ -1,6 +1,8 @@
 from dotenv import load_dotenv
 from prefect import flow, get_run_logger
-from tasks.generate_video.generate_video import main as generate_video_main
+from tasks.generate_video_feedback.generate_video_feedback import (
+    main as generate_video_feedback_main,
+)
 
 from sql_utils import get_db
 from tables import Videos
@@ -89,7 +91,9 @@ def main_flow():
 
         # generate_audio_main(video_id=video_id)
 
-        generate_video_main(video_id=video_id)
+        # generate_video_main(video_id=video_id)
+
+        generate_video_feedback_main(video_id=video_id)
 
 
 if __name__ == "__main__":
