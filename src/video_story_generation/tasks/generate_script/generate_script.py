@@ -593,6 +593,7 @@ def check_start_image_prompt_props(
         messages=[{"role": "user", "content": llm_prompt}],
         format="json",
         think=False,
+        debug=True,
         options={
             "temperature": 0,
             "num_predict": 2000,
@@ -675,6 +676,7 @@ def check_start_image_video_prompt_consistency(segment: dict) -> str:
         messages=[{"role": "user", "content": llm_prompt}],
         format="json",
         think=False,
+        debug=True,
         options={
             "temperature": 0,
             "num_predict": 2000,
