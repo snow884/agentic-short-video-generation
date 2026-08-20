@@ -41,11 +41,12 @@ def get_video_frames(video_id: str) -> str:
     frame_interval = int(fps)  # Extract a frame every 1 second
     frame_count = 0
     while cap.isOpened():
-        logger.info(f"Reading frame {frame_count} from video...")
+
         ret, frame = cap.read()
         if not ret:
             break
         if frame_count % frame_interval == 0:
+            logger.info(f"Reading frame {frame_count} from video...")
             frames.append(frame)
         frame_count += 1
     cap.release()
@@ -53,7 +54,7 @@ def get_video_frames(video_id: str) -> str:
     # encode frame as to base64
 
     frames = [
-        base64.b64encode(cv.imencode(".jpg", frame)[1]).tobytes().decode("utf-8")
+        base64.b64encode(cv.imencode(".jpg", frame)[1]).decode("utf-8")
         for frame in frames
     ]
 
