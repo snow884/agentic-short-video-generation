@@ -95,10 +95,10 @@ def main(video_id):
     hex_dig = hash_object.hexdigest()
     slug = hex_dig[0:5]  # You can take the first 10 characters for a shorter slug
 
-    video.video_file_path = f"data/video/video_{video_id}_{slug}.mp4"
+    video.file_path = f"data/video/video_{video_id}_{slug}.mp4"
 
     final_video.write_videofile(
-        video.video_file_path,
+        video.file_path,
         codec="h264_nvenc",
         audio_codec="aac",
         ffmpeg_params=[
