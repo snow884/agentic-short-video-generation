@@ -67,10 +67,12 @@ def main_flow():
 
     for video_idea in video_ideas:
 
-        video_id = create_new_video_id(
-            video_title=video_idea["title"],
-            prompt=video_idea["prompt"],
-        )
+        # video_id = create_new_video_id(
+        #     video_title=video_idea["title"],
+        #     prompt=video_idea["prompt"],
+        # )
+
+        video_id = 1  # Replace with the actual video ID you want to use
 
         # generate_script_main(video_id=video_id)
 
