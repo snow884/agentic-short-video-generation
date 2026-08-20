@@ -120,3 +120,5 @@ def main(video_id: str) -> str:
         ],
     )
     print(f"res: {res}")
+
+    res = json.loads(res)
