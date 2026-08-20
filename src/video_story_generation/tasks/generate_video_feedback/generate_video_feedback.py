@@ -30,7 +30,7 @@ def get_video_frames(video_id: str) -> str:
     video = session.query(Videos).filter(Videos.id == video_id).first()
     if video is None:
         raise ValueError(f"No Video found for video_id {video_id}")
-
+    print(video)
     open_video_path = video.video_file_path
 
     logger.info(f"Opening video at path: {open_video_path}")
