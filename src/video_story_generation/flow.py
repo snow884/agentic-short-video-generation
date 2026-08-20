@@ -1,21 +1,6 @@
-import os
-import time
-
-import ollama
 from dotenv import load_dotenv
 from prefect import flow, get_run_logger
-from tasks.generate_audio.generate_audio import main as generate_audio_main
-from tasks.generate_people_and_prop_images.generate_people_and_prop_images import (
-    main as generate_people_and_prop_images_main,
-)
-from tasks.generate_script.generate_script import main as generate_script_main
-from tasks.generate_start_stop_images.generate_start_stop_images import (
-    main as generate_start_stop_images_main,
-)
 from tasks.generate_video.generate_video import main as generate_video_main
-from tasks.generate_video_segments.generate_video_segments import (
-    main as generate_video_segments_main,
-)
 
 from sql_utils import get_db
 from tables import Videos
@@ -85,24 +70,24 @@ def main_flow():
             prompt=video_idea["prompt"],
         )
 
-        generate_script_main(video_id=video_id)
+        # generate_script_main(video_id=video_id)
 
-        logger.info("Waiting 10s to clear model from memory...")
+        # logger.info("Waiting 10s to clear model from memory...")
 
-        ollama.generate(
-            model=os.getenv("RESEARCH_AGENT_MODEL", "qwen3.6:27b-q4_K_M"), keep_alive=0
-        )
-        time.sleep(
-            10
-        )  # Wait for a few seconds to ensure the model is cleared from memory
+        # ollama.generate(
+        #     model=os.getenv("RESEARCH_AGENT_MODEL", "qwen3.6:27b-q4_K_M"), keep_alive=0
+        # )
+        # time.sleep(
+        #     10
+        # )  # Wait for a few seconds to ensure the model is cleared from memory
 
-        generate_people_and_prop_images_main(video_id=video_id)
+        # generate_people_and_prop_images_main(video_id=video_id)
 
-        generate_start_stop_images_main(video_id=video_id)
+        # generate_start_stop_images_main(video_id=video_id)
 
-        generate_video_segments_main(video_id=video_id)
+        # generate_video_segments_main(video_id=video_id)
 
-        generate_audio_main(video_id=video_id)
+        # generate_audio_main(video_id=video_id)
 
         generate_video_main(video_id=video_id)
 

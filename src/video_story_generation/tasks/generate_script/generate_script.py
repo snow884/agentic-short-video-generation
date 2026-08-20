@@ -270,7 +270,7 @@ def check_script(video_script: dict) -> str:
             print(error_text)
             res += error_text + "\n"
 
-        if len(segment["start_image_prompt"].split(" ")) > 8400:
+        if len(segment["start_image_prompt"].split(" ")) > 80:
             error_text = (
                 f"Error: The Start image prompt for segment {segment_i} is too long."
                 " Please shorten the prompt to less than 80 words."
@@ -287,6 +287,22 @@ def check_script(video_script: dict) -> str:
                 )
                 print(error_text)
                 res += error_text + "\n"
+
+        for prop in person_and_prop:
+            if segment["start_image_prompt"].find(prop["name"].lower()) != -1:
+                if prop["name"].lower() not in [
+                    name.lower()
+                    for name in segment["start_image_people_and_props_names"].split(",")
+                ]:
+                    error_text = (
+                        f"Error: Segment {segment_i} has a person or prop"
+                        f" '{prop['name']}' that is mentioned in the start image prompt"
+                        " but not listed in start_image_people_and_props_names. Please"
+                        " ensure all people and props mentioned in the prompt are"
+                        " included in the list."
+                    )
+                    print(error_text)
+                    res += error_text + "\n"
 
         if len(segment["video_prompt"].split(" ")) < 20:
             error_text = (
