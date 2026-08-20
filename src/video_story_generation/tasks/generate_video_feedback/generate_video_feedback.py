@@ -4,6 +4,7 @@ import os
 
 import cv2 as cv
 import ollama
+from prefect import get_run_logger
 
 from sql_utils import get_db
 from tables import Videos, VideoSegments
@@ -22,6 +23,8 @@ def get_video_frames(video_id: str) -> str:
     Returns:
         str: _description_
     """
+
+    logger = get_run_logger()
     session = next(get_db())
 
     video = session.query(Videos).filter(Videos.id == video_id).first()
@@ -29,6 +32,7 @@ def get_video_frames(video_id: str) -> str:
         raise ValueError(f"No Video found for video_id {video_id}")
 
     open_video_path = video.file_path
+    logger.info(f"Opening video at path: {open_video_path}")
 
     cap = cv.VideoCapture(open_video_path)
     frames = []
@@ -36,6 +40,7 @@ def get_video_frames(video_id: str) -> str:
     frame_interval = int(fps)  # Extract a frame every 1 second
     frame_count = 0
     while cap.isOpened():
+        logger.info(f"Reading frame {frame_count} from video...")
         ret, frame = cap.read()
         if not ret:
             break
