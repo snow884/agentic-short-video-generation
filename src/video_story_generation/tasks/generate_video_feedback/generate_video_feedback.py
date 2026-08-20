@@ -92,6 +92,8 @@ def main(video_id: str) -> str:
 
     ollama.chat(
         model=os.getenv("RESEARCH_AGENT_MODEL", "qwen3.6:27b-q4_K_M"),
+        think=False,
+        format="json",
         messages=[
             {
                 "role": "system",
