@@ -6,7 +6,7 @@ import cv2 as cv
 import ollama
 
 from sql_utils import get_db
-from tables import Video, VideoSegments
+from tables import Videos, VideoSegments
 
 
 def get_video_frames(video_id: str) -> str:
@@ -24,7 +24,7 @@ def get_video_frames(video_id: str) -> str:
     """
     session = next(get_db())
 
-    video = session.query(Video).filter(Video.id == video_id).first()
+    video = session.query(Videos).filter(Videos.id == video_id).first()
     if video is None:
         raise ValueError(f"No Video found for video_id {video_id}")
 
@@ -57,7 +57,7 @@ def get_video_frames(video_id: str) -> str:
 def generate_video_feedback(video_id: str) -> str:
     session = next(get_db())
 
-    video = session.query(Video).filter(Video.id == video_id).first()
+    video = session.query(Videos).filter(Videos.id == video_id).first()
     if video is None:
         raise ValueError(f"No Video found for video_id {video_id}")
 
