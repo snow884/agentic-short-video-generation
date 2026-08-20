@@ -510,6 +510,7 @@ def check_start_image_to_prompt_consistency(
         messages=[{"role": "user", "content": llm_prompt}],
         think=False,
         format="json",
+        debug=True,
         options={
             "temperature": 0,
             "num_predict": 2000,
