@@ -28,7 +28,7 @@ def get_video_frames(video_id: str) -> str:
     if video is None:
         raise ValueError(f"No Video found for video_id {video_id}")
 
-    open_video_path = video.video_path
+    open_video_path = video.file_path
 
     cap = cv.VideoCapture(open_video_path)
     frames = []
