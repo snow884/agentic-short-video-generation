@@ -54,7 +54,7 @@ def get_video_frames(video_id: str) -> str:
     return frames
 
 
-def generate_video_feedback(video_id: str) -> str:
+def main(video_id: str) -> str:
     session = next(get_db())
 
     video = session.query(Videos).filter(Videos.id == video_id).first()
