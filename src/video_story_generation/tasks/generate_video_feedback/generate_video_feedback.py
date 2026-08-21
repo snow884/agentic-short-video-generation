@@ -134,9 +134,10 @@ def main(video_id: str) -> str:
     frames = get_video_frames(video_id)
 
     sys_prompt = f"""
-                You are a helpful assistant that provides improvements on prompts used to generate AI generated videos.
+                You are a helpful assistant that improves scripts containing image prompts used to generate AI generated videos.
                 
-                Image prompt is first used to generate an image and then the image plus a video prompt is used to generate a video. 
+                In the pipeline that generates video segment by segment, start_image_prompt is first used to generate an image and then the resulting 
+                image plus a video_prompt is used to generate a video. 
                 
                 You are given a series of images that are frames extracted from the video. You are also given a JSON script that contains the narrator script, start image prompt, 
                 video prompt, timestamp, and names of people and props in the start image for each segment of the video.
@@ -146,27 +147,9 @@ def main(video_id: str) -> str:
                 Then you will provide improvements to the prompts in the JSON script to fix these issues.
                 
                 # JSON Schema Requirements
-                Output ONLY pure JSON matching this exact structure. Do not include any reasoning or details. just pure JSON. 
+                Output ONLY pure JSON matching this exact structure and exactly the same number of segments. Do not include any reasoning or details. just pure JSON. 
                 Return your response in the format matching the script, with the same keys, but with improved prompts. 
                 If you cannot improve a prompt, return the original prompt.
-
-                Example response:
-                [
-                    {{
-                        "narrator_script": "The narrator script for the segment.",
-                        "start_image_prompt": "The improved start image prompt for the segment.",
-                        "video_prompt": "The improved video prompt for the segment.",
-                        "timestamp": 0,
-                        "start_image_people_and_props_names": "The names of the people and props in the start image for the segment."
-                    }},
-                    {{
-                        "narrator_script": "The narrator script for the segment.",
-                        "start_image_prompt": "The improved start image prompt for the segment.",
-                        "video_prompt": "The improved video prompt for the segment.",
-                        "timestamp": 1,
-                        "start_image_people_and_props_names": "The names of the people and props in the start image for the segment."
-                    }}
-                ]
                 """
 
     user_prompt = f"""
