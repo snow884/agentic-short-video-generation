@@ -138,8 +138,18 @@ def main(video_id: str) -> str:
                 
                 Image prompt is first used to generate an image and then the image plus a video prompt is used to generate a video. 
                 
-                Return your response in the format matching the script_json, with the same keys, but with improved prompts. If you cannot improve a prompt, return the original prompt.
+                You are given a series of images that are frames extracted from the video. You are also given a JSON script that contains the narrator script, start image prompt, 
+                video prompt, timestamp, and names of people and props in the start image for each segment of the video.
                 
+                Your job is to identify any issues in the images that are commonly associated with AI generated images, such as missing limbs, extra limbs, missing facial features, extra facial features, and other common issues.
+                Sometimes the generated video will be completely incorrect and not match the script at all. 
+                Then you will provide improvements to the prompts in the JSON script to fix these issues.
+                
+                # JSON Schema Requirements
+                Output ONLY pure JSON matching this exact structure. Do not include any reasoning or details. just pure JSON. 
+                Return your response in the format matching the script, with the same keys, but with improved prompts. 
+                If you cannot improve a prompt, return the original prompt.
+
                 Example response:
                 [
                     {{
