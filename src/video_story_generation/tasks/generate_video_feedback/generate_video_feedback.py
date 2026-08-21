@@ -133,7 +133,7 @@ def main(video_id: str) -> str:
         ]
     )
 
-    frames_json = json.dumps(get_video_frames(video_id))
+    frames = get_video_frames(video_id)
 
     sys_prompt = f"""
                 You are a helpful assistant that provides improvements on prompts used to generate AI generated videos.
@@ -164,11 +164,10 @@ def main(video_id: str) -> str:
     user_prompt = f"""
                 Please improve the JSON script for the video '{video.name}'.
                 
+                I am providing video frames extracted from the video to help you understand the context of the video. The frames are provided as base64 encoded images in a list. Please use these frames to inform your improvements to the script.
+                
                 Here is the script for the video:
                 {script_json}
-                
-                Here are the frames from the video taken every 1 second (in base64 encoded jpg format):
-                {frames_json}
                 
                 """
 
@@ -184,10 +183,7 @@ def main(video_id: str) -> str:
                 "role": "system",
                 "content": sys_prompt,
             },
-            {
-                "role": "user",
-                "content": user_prompt,
-            },
+            {"role": "user", "content": user_prompt, "images": frames},
         ],
     )
     print(f"res: {res}")
