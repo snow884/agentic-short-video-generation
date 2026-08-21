@@ -144,20 +144,20 @@ def main(video_id: str) -> str:
                 
                 Example response:
                 [
-                    {
+                    {{
                         "narrator_script": "The narrator script for the segment.",
                         "start_image_prompt": "The improved start image prompt for the segment.",
                         "video_prompt": "The improved video prompt for the segment.",
                         "timestamp": 0,
                         "start_image_people_and_props_names": "The names of the people and props in the start image for the segment."
-                    },
-                    {
+                    }},
+                    {{
                         "narrator_script": "The narrator script for the segment.",
                         "start_image_prompt": "The improved start image prompt for the segment.",
                         "video_prompt": "The improved video prompt for the segment.",
                         "timestamp": 1,
                         "start_image_people_and_props_names": "The names of the people and props in the start image for the segment."
-                    }
+                    }}
                 ]
                 """
 
