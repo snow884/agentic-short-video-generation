@@ -99,7 +99,9 @@ def get_video_frames(video_id: str) -> str:
         # encode frame as to base64
 
         _, buffer = cv2.imencode(".jpg", current_img)
-        frames_base64.append(base64.b64encode(buffer).decode("utf-8"))
+        frames_base64.append(
+            "data:image/jpeg;base64," + base64.b64encode(buffer).decode("utf-8")
+        )
 
     return frames_base64
 
