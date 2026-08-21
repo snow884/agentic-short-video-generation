@@ -54,7 +54,7 @@ def get_video_frames(video_id: str) -> str:
     # compress images to be less than 1kB
     quality = 50
     scale = 1.0
-    target_size_bytes = 1024 * 10  # 1kB
+    target_size_bytes = 1024 * 3  # 1kB
 
     frames_base64 = []
 
