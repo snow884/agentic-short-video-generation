@@ -141,6 +141,24 @@ def main(video_id: str) -> str:
                 Image prompt is first used to generate an image and then the image plus a video prompt is used to generate a video. 
                 
                 Return your response in the format matching the script_json, with the same keys, but with improved prompts. If you cannot improve a prompt, return the original prompt.
+                
+                Example response:
+                [
+                    {
+                        "narrator_script": "The narrator script for the segment.",
+                        "start_image_prompt": "The improved start image prompt for the segment.",
+                        "video_prompt": "The improved video prompt for the segment.",
+                        "timestamp": 0,
+                        "start_image_people_and_props_names": "The names of the people and props in the start image for the segment."
+                    },
+                    {
+                        "narrator_script": "The narrator script for the segment.",
+                        "start_image_prompt": "The improved start image prompt for the segment.",
+                        "video_prompt": "The improved video prompt for the segment.",
+                        "timestamp": 1,
+                        "start_image_people_and_props_names": "The names of the people and props in the start image for the segment."
+                    }
+                ]
                 """
 
     user_prompt = f"""
@@ -151,6 +169,7 @@ def main(video_id: str) -> str:
                 
                 Here are the frames from the video taken every 1 second (in base64 encoded jpg format):
                 {frames_json}
+                
                 """
 
     print(f"sys_prompt: {sys_prompt}")
