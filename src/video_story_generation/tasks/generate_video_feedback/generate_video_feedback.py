@@ -183,7 +183,7 @@ def main(video_id: str) -> str:
 
     content_json = json.loads(res["message"]["content"])
 
-    for segment in content_json:
+    for segment in content_json["video_segments"]:
         segment_found = False
         for seg_script in script_list:
             if segment["timestamp"] == seg_script.timestamp:
