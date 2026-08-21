@@ -150,7 +150,7 @@ def main(video_id: str) -> str:
                 
                 # JSON Schema Requirements
                 Output ONLY pure JSON matching this exact structure and exactly the same number of segments. Do not include any reasoning or details. just pure JSON. 
-                Return your response in the format matching the script, with the same keys, but with improved prompts. 
+                Return your response in the format matching the script, with the same keys, but with improved prompts. Do not include any reasoning as a part of the new prompt. Just a new prompt. 
                 If you cannot improve a prompt, return the original prompt.
                 """
 
