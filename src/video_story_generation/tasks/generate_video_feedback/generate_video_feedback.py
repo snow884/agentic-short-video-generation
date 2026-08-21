@@ -162,7 +162,7 @@ def main(video_id: str) -> str:
                 """
 
     user_prompt = f"""
-                Please improve the prompts for a video.
+                Please improve the JSON script for the video '{video.name}'.
                 
                 Here is the script for the video:
                 {script_json}
