@@ -90,6 +90,10 @@ def get_video_frames(video_id: str) -> str:
                     raise ValueError(
                         "Image cannot be compressed below 1kB without losing all data."
                     )
+            logger.info(
+                f"Frame {frame_count}: Compressed image size: {size_bytes} bytes,"
+                f" quality: {quality}, scale: {scale}"
+            )
 
         # encode frame as to base64
 
