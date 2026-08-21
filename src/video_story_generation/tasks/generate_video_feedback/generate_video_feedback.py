@@ -186,4 +186,6 @@ def main(video_id: str) -> str:
     )
     print(f"res: {res}")
 
-    res = json.loads(res)
+    content_json = json.loads(res["message"]["content"])
+
+    print(f"content_json: {content_json}")
