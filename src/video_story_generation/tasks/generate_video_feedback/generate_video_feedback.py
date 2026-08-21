@@ -128,24 +128,15 @@ def main(video_id: str) -> str:
 
     frames_json = json.dumps(get_video_frames(video_id))
 
-    res = ollama.chat(
-        model=os.getenv("RESEARCH_AGENT_MODEL", "qwen3.6:27b-q4_K_M"),
-        think=False,
-        format="json",
-        messages=[
-            {
-                "role": "system",
-                "content": """
+    sys_prompt = f"""
                 You are a helpful assistant that provides improvements on prompts used to generate AI generated videos.
                 
                 Image prompt is first used to generate an image and then the image plus a video prompt is used to generate a video. 
                 
                 Return your response in the format matching the script_json, with the same keys, but with improved prompts. If you cannot improve a prompt, return the original prompt.
-                """,
-            },
-            {
-                "role": "user",
-                "content": f"""
+                """
+
+    user_prompt = f"""
                 Please improve the prompts for a video.
                 
                 Here is the script for the video:
@@ -153,7 +144,23 @@ def main(video_id: str) -> str:
                 
                 Here are the frames from the video taken every 1 second (in base64 encoded jpg format):
                 {frames_json}
-                """,
+                """
+
+    print(f"sys_prompt: {sys_prompt}")
+    print(f"user_prompt: {user_prompt}")
+
+    res = ollama.chat(
+        model=os.getenv("RESEARCH_AGENT_MODEL", "qwen3.6:27b-q4_K_M"),
+        think=False,
+        format="json",
+        messages=[
+            {
+                "role": "system",
+                "content": sys_prompt,
+            },
+            {
+                "role": "user",
+                "content": user_prompt,
             },
         ],
     )
