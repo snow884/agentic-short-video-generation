@@ -2,7 +2,7 @@ import base64
 import json
 import os
 
-import cv2 as cv
+import cv2
 import ollama
 from prefect import get_run_logger
 
@@ -35,9 +35,9 @@ def get_video_frames(video_id: str) -> str:
 
     logger.info(f"Opening video at path: {open_video_path}")
 
-    cap = cv.VideoCapture(open_video_path)
+    cap = cv2.VideoCapture(open_video_path)
     frames = []
-    fps = cap.get(cv.CAP_PROP_FPS)
+    fps = cap.get(cv2.CAP_PROP_FPS)
     frame_interval = int(fps)  # Extract a frame every 1 second
     frame_count = 0
     while cap.isOpened():
@@ -51,14 +51,52 @@ def get_video_frames(video_id: str) -> str:
         frame_count += 1
     cap.release()
 
-    # encode frame as to base64
+    # compress images to be less than 1kB
+    quality = 50
+    scale = 1.0
 
-    frames = [
-        base64.b64encode(cv.imencode(".jpg", frame)[1]).decode("utf-8")
-        for frame in frames
-    ]
+    frames_base64 = []
 
-    return frames
+    for frame in frames:
+        img = frame
+        while True:
+            # Resize image if quality reduction is not enough
+            if scale < 1.0:
+                h, w = img.shape[:2]
+                current_img = cv2.resize(img, (int(w * scale), int(h * scale)))
+            else:
+                current_img = img
+
+            # Encode to JPEG memory buffer
+            success, encoded = cv2.imencode(
+                ".jpg", current_img, [int(cv2.IMWRITE_JPEG_QUALITY), quality]
+            )
+            if not success:
+                raise ValueError("Encoding failed")
+
+            # Check size in bytes
+            size_bytes = len(encoded.tobytes())
+
+            if size_bytes < 1024:
+                break
+
+            # Adjust parameters
+            if quality > 10:
+                quality -= 5
+            else:
+                scale -= 0.1
+                quality = 50  # Reset quality for smaller dimensions
+                if scale < 0.1:
+                    raise ValueError(
+                        "Image cannot be compressed below 1kB without losing all data."
+                    )
+
+        # encode frame as to base64
+
+        _, buffer = cv2.imencode(".jpg", current_img)
+        frames_base64.append(base64.b64encode(buffer).decode("utf-8"))
+
+    return frames_base64
 
 
 def main(video_id: str) -> str:
