@@ -106,6 +106,7 @@ def get_video_frames(video_id: str) -> str:
 
 def main(video_id: str) -> str:
     session = next(get_db())
+    logger = get_run_logger()
 
     video = session.query(Videos).filter(Videos.id == video_id).first()
     if video is None:
@@ -181,5 +182,39 @@ def main(video_id: str) -> str:
     print(f"res: {res}")
 
     content_json = json.loads(res["message"]["content"])
+
+    for segment in content_json:
+        segment_found = False
+        for seg_script in script_list:
+            if segment["timestamp"] == seg_script.timestamp:
+                segment_found = True
+                logger.info(f"Updating segment with timestamp {seg_script.timestamp}")
+                logger.info(
+                    f"Old segment: {seg_script.start_image_prompt} -->"
+                    f" {segment['start_image_prompt']}"
+                )
+                seg_script.start_image_prompt = segment["start_image_prompt"]
+                logger.info(
+                    f"Old segment: {seg_script.video_prompt} -->"
+                    f" {segment['video_prompt']}"
+                )
+                seg_script.video_prompt = segment["video_prompt"]
+                logger.info(
+                    f"Old segment: {seg_script.narrator_script} -->"
+                    f" {segment['narrator_script']}"
+                )
+                seg_script.narrator_script = segment["narrator_script"]
+                logger.info(
+                    f"Old segment: {seg_script.start_image_people_and_props_names} -->"
+                    f" {segment['start_image_people_and_props_names']}"
+                )
+                seg_script.start_image_people_and_props_names = segment[
+                    "start_image_people_and_props_names"
+                ]
+        if not segment_found:
+            raise ValueError(
+                f"Segment with timestamp {segment['timestamp']} not found in the"
+                " database."
+            )
 
     print(f"content_json: {content_json}")
