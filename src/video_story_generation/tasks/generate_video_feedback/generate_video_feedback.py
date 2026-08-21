@@ -145,6 +145,7 @@ def main(video_id: str) -> str:
                 Your job is to identify any issues in the images that are commonly associated with AI generated images, such as missing limbs, extra limbs, missing facial features, extra facial features, and other common issues.
                 Sometimes the generated video will be completely incorrect and not match the script at all. 
                 Then you will provide improvements to the prompts in the JSON script to fix these issues.
+                Make sure that the improved prompts have the same timestamps so that they can be matched to the same segments of the video.
                 
                 # JSON Schema Requirements
                 Output ONLY pure JSON matching this exact structure and exactly the same number of segments. Do not include any reasoning or details. just pure JSON. 
