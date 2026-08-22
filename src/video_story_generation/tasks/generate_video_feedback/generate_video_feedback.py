@@ -153,8 +153,10 @@ def main(video_id: str) -> str:
                     You are given a series of images that are frames extracted from the video. You are also given a JSON script that contains the start image prompt 
                     and video prompt.
                     
-                    The AI image or video generator sometimes produces results that do not fully match the prompts. Your job is to identify any issues 
-                    in the images that are not matching the prompts and improve the prompts to generate correct images by making them more descriptive or removing vague working.
+                    The AI image or video generator sometimes produces results that do not correctly represent the prompts. Your job is to identify any issues 
+                    in the images that are not matching the prompts and improve the prompts to generate correct images by making them more descriptive or removing vague wording.
+                    
+                    If there are no issues with the prompts, return the original prompts. Do not make any changes to the prompts.
                     
                     # JSON Schema Requirements
                     Output ONLY pure JSON matching this exact structure. Do not include any reasoning or details. just pure JSON. 
