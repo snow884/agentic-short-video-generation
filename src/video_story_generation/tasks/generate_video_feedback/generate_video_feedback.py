@@ -10,7 +10,7 @@ from sql_utils import get_db
 from tables import Videos, VideoSegments
 
 
-def get_video_frames(video_id: str) -> str:
+def get_video_frames(video_id: str, timestamp: int) -> str:
     """
     Open video and extract a frame every 1s
 
@@ -45,10 +45,16 @@ def get_video_frames(video_id: str) -> str:
         ret, frame = cap.read()
         if not ret:
             break
-        if frame_count % frame_interval == 0:
-            logger.info(f"Reading frame {frame_count} from video...")
-            frames.append(frame)
+        if (frame_count / fps >= timestamp) and (
+            frame_count / fps <= timestamp + 5
+        ):  # Stop after 5 seconds from the timestamp
+
+            if frame_count % frame_interval == 0:
+                logger.info(f"Reading frame {frame_count} from video...")
+                frames.append(frame)
+
         frame_count += 1
+
     cap.release()
 
     # compress images to be less than 1kB
@@ -119,100 +125,107 @@ def main(video_id: str) -> str:
         .all()
     )
 
-    script_json = json.dumps(
-        [
+    for script in script_list:
+        logger.info(
+            f"Segment ID: {script.id}, Timestamp: {script.timestamp}, Narrator Script:"
+            f" {script.narrator_script}, Start Image Prompt:"
+            f" {script.start_image_prompt}, Video Prompt: {script.video_prompt}, Start"
+            " Image People and Props Names:"
+            f" {script.start_image_people_and_props_names}"
+        )
+
+        script_json = json.dumps(
             {
-                "narrator_script": script.narrator_script,
                 "start_image_prompt": script.start_image_prompt,
                 "video_prompt": script.video_prompt,
                 "timestamp": script.timestamp,
-                "start_image_people_and_props_names": script.start_image_people_and_props_names,
             }
-            for script in script_list
-        ]
-    )
+        )
 
-    frames = get_video_frames(video_id)
+        frames = get_video_frames(video_id, timestamp=script.timestamp)
 
-    sys_prompt = f"""
-                You are a helpful assistant that improves scripts containing image prompts used to generate AI generated videos.
-                
-                In the pipeline that generates video segment by segment, start_image_prompt is first used to generate an image and then the resulting 
-                image plus a video_prompt is used to generate a video. 
-                
-                You are given a series of images that are frames extracted from the video. You are also given a JSON script that contains the narrator script, start image prompt, 
-                video prompt, timestamp, and names of people and props in the start image for each segment of the video.
-                
-                Your job is to identify any issues in the images that are not matching the prompts and improve the prompts to generate correct images by making them more descriptive.
-                Make sure that the improved prompts have the same timestamps so that they can be matched to the same segments of the video.
-                
-                # JSON Schema Requirements
-                Output ONLY pure JSON matching this exact structure and exactly the same number of segments. Do not include any reasoning or details. just pure JSON. 
-                Return your response in the format matching the script, with the same keys, but with improved prompts. Do not include any reasoning as a part of the new prompt. Just a new prompt. 
-                If you cannot improve a prompt, return the original prompt.
-                """
+        sys_prompt = f"""
+                    You are a helpful assistant that improves scripts containing image prompts used to generate AI generated videos.
+                    
+                    In the pipeline that generates video, start_image_prompt is first used to generate an image and then the resulting 
+                    image plus a video_prompt is used to generate a video. 
+                    
+                    You are given a series of images that are frames extracted from the video. You are also given a JSON script that contains the start image prompt 
+                    and video prompt.
+                    
+                    The AI image or video generator sometimes produces results that do not fully match the prompts. Your job is to identify any issues 
+                    in the images that are not matching the prompts and improve the prompts to generate correct images by making them more descriptive or removing vague working.
+                    
+                    # JSON Schema Requirements
+                    Output ONLY pure JSON matching this exact structure. Do not include any reasoning or details. just pure JSON. 
+                    Return your response in the format matching the script, with the same keys, but with improved prompts. Do not include any reasoning as a part of the new prompt. Just a new prompt. 
+                    If you cannot improve a prompt, return the original prompt.
+                    """
 
-    user_prompt = f"""
-                Please improve the JSON script for the video '{video.name}'.
-                
-                I am providing video frames extracted from the video to help you understand the context of the video. The frames are provided as base64 encoded images in a list. Please use these frames to inform your improvements to the script.
-                
-                Here is the script for the video:
-                {[{"start_image_prompt": s.start_image_prompt, "video_prompt": s.video_prompt,  "timestamp": s.timestamp} for s in script_list]}
-                
-                """
+        user_prompt = f"""
+                    Please improve the JSON script for the video.
+                    
+                    I am providing video frames extracted from the video. The frames are provided as base64 encoded images in a list. Please use these frames to inform your improvements to the script.
+                    
+                    Here is the script for the video:
+                    {script_json}
+                    
+                    """
 
-    print(f"sys_prompt: {sys_prompt}")
-    print(f"user_prompt: {user_prompt}")
+        print(f"sys_prompt: {sys_prompt}")
+        print(f"user_prompt: {user_prompt}")
 
-    res = ollama.chat(
-        model=os.getenv("RESEARCH_AGENT_MODEL", "qwen3.6:27b-q4_K_M"),
-        think=False,
-        format="json",
-        messages=[
-            {
-                "role": "system",
-                "content": sys_prompt,
-            },
-            {"role": "user", "content": user_prompt, "images": frames},
-        ],
-    )
-    print(f"res: {res}")
+        res = ollama.chat(
+            model=os.getenv("RESEARCH_AGENT_MODEL", "qwen3.6:27b-q4_K_M"),
+            think=False,
+            format="json",
+            messages=[
+                {
+                    "role": "system",
+                    "content": sys_prompt,
+                },
+                {"role": "user", "content": user_prompt, "images": frames},
+            ],
+        )
+        print(f"res: {res}")
 
-    content_json = json.loads(res["message"]["content"])
+        content_json = json.loads(res["message"]["content"])
 
-    for segment in content_json:
-        segment_found = False
-        for seg_script in script_list:
-            if segment["timestamp"] == seg_script.timestamp:
-                segment_found = True
-                logger.info(f"Updating segment with timestamp {seg_script.timestamp}")
-                logger.info(
-                    f"Old segment: {seg_script.start_image_prompt} -->"
-                    f" {segment['start_image_prompt']}"
+        for segment in content_json:
+            segment_found = False
+            for seg_script in script_list:
+                if segment["timestamp"] == seg_script.timestamp:
+                    segment_found = True
+                    logger.info(
+                        f"Updating segment with timestamp {seg_script.timestamp}"
+                    )
+                    logger.info(
+                        f"Old segment: {seg_script.start_image_prompt} -->"
+                        f" {segment['start_image_prompt']}"
+                    )
+                    seg_script.start_image_prompt = segment["start_image_prompt"]
+                    logger.info(
+                        f"Old segment: {seg_script.video_prompt} -->"
+                        f" {segment['video_prompt']}"
+                    )
+                    seg_script.video_prompt = segment["video_prompt"]
+                    logger.info(
+                        f"Old segment: {seg_script.narrator_script} -->"
+                        f" {segment['narrator_script']}"
+                    )
+                    seg_script.narrator_script = segment["narrator_script"]
+                    logger.info(
+                        "Old segment:"
+                        f" {seg_script.start_image_people_and_props_names} -->"
+                        f" {segment['start_image_people_and_props_names']}"
+                    )
+                    seg_script.start_image_people_and_props_names = segment[
+                        "start_image_people_and_props_names"
+                    ]
+            if not segment_found:
+                raise ValueError(
+                    f"Segment with timestamp {segment['timestamp']} not found in the"
+                    " database."
                 )
-                seg_script.start_image_prompt = segment["start_image_prompt"]
-                logger.info(
-                    f"Old segment: {seg_script.video_prompt} -->"
-                    f" {segment['video_prompt']}"
-                )
-                seg_script.video_prompt = segment["video_prompt"]
-                logger.info(
-                    f"Old segment: {seg_script.narrator_script} -->"
-                    f" {segment['narrator_script']}"
-                )
-                seg_script.narrator_script = segment["narrator_script"]
-                logger.info(
-                    f"Old segment: {seg_script.start_image_people_and_props_names} -->"
-                    f" {segment['start_image_people_and_props_names']}"
-                )
-                seg_script.start_image_people_and_props_names = segment[
-                    "start_image_people_and_props_names"
-                ]
-        if not segment_found:
-            raise ValueError(
-                f"Segment with timestamp {segment['timestamp']} not found in the"
-                " database."
-            )
 
     print(f"content_json: {content_json}")
