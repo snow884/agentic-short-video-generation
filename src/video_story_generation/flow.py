@@ -8,6 +8,7 @@ from tasks.generate_audio.generate_audio import main as generate_audio_main
 from tasks.generate_people_and_prop_images.generate_people_and_prop_images import (
     main as generate_people_and_prop_images_main,
 )
+from tasks.generate_script.generate_script import main as generate_script_main
 from tasks.generate_start_stop_images.generate_start_stop_images import (
     main as generate_start_stop_images_main,
 )
@@ -87,11 +88,11 @@ def main_flow():
             prompt=video_idea["prompt"],
         )
 
+        generate_script_main(video_id=video_id)
+
         for i in range(0, 3):
 
             # video_id = 1  # Replace with the actual video ID you want to use
-
-            # generate_script_main(video_id=video_id)
 
             logger.info("Waiting 10s to clear model from memory...")
 
