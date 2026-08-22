@@ -1,12 +1,13 @@
 from prefect import task
 from run_comfy_graph import generate_video_from_image_and_prompt
+from utils import generate_slug
 
 from sql_utils import get_db
 from tables import Videos as Video
 from tables import VideoSegments
 
 
-@task(task_run_name="generate_start_stop_images")
+@task(task_run_name="generate_video_segments")
 def main(video_id):
 
     session = next(get_db())
@@ -26,8 +27,6 @@ def main(video_id):
 
     # Run the ComfyUI workflow to generate the script
     for segment in segments:
-
-        from utils import generate_slug
 
         video_path = (
             f"data/video/segment_{segment.id}_{generate_slug(str(segment.id))}.mp4"
