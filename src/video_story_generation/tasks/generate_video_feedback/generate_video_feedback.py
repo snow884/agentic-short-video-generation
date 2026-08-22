@@ -212,10 +212,4 @@ def main(video_id: str) -> str:
             script.video_prompt = content_json["video_prompt"]
             changes_made = True
 
-        if changes_made:
-            raise ValueError(
-                f"Changes were made to the script for segment ID {script.id}. Please"
-                " review the changes and re-run the pipeline."
-            )
-
     print(f"content_json: {content_json}")
