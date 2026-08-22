@@ -2,8 +2,8 @@ import hashlib
 import os
 from time import time
 
-from coolname import generate_slug
 from prefect import task
+from utils import generate_slug
 
 from sql_utils import get_db
 from tables import Videos as Video
