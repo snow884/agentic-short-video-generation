@@ -212,4 +212,8 @@ def main(video_id: str) -> str:
             script.video_prompt = content_json["video_prompt"]
             changes_made = True
 
+        if changes_made:
+            session.commit()
+            logger.info(f"Updated script for segment ID {script.id} in the database.")
+
     print(f"content_json: {content_json}")
