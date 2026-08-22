@@ -143,9 +143,7 @@ def main(video_id: str) -> str:
                 You are given a series of images that are frames extracted from the video. You are also given a JSON script that contains the narrator script, start image prompt, 
                 video prompt, timestamp, and names of people and props in the start image for each segment of the video.
                 
-                Your job is to identify any issues in the images that are commonly associated with AI generated images, such as missing limbs, extra limbs, missing facial features, extra facial features, and other common issues.
-                Sometimes the generated video will be completely incorrect and not match the script at all. 
-                Then you will provide improvements to the prompts in the JSON script to fix these issues.
+                Your job is to identify any issues in the images that are not matching the prompts and improve the prompts to generate correct images by making them more descriptive.
                 Make sure that the improved prompts have the same timestamps so that they can be matched to the same segments of the video.
                 
                 # JSON Schema Requirements
