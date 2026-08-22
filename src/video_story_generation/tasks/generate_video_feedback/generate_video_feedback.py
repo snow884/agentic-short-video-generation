@@ -165,7 +165,7 @@ def main(video_id: str) -> str:
         user_prompt = f"""
                     Please improve the JSON script for the video.
                     
-                    I am providing video frames extracted from the video. The frames are provided as base64 encoded images in a list. Please use these frames to inform your improvements to the script.
+                    I am providing video frames extracted from the video. 
                     
                     Here is the script for the video:
                     {script_json}
