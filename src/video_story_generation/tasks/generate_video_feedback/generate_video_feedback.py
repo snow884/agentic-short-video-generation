@@ -156,6 +156,8 @@ def main(video_id: str) -> str:
                     The AI image or video generator sometimes produces results that do not correctly represent the prompts. Your job is to identify any issues 
                     in the images that are not matching the prompts and improve the prompts to generate correct images by making them more descriptive or removing vague wording.
                     
+                    Look only for obvious errors. Do not make changes to prompts if you only discover minor issues. 
+                    
                     If there are no issues with the prompts, return the original prompts. Do not make any changes to the prompts.
                     
                     # JSON Schema Requirements
