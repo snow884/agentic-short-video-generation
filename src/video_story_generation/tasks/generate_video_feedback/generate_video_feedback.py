@@ -158,7 +158,7 @@ def main(video_id: str) -> str:
                 I am providing video frames extracted from the video to help you understand the context of the video. The frames are provided as base64 encoded images in a list. Please use these frames to inform your improvements to the script.
                 
                 Here is the script for the video:
-                {script_json}
+                {[{"start_image_prompt": s.start_image_prompt, "video_prompt": s.video_prompt,  "timestamp": s.timestamp} for s in script_list]}
                 
                 """
 
@@ -167,7 +167,7 @@ def main(video_id: str) -> str:
 
     res = ollama.chat(
         model=os.getenv("RESEARCH_AGENT_MODEL", "qwen3.6:27b-q4_K_M"),
-        think=True,
+        think=False,
         format="json",
         messages=[
             {
