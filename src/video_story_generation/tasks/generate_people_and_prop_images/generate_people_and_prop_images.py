@@ -1,12 +1,13 @@
 from prefect import task
 from run_comfy_graph import generate_image_from_prompt
+from utils import generate_slug
 
 from sql_utils import get_db
 from tables import PeopleAndProps
 from tables import Videos as Video
 
 
-@task(task_run_name="generate_script")
+@task(task_run_name="generate_people_and_prop_images")
 def main(video_id):
 
     session = next(get_db())
@@ -24,7 +25,7 @@ def main(video_id):
 
     # Run the ComfyUI workflow to generate the script
     for p_or_p in people_and_props_list:
-        output_file_path = f"data/images/people_and_props_{p_or_p.video_id}_{p_or_p.id}_{p_or_p.name}.png"
+        output_file_path = f"data/images/people_and_props_{p_or_p.video_id}_{p_or_p.id}_{p_or_p.name}_{generate_slug(str(p_or_p.video_id)+str(p_or_p.id))}.png"
         prompt = p_or_p.prompt + ", full body image"
         generate_image_from_prompt(
             prompt=prompt,

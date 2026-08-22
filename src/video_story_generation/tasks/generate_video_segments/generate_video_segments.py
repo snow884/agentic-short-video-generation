@@ -27,7 +27,11 @@ def main(video_id):
     # Run the ComfyUI workflow to generate the script
     for segment in segments:
 
-        video_path = f"data/video/segment_{segment.id}.mp4"
+        from utils import generate_slug
+
+        video_path = (
+            f"data/video/segment_{segment.id}_{generate_slug(str(segment.id))}.mp4"
+        )
 
         generate_video_from_image_and_prompt(
             input_image_path=segment.start_image_path,

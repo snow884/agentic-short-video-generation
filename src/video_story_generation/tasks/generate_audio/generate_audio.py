@@ -1,5 +1,6 @@
 from prefect import task
 from run_comfy_graph import generate_audio_from_prompt
+from utils import generate_slug
 
 from sql_utils import get_db
 from tables import Videos as Video
@@ -27,7 +28,7 @@ def main(video_id):
     # Run the ComfyUI workflow to generate the script
     for segment in segments:
 
-        audio_path = f"data/audio/segment_{video_id}_{segment.id}.wav"
+        audio_path = f"data/audio/segment_{video_id}_{segment.id}_{generate_slug(str(video_id)+str(segment.id))}.wav"
 
         generate_audio_from_prompt(
             prompt=segment.narrator_script,

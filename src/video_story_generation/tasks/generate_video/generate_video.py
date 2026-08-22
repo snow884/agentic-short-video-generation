@@ -2,6 +2,7 @@ import hashlib
 import os
 from time import time
 
+from coolname import generate_slug
 from prefect import task
 
 from sql_utils import get_db
@@ -95,7 +96,7 @@ def main(video_id):
     hex_dig = hash_object.hexdigest()
     slug = hex_dig[0:5]  # You can take the first 10 characters for a shorter slug
 
-    video.file_path = f"data/video/video_{video_id}_{slug}.mp4"
+    video.file_path = f"data/video/video_{video_id}_{generate_slug(str(video_id))}.mp4"
 
     final_video.write_videofile(
         video.file_path,
