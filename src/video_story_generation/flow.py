@@ -90,7 +90,7 @@ def main_flow():
 
         generate_script_main(video_id=video_id)
 
-        for i in range(0, 3):
+        for run_i in range(0, 3):
 
             # video_id = 1  # Replace with the actual video ID you want to use
 
